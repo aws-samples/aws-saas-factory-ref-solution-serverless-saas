@@ -42,6 +42,8 @@ Once the above script finishes successfully:
     Figure 2: CloudWatch log role ARN
 </p>
 
+## License
+This library is licensed under the MIT-0 License. See the LICENSE file.
 
-
-
+## Security
+See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
