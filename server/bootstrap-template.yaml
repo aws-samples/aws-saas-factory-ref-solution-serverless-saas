@@ -1,0 +1,241 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to Bootstrap the Common Resources
+Parameters:
+  AdminEmailParameter:
+    Type: String
+    Default: "test@test.com"
+    Description: "Enter system admin email address"
+  SystemAdminRoleNameParameter:
+    Type: String
+    Default: "SystemAdmin"
+    Description: "Enter the role name for system admin"
+  ApiKeyOperationUsersParameter:
+    Type: String
+    Default: "9a7743fa-3ae7-11eb-adc1-0242ac120002"
+    Description: "Enter default api key value to be used by api gateway for system admins"
+  ApiKeyPlatinumTierParameter:
+    Type: String
+    Default: "88b43c36-802e-11eb-af35-38f9d35b2c15"
+    Description: "Enter default api key value to be used by api gateway for platinum tier tenants"
+  ApiKeyPremiumTierParameter:
+    Type: String
+    Default: "6db2bdc2-6d96-11eb-a56f-38f9d33cfd0f"
+    Description: "Enter default api key value to be used by api gateway for premium tier tenants"
+  ApiKeyStandardTierParameter:
+    Type: String
+    Default: "b1c735d8-6d96-11eb-a28b-38f9d33cfd0f"
+    Description: "Enter default api key value to be used by api gateway for standard tier tenants"
+  ApiKeyBasicTierParameter:
+    Type: String
+    Default: "daae9784-6d96-11eb-a28b-38f9d33cfd0f"
+    Description: "Enter default api key value to be used by api gateway for basic tier tenants"
+  StageName:
+    Type: String
+    Default: "prod"
+    Description: "Stage Name for the api"
+  LambdaCanaryDeploymentPreference:
+    Type: String
+    Default: "False"
+    Description: "Pass it as True if you want to enable the canary release for Lambda"
+Resources:
+  DynamoDBTables:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: nested_templates/bootstrap/tables.yaml
+
+  Cognito:
+    Type: AWS::Serverless::Application
+    DependsOn: UserInterface
+    Properties:
+      Location: nested_templates/bootstrap/cognito.yaml
+      Parameters:
+        AdminEmailParameter: !Ref AdminEmailParameter
+        SystemAdminRoleNameParameter: !Ref SystemAdminRoleNameParameter
+        ApiKeyOperationUsersParameter: !Ref ApiKeyOperationUsersParameter
+        AdminUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.AdminAppSite
+        TenantUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite 
+
+  LambdaFunctions:
+    Type: AWS::Serverless::Application
+    DependsOn: UserInterface
+    Properties:
+      Location: nested_templates/bootstrap/lambdafunctions.yaml
+      Parameters:
+        CognitoOperationUsersUserPoolId: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolId
+        CognitoOperationUsersUserPoolClientId: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
+        CognitoUserPoolId: !GetAtt Cognito.Outputs.CognitoUserPoolId
+        CognitoUserPoolClientId: !GetAtt Cognito.Outputs.CognitoUserPoolClientId        
+        TenantDetailsTableArn: !GetAtt DynamoDBTables.Outputs.TenantDetailsTableArn
+        ServerlessSaaSSettingsTableArn: !GetAtt DynamoDBTables.Outputs.ServerlessSaaSSettingsTableArn
+        ApiKeyOperationUsersParameter: !Ref ApiKeyOperationUsersParameter
+        ApiKeyPlatinumTierParameter: !Ref ApiKeyPlatinumTierParameter
+        ApiKeyPremiumTierParameter: !Ref ApiKeyPremiumTierParameter
+        ApiKeyStandardTierParameter: !Ref ApiKeyStandardTierParameter
+        ApiKeyBasicTierParameter: !Ref ApiKeyBasicTierParameter
+        TenantStackMappingTableArn: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableArn 
+        TenantUserMappingTableArn: !GetAtt DynamoDBTables.Outputs.TenantUserMappingTableArn
+        TenantStackMappingTableName: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableName
+        TenantUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite 
+        LambdaCanaryDeploymentPreference: !Ref LambdaCanaryDeploymentPreference
+
+  APIs:
+    Type: AWS::Serverless::Application
+    DependsOn: LambdaFunctions
+    Properties:
+      Location: nested_templates/bootstrap/apigateway.yaml
+      Parameters:
+        StageName: !Ref StageName
+        RegisterTenantLambdaExecutionRoleArn: !GetAtt LambdaFunctions.Outputs.RegisterTenantLambdaExecutionRoleArn          
+        TenantManagementLambdaExecutionRoleArn: !GetAtt LambdaFunctions.Outputs.TenantManagementLambdaExecutionRoleArn          
+        RegisterTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.RegisterTenantFunctionArn
+        ProvisionTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.ProvisionTenantFunctionArn
+        DeProvisionTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DeProvisionTenantFunctionArn
+        ActivateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.ActivateTenantFunctionArn
+        GetTenantsFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantsFunctionArn
+        GetTenantConfigFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantConfigFunctionArn
+        CreateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateTenantFunctionArn
+        GetTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantFunctionArn          
+        DeactivateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DeactivateTenantFunctionArn          
+        UpdateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateTenantFunctionArn          
+        GetUsersFunctionArn: !GetAtt LambdaFunctions.Outputs.GetUsersFunctionArn 
+        GetUserFunctionArn: !GetAtt LambdaFunctions.Outputs.GetUserFunctionArn          
+        UpdateUserFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateUserFunctionArn          
+        DisableUserFunctionArn: !GetAtt LambdaFunctions.Outputs.DisableUserFunctionArn
+        CreateTenantAdminUserFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateTenantAdminUserFunctionArn
+        CreateUserFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateUserFunctionArn
+        DisableUsersByTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DisableUsersByTenantFunctionArn
+        EnableUsersByTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.EnableUsersByTenantFunctionArn          
+        AuthorizerFunctionArn: !GetAtt LambdaFunctions.Outputs.SharedServicesAuthorizerFunctionArn          
+        ApiKeyOperationUsersParameter: !Ref ApiKeyOperationUsersParameter
+        ApiKeyPlatinumTierParameter: !Ref ApiKeyPlatinumTierParameter
+        ApiKeyPremiumTierParameter: !Ref ApiKeyPremiumTierParameter
+        ApiKeyStandardTierParameter: !Ref ApiKeyStandardTierParameter
+        ApiKeyBasicTierParameter: !Ref ApiKeyBasicTierParameter
+  
+  APIGatewayLambdaPermissions:
+    Type: AWS::Serverless::Application
+    DependsOn: LambdaFunctions
+    Properties:
+      Location: nested_templates/bootstrap/apigateway_lambdapermissions.yaml
+      Parameters:
+        RegisterTenantLambdaExecutionRoleArn: !GetAtt LambdaFunctions.Outputs.RegisterTenantLambdaExecutionRoleArn          
+        TenantManagementLambdaExecutionRoleArn: !GetAtt LambdaFunctions.Outputs.TenantManagementLambdaExecutionRoleArn          
+        RegisterTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.RegisterTenantFunctionArn
+        ProvisionTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.ProvisionTenantFunctionArn
+        DeProvisionTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DeProvisionTenantFunctionArn
+        ActivateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.ActivateTenantFunctionArn
+        GetTenantConfigFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantConfigFunctionArn
+        GetTenantsFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantsFunctionArn
+        CreateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateTenantFunctionArn
+        GetTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.GetTenantFunctionArn          
+        DeactivateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DeactivateTenantFunctionArn          
+        UpdateTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateTenantFunctionArn          
+        GetUsersFunctionArn: !GetAtt LambdaFunctions.Outputs.GetUsersFunctionArn 
+        GetUserFunctionArn: !GetAtt LambdaFunctions.Outputs.GetUserFunctionArn          
+        UpdateUserFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateUserFunctionArn          
+        DisableUserFunctionArn: !GetAtt LambdaFunctions.Outputs.DisableUserFunctionArn
+        CreateTenantAdminUserFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateTenantAdminUserFunctionArn
+        CreateUserFunctionArn: !GetAtt LambdaFunctions.Outputs.CreateUserFunctionArn
+        DisableUsersByTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.DisableUsersByTenantFunctionArn
+        EnableUsersByTenantFunctionArn: !GetAtt LambdaFunctions.Outputs.EnableUsersByTenantFunctionArn          
+        AuthorizerFunctionArn: !GetAtt LambdaFunctions.Outputs.SharedServicesAuthorizerFunctionArn         
+        AdminApiGatewayApi: !GetAtt APIs.Outputs.AdminApiGatewayApi
+
+  #Create cloudfront and s3 for UI Cde
+  UserInterface:
+    Type: AWS::Serverless::Application
+    Properties:
+      Location: nested_templates/bootstrap/userinterface.yaml
+  
+  #setup custom resources
+  CustomResources:
+    Type: AWS::Serverless::Application
+    DependsOn: APIs    
+    Properties:
+      Location: nested_templates/bootstrap/custom_resources.yaml
+      Parameters:
+        ServerlessSaaSSettingsTableArn: !GetAtt DynamoDBTables.Outputs.ServerlessSaaSSettingsTableArn  
+        ServerlessSaaSSettingsTableName: !GetAtt DynamoDBTables.Outputs.ServerlessSaaSSettingsTableName
+        TenantStackMappingTableArn: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableArn
+        TenantStackMappingTableName: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableName
+        UpdateSettingsTableFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateSettingsTableFunctionArn
+        UpdateTenantStackMapTableFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateTenantStackMapTableFunctionArn
+        CognitoUserPoolId: !GetAtt Cognito.Outputs.CognitoUserPoolId
+        CognitoUserPoolClientId: !GetAtt Cognito.Outputs.CognitoUserPoolClientId        
+Outputs:
+  AdminApi:
+    Description: "API Gateway endpoint URL for Admin API"
+    Value: !Join ["", ["https://", !GetAtt APIs.Outputs.AdminApiGatewayApi, ".execute-api.", !Ref "AWS::Region", ".amazonaws.com/", !Ref StageName, "/"]]
+    Export:
+      Name: "Serverless-SaaS-AdminApiGatewayUrl"
+  AuthorizerFunctionArn:
+      Description: "Arn for authorizer function to be used by Tenant Template"
+      Value: !GetAtt LambdaFunctions.Outputs.BusinessServicesAuthorizerFunctionArn  
+      Export:
+        Name: "Serverless-SaaS-AuthorizerFunctionArn"
+  ApplicationSiteBucket:
+    Description: The S3 Bucket that will contain the static assets for the tenant application
+    Value: !GetAtt UserInterface.Outputs.AppBucket
+    Export:
+      Name: "Serverless-SaaS-AppBucket"
+  AdminSiteBucket:
+    Description: The S3 Bucket that will contain the static assets for the tenant administration application
+    Value: !GetAtt UserInterface.Outputs.AdminBucket
+    Export:
+      Name: "Serverless-SaaS-AdminAppBucket"
+  LandingApplicationSiteBucket:
+    Description: The S3 Bucket that will contain the static assets for the landing application
+    Value: !GetAtt UserInterface.Outputs.LandingAppBucket
+    Export:
+      Name: "Serverless-SaaS-LandingAppBucket"    
+  ApplicationSite:
+    Description: The name of the cloudfornt url for Tenant Management site
+    Value: !GetAtt UserInterface.Outputs.ApplicationSite
+    Export:
+      Name: "Serverless-SaaS-ApplicationSite"  
+  AdminAppSite:
+    Description: The name of the cloudfornt url for Admin Management site
+    Value: !GetAtt UserInterface.Outputs.AdminAppSite
+    Export:
+      Name: "Serverless-SaaS-AdminAppSite"
+  LandingApplicationSite:
+    Description: The name of the cloudfornt url for Landing site
+    Value: !GetAtt UserInterface.Outputs.LandingApplicationSite
+    Export:
+      Name: "Serverless-SaaS-LandingApplicationSite"    
+  CognitoOperationUsersUserPoolProviderURL:
+    Description: The Admin Management userpool provider url
+    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolProviderURL
+    Export:
+      Name: "Serverless-SaaS-AdminUserPoolProviderURL"  
+  CognitoOperationUsersUserPoolClientId:
+    Description: The Admin Management userpool client id
+    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
+    Export:
+      Name: "Serverless-SaaS-AdminUserPoolClientId" 
+  UsagePlanBasicTier: 
+    Description: The basic tier usage plan
+    Value: !GetAtt APIs.Outputs.UsagePlanBasicTier
+    Export:
+      Name: "Serverless-SaaS-UsagePlanBasicTier"
+  UsagePlanStandardTier: 
+    Description: The standard tier usage plan
+    Value: !GetAtt APIs.Outputs.UsagePlanStandardTier
+    Export:
+      Name: "Serverless-SaaS-UsagePlanStandardTier"
+  UsagePlanPremiumTier: 
+    Description: The premium tier usage plan
+    Value: !GetAtt APIs.Outputs.UsagePlanPremiumTier
+    Export:
+      Name: "Serverless-SaaS-UsagePlanPremiumTier"
+  UsagePlanPlatinumTier: 
+    Description: The premium tier usage plan
+    Value: !GetAtt APIs.Outputs.UsagePlanPlatinumTier
+    Export:
+      Name: "Serverless-SaaS-UsagePlanPlatinumTier" 
+

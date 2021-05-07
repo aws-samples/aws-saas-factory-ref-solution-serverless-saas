@@ -1,0 +1,10 @@
+version = 0.1
+[default]
+[default.deploy]
+[default.deploy.parameters]
+stack_name = "serverless-saas"
+s3_bucket = "aws-sam-cli-managed-default-samclisourcebucket-8tf6bmi4rdcx"
+s3_prefix = "serverless-saas-bootstrap"
+region = "us-west-2"
+confirm_changeset = false
+capabilities = "CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND"

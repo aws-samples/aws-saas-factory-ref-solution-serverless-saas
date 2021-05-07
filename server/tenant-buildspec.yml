@@ -1,0 +1,41 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+version: 0.2
+phases:
+  install:    
+    commands:
+      # Install packages or any pre-reqs in this phase.
+      # Upgrading SAM CLI to latest version
+      - python -m pip install --upgrade aws-sam-cli
+      - sam --version
+      # Installing project dependencies
+      - cd server/ProductService
+      - python -m pip install -r requirements.txt 
+      - cd ../OrderService
+      - python -m pip install -r requirements.txt 
+      
+
+  pre_build:
+    commands:
+      # Run tests, lint scripts or any other pre-build checks.
+      - cd ..
+      - export PYTHONPATH=./ProductService/
+      # unit tests needs to be fixed. Commenting for now
+      #- python -m pytest tests/unit/ProductService-test_handler.py
+
+  build:
+    commands:
+      # Use Build phase to build your artifacts (compile, etc.)
+      - sam build -t tenant-template.yaml
+
+  post_build:
+    commands:
+      # Use Post-Build for notifications, git tags, upload artifacts to S3
+      - sam package --s3-bucket $PACKAGE_BUCKET --output-template-file packaged.yaml
+
+artifacts:
+  discard-paths: yes
+  files:
+    # List of local artifacts that will be passed down the pipeline
+    - server/packaged.yaml

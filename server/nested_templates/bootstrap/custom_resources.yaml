@@ -1,0 +1,41 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to deploy cloudfront and s3 bucket for UI code
+Parameters:
+  ServerlessSaaSSettingsTableArn:
+    Type: String
+  ServerlessSaaSSettingsTableName:
+    Type: String
+  TenantStackMappingTableArn:
+    Type: String
+  TenantStackMappingTableName:
+    Type: String
+  UpdateSettingsTableFunctionArn:
+    Type: String
+  UpdateTenantStackMapTableFunctionArn:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoUserPoolClientId:
+    Type: String
+Resources:
+  #Custom resources
+  
+  UpdateSettingsTable:
+    Type: Custom::UpdateSettingsTable
+    Properties:
+      ServiceToken: !Ref UpdateSettingsTableFunctionArn
+      SettingsTableName: !Ref ServerlessSaaSSettingsTableName
+      cognitoUserPoolId: !Ref CognitoUserPoolId
+      cognitoUserPoolClientId: !Ref CognitoUserPoolClientId
+  
+  
+  UpdateTenantStackMap:
+    Type: Custom::UpdateTenantStackMap
+    Properties:
+      ServiceToken: !Ref UpdateTenantStackMapTableFunctionArn
+      TenantStackMappingTableName: !Ref TenantStackMappingTableName

@@ -1,0 +1,3 @@
+aws_lambda_powertools
+jsonpickle
+aws_requests_auth

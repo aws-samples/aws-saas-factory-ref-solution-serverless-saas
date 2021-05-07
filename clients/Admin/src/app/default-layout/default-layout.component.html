@@ -1,0 +1,50 @@
+<app-header
+  [navbarBrandRouterLink]="['/dashboard']"
+  [fixed]="true"
+  [navbarBrandFull]="{src: 'assets/img/brand/logo.svg', width: 89, height: 45, alt: 'EKS-Ref-Arch Logo'}"
+  [navbarBrandMinimized]="{src: 'assets/img/brand/sygnet.svg', width: 30, height: 30, alt: 'EKS-Ref-Arch Logo'}"
+  [sidebarToggler]="'lg'"
+  [asideMenuToggler]="false">
+  <ul class="nav navbar-nav ml-auto">
+    <li class="nav-item dropdown" dropdown placement="bottom right">
+      <a class="nav-link" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" dropdownToggle (click)="false">
+        <i class="icon-user icons font-xl image-avatar nav-link"></i>
+      </a>
+      <div class="dropdown-menu dropdown-menu-right" *dropdownMenu aria-labelledby="simple-dropdown">
+        <div class="dropdown-header text-center"><strong *ngIf="isAuthenticated$ | async as isAuthenticated; else noName">{{username$ | async}}</strong>
+          <ng-template #noName>
+            <strong>Account</strong>
+          </ng-template>
+        </div>
+        <a (click)="logout()" *ngIf="isAuthenticated$ | async as isAuthenticated; else noAuth" class="dropdown-item" href="#"><i class="fa fa-lock"></i>Logout</a>
+        <ng-template #noAuth>
+          <a class="dropdown-item" (click)="login()"><i class="fa fa-unlock"></i>Login</a>
+        </ng-template>
+        <div class="dropdown-header text-center"><strong>Settings</strong></div>
+        <a class="dropdown-item" href="#"><i class="fa fa-user"></i> Profile</a>
+        <a class="dropdown-item" [routerLink]="['/auth/info']" routerLinkActive="router-link-active" ><i class="fa fa-wrench"></i> Auth Debug</a>
+      </div>
+    </li>
+  </ul>
+</app-header>
+<div class="app-body">
+  <app-sidebar #appSidebar [fixed]="true" [display]="'lg'" [minimized]="sidebarMinimized" (minimizedChange)="toggleMinimize($event)">
+    <app-sidebar-nav [navItems]="navItems" [perfectScrollbar] [disabled]="appSidebar.minimized"></app-sidebar-nav>
+    <app-sidebar-minimizer></app-sidebar-minimizer>
+  </app-sidebar>
+  <!-- Main content -->
+  <main class="main">
+    <!-- Breadcrumb -->
+    <!-- breaking change 'cui-breadcrumb' -->
+    <cui-breadcrumb>
+      <!-- Breadcrumb Menu-->
+    </cui-breadcrumb>
+    <div class="container-fluid">
+      <router-outlet></router-outlet>
+    </div><!-- /.container-fluid -->
+  </main>
+</div>
+<app-footer>
+  <span>Serverless SaaS Reference Architecture &copy; 2021 AWS</span>
+  <span class="ml-auto">Powered by <a href="https://aws.amazon.com">SaaS Factory</a></span>
+</app-footer>

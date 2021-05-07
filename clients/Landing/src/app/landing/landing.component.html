@@ -1,0 +1,144 @@
+<div class="animated fadeIn">
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#">AWS Serverless SaaS Reference Architecture</a>
+    <button
+      aria-controls="navbarSupportedContent"
+      (click)="IsCollapsed = !IsCollapsed"
+      [attr.aria-expanded]="!IsCollapsed"
+      class="navbar-toggler"
+      type="button"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div
+      class="collapse navbar-collapse"
+      id="navbarSupportedContent"
+      [collapse]="IsCollapsed"
+      [isAnimated]="true"
+    >
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="#"
+            >Home <span class="sr-only">(current)</span></a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/register">Sign Up!</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="d-flex align-items-center">
+    <div class="container">
+      <h1>Serverless SaaS Reference Architecture</h1>
+      <h2>It's so nice it blows your mind.</h2>
+      <a href="" (click)="register()" class="btn btn-transparent">Sign up now!</a>
+    </div>
+  </header>
+
+  <section>
+    <div class="container">
+      <div class="row">
+        <div class="text--center">
+          <h3>Serverless SaaS Reference Architecture is so awesome.</h3>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Facere
+            temporibus omnis illum, officia. Architecto voluptatibus commodi
+            voluptatem perspiciatis eos possimus, eius at molestias quaerat
+            magnam? Odio qui quos ipsam natus.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--primary">
+    <div class="container">
+      <div class="col-3 features">
+        <i class="fa fa-bolt"></i>
+        <p>
+          Serverless SaaS Reference Architecture so awesome. Makes you awesome - go sign up!
+        </p>
+      </div>
+      <div class="col-3 features">
+        <i class="fa fa-bank"></i>
+        <p>
+          Serverless SaaS Reference Architecture so great. Makes you even greater - go sign
+          up now. Super cheap deal!
+        </p>
+      </div>
+      <div class="col-3 features">
+        <i class="fa fa-heart"></i>
+        <p>Feel lonely? Go sign up and have a friend!</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section--primary--alt">
+    <div class="container">
+      <h3>Take Serverless SaaS Reference Architecture with you everywhere you go.</h3>
+      <p>
+        Serverless SaaS Reference Architecture is all you need. Anywhere - ever. Lorem ipsum
+        dolor sit amet, consectetur adipisicing elit. Expedita sapiente hic
+        voluptatum quo sunt totam accusamus distinctio minus aliquid quis!
+      </p>
+    </div>
+  </section>
+
+  <section class="section--primary--light">
+    <div class="container">
+      <blockquote class="testimonial">
+        <p>
+          Love Serverless SaaS Reference Architecture. So nice! So good! Could not live
+          without!
+        </p>
+        <cite> Satisfied Customer </cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <section class="section--primary--alt bg-image-2">
+    <div class="container text--center">
+      <h3>Reasons to sign up this product:</h3>
+      <div class="col-5 text--left">
+        <ul>
+          <li>Its the best</li>
+          <li>Its awesome</li>
+          <li>It makes you happy</li>
+          <li>It brings world peace</li>
+          <li>Its free!</li>
+        </ul>
+      </div>
+      <div class="col-5 text--left">
+        <ul>
+          <li>Its the best</li>
+          <li>Its awesome</li>
+          <li>It makes you happy</li>
+          <li>It brings world peace</li>
+          <li>Its free!</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="text--center">
+    <div class="container">
+      <h3>Why you still reading?</h3>
+      <a href="" (click)="register()" class="btn">Sign up now!</a>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <ul>
+        <li><a href="#">SaaS Factory</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Mainpage</a></li>
+      </ul>
+      <p>&copy; 2021 AWS SaaS Factory. All rights reserved.</p>
+    </div>
+  </footer>
+</div>
