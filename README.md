@@ -28,6 +28,7 @@ Figure 1 provides a high-level representation of the baseline architecture that 
     <br>
     Figure 2: CloudWatch log role ARN
 </p>
+
 ## Setting up the environment
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
