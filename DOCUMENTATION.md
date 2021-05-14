@@ -219,7 +219,7 @@ Step 5 and 6 are representation of the Authorization code grant flow of Cognito.
 
 Tenant CodePipeline is responsible for the deployment of application services (product and order service in our case).
 
-This pipeline is responsible for provisioning the tenant specific infrastructure as part of the tenant registration process, for platinum tier tenants. Moving forward this pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the master branch, the below pipeline will trigger automatically, build the source, perform all the necessary unit tests, and deploy the services for all your tenants in an automated fashion.
+This pipeline is responsible for provisioning the tenant specific infrastructure as part of the tenant registration process, for platinum tier tenants. Moving forward this pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform all the necessary unit tests, and deploy the services for all your tenants in an automated fashion.
 
 <p align="center"><img src="images/TenantPipeline.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 

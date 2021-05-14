@@ -62,7 +62,7 @@ export class ServerlessSaaSStack extends cdk.Stack {
         new codepipeline_actions.CodeCommitSourceAction({
           actionName: 'CodeCommit_Source',
           repository: codeRepo,
-          branch: 'master',
+          branch: 'main',
           output: sourceOutput,
           variablesNamespace: 'SourceVariables'
         }),

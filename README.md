@@ -22,7 +22,12 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 * Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
 * Make sure that you have Angular 11 or above
 * Make sure that you have Node 12 or above.
-
+* Ensure that CloudWatch log role ARN is set for the API Gateway. In order to do so, go to the API Gateway page, inside AWS Console, and click on any one of the REST APIs listed in the console (You might have to create an [Example REST API](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-from-example.html) if you don't have one created.). Click on Settings from the left navigation bar and provide an IAM role that have access to publish logs to CloudWatch. Refer [this](https://aws.amazon.com/premiumsupport/knowledge-center/api-gateway-cloudwatch-logs/) link if you need more details.
+<p align="center">
+    <img width=800 height=600 src="./images/APIGatewaySettings.png" alt="Settings"/>
+    <br>
+    Figure 2: CloudWatch log role ARN
+</p>
 ## Setting up the environment
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
@@ -38,20 +43,14 @@ This script will take few minutes to complete. Once complete it will deploy the 
 * Deploy three web applications, namely "SaaS Provider Admin console", "Landing/sign-up application" and "Sample SaaS commerce application", using S3 and CloudFront. The script will output the URL for these three user interfaces, after it finishes.
 
 
-Once the above script finishes successfully:
-1) Go to the CodePipeline page, inside AWS Console, to make sure that the Pipeline has been deployed successfully. You might have to wait for few minutes before the Pipeline finishes.
+Once the above script finishes successfully, go to the CodePipeline page, inside AWS Console, to make sure that the Pipeline has been deployed successfully. You might have to wait for few minutes before the Pipeline finishes.
 <p align="center">
     <img  width=700 height=200  src="./images/CodePipeline.png" alt="CodePipeline"/>
     <br>
-    Figure 2: Code Pipeline
+    Figure 3: Code Pipeline
 </p>
 
-2) If this is a new AWS account or if you are using API Gateway for the first time in this account, ensure that CloudWatch log role ARN is set for the API Gateway. In order to do so, go to the API Gateway page, inside AWS Console, and click on any one of the APIs listed. Click on Settings from the left navigation bar and provide an IAM role that have access to publish logs to CloudWatch.
-<p align="center">
-    <img width=800 height=600 src="./images/APIGatewaySettings.png" alt="Settings"/>
-    <br>
-    Figure 3: CloudWatch log role ARN
-</p>
+
 
 
 ## License

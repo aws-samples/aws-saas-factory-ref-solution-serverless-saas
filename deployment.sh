@@ -10,7 +10,7 @@ if [[ $? -ne 0 ]]; then
          echo "Setting url to remote cc"
          git remote set-url cc $REPO_URL
      fi    
-     git push --set-upstream cc master
+     git push --set-upstream cc main
 fi
 
 #Deploying CI/CD pipeline
