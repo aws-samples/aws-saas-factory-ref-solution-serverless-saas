@@ -52,7 +52,12 @@ Once the above script finishes successfully, go to the CodePipeline page, inside
 </p>
 
 
-
+## Steps to Clean-up
+Use the below steps to perform clean-up in your account:
+1. Delete the CloudFormation stack named "stack-pooled".
+2. Depending upon how many Platinum tier tenants you have provisioned, delete the tenant specific stacks. They will all be named as "stack-TENANTID", where TENANTID is a UUID.
+3. Delete the baseline stack named as "serverless-saas". Make sure the above two stacks are deleted before you try deleting this.
+4. Delete the Tenant Pipeline stack named as "serverless-saas-pipeline".
 
 ## License
 This library is licensed under the MIT-0 License. See the LICENSE file.
