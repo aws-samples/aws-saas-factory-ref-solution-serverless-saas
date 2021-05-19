@@ -40,7 +40,7 @@ if [ $? -ne 0 ]; then
       exit 1
     fi
     # Updating samconfig-bootstrap.toml with new bucket name
-    sed -i '' 's/s3_bucket = \".*\"/s3_bucket = \"'$SAM_S3_BUCKET'\"/' samconfig-bootstrap.toml
+    ex -sc '%s/s3_bucket = .*/s3_bucket = \"'$SAM_S3_BUCKET'\"/|x' samconfig-bootstrap.toml
 fi
 
 sam build -t bootstrap-template.yaml --use-container --region=$REGION
