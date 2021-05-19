@@ -17,8 +17,8 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 ## Pre-requisites
 * This reference architecture uses Python. Make sure you have Python 3.8 Installed.
 * Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) Installed. 
-* Make sure you have the latest version of [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed.
-* Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed.
+* Make sure you have the latest version of [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed. Not having the release version of SAM can cause deployment issues.
+* Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed.  Not having the release version of CDK can cause deployment issues.
 * Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
 * Make sure that you have Angular 11 or above
 * Make sure that you have Node 12 or above.
@@ -30,6 +30,9 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 </p>
 
 ## Setting up the environment
+
+    NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to increase the Volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). 
+
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
 ```
@@ -58,6 +61,8 @@ Use the below steps to perform clean-up in your account:
 2. Depending upon how many Platinum tier tenants you have provisioned, delete the tenant specific stacks. They will all be named as "stack-TENANTID", where TENANTID is a UUID.
 3. Delete the baseline stack named as "serverless-saas". Make sure the above two stacks are deleted before you try deleting this.
 4. Delete the Tenant Pipeline stack named as "serverless-saas-pipeline".
+5. Delete the CodeCommit repository created by the script. It should be named as "aws-saas-factory-ref-serverless-saas".
+6. Delete any left over S3 Buckets. They should start with a prefix "serverless-saas" and "sam-bootstrap-bucket".
 
 ## License
 This library is licensed under the MIT-0 License. See the LICENSE file.
