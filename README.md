@@ -31,7 +31,7 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 
 ## Setting up the environment
 
-    NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to increase the Volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). 
+    NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to select at least t3.large instance size and increase the volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). This is to make sure that you have enough compute and space to build the solution. 
 
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
