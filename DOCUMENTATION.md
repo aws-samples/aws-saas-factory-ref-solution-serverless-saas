@@ -9,7 +9,7 @@ This section details the architecture of this SaaS Solution. Refer [README.md](R
   * [Web Applications](#web-applications-1)
     + [Landing/Sign-up Page](#landing-sign-up-page)
       - [Tenant Admin creation](#tenant-admin-creation)
-    + [Admin Application](#admin-application)
+    + [Administration Application](#administration-application)
     + [SaaS Application](#saas-application)
   * [Application API](#application-api)
     + [Serverless Microservices](#serverless-microservices)
@@ -20,14 +20,14 @@ This section details the architecture of this SaaS Solution. Refer [README.md](R
     + [Tenant Management](#tenant-management)
     + [Tenant Provisioning](#tenant-provisioning)
   * [Pooled Application Services](#pooled-application-services)
-    + [Partition Key Structure](#partition-key-structure)
+    + [Storing Pooled Multi-Tenant Data](#storing-pooled-multi-tenant-data)
 - [Tenant Registration & Onboarding](#tenant-registration---onboarding)
   * [Login as an onboarded tenant](#login-as-an-onboarded-tenant)
   * [Tenant provisioning with CodePipeline](#tenant-provisioning-with-codepipeline)
 - [API Authorization and Tenant Isolation](#api-authorization-and-tenant-isolation)
   * [Authentication & Authorization](#authentication---authorization)
   * [Generating tenant isolation policies](#generating-tenant-isolation-policies)
-  * [Applying Tenant Isolation inside Lambda](#applying-tenant-isolation-inside-lambda)
+  * [Applying Tenant Isolation inside Lambda](#applying-tenant-isolation)
   * [Alternate approaches to Tenant Isolation](#alternate-approaches-to-tenant-isolation)
 - [Hiding tenant details with Lambda Layers](#hiding-tenant-details-with-lambda-layers)
     + [Tenant aware logging, metrics, and tracing](#tenant-aware-logging--metrics--and-tracing)
@@ -46,7 +46,7 @@ This solution also introduces the concepts of tenant tiers, highlighting how the
 
 # High Level Architecture
 
-Figure 1 represents the high-level architecture of this sample implementation. The architecture is comprised of three logical components; user interfaces or web applications, application or business services and a set of shared services.
+Figure 1 represents the high-level architecture of this sample implementation. The architecture is comprised of three logical components; web applications, application services and a set of shared services.
 
 <p align="center"><img src="images/HighLevelArchitecture.png" alt="Architecture Overview"/>Figure 1: High Level Architecture</p>
 
@@ -55,7 +55,7 @@ Figure 1 represents the high-level architecture of this sample implementation. T
 
 You will see that we have built three different applications that interact with the backend services of the environment. Each of these applications are built with AngularJS.
 
-The "SaaS Provider Admin console" represents an application that is typically used by the administrators of a SaaS provider. These administrators can perform operations, such as, provisioning a new tenant, updating an existing tenant, and adding/updating users in the system. They can also disable and enable tenants/users as needed. 
+The "SaaS provider admin console" represents an application that is used by the administrators of a SaaS provider. These administrators can perform operations, such as, provisioning a new tenant, updating an existing tenant, and adding/updating users in the system. They can also disable and enable tenants/users as needed. 
 
 The "Landing/sign-up application" serves as a public facing registration page for new tenants to register themselves. The "Registration" API is an unprotected endpoint which any new tenant can use to register themselves into the system. This step also creates a new tenant admin user.
 
@@ -63,21 +63,21 @@ The "Sample SaaS commerce application" represents a typical e-commerce applicati
 
 ## Shared Services
 
-You will see a set of Shared services which are responsible for onboarding, tenant, and user management aspects of the application. The name "shared" comes from the fact that they are shared across all the tenants. This means that all the tenants and their users are managed centrally, through a central datastore and identity management system.
+You will see a set of shared services that are responsible for the onboarding, tenant, and user management aspects of the application. The name "shared" conveys the notion that these services are foundational to your SaaS environment, providing the cross-cutting functionality that is separate from your application services and shared across all the tenants. This means that all the operations and data that is used to onboard, manage, authenticate, and configure tenants are handled by these shared services. 
 
 ## Application Services (Tiered Deployment Model)
 
-Application services are a representation of business services or microservices your SaaS application will typically consist of. SaaS providers often are required to support a range of tiers that may have different requirements around isolation, noisy neighbor, performance, etc. for these microservices. In these situations, they may use tiering to offer different experiences to their customers.
+Application services are a representation of the microservices that provide the business functionality of your application. In this solution, you’ll see that we support a tiered deployment model for these microservices. SaaS providers often are required to support a range of tiers that may have different requirements around isolation, noisy neighbor, performance, etc. The idea here is that we will use tiering considerations to support some of these requirements. We will use tenant tier to influence how microservices are deployed for a given tenant.
 
-This could mean that microservices for Basic, Standard, and Premium tier tenants might be deployed using a Pooled Model where AWS resources are shared by tenants. On the other hand, Platinum tier tenants could be deployed with a Silo model. This means, each Platinum tier tenant enjoys their own set of AWS resources, without sharing them with any other tenant. There are variations of this where only parts of the system could be siloed (storage or certain microservices, for example).
+This could mean that microservices for Basic, Standard, and Premium tier tenants might be deployed using a pooled model where AWS resources are shared by tenants. On the other hand, you could have Platinum tier tenants deployed with a Silo model. This means, each Platinum tier tenant enjoys their own set of AWS resources, that are not shared with any other tenant. There are also variations of this where only parts of the system could be siloed (storage or certain microservices, for example).
 
-For this solution, we've illustrated the example outline above. As new tenants are onboarded, they will be placed in a pool or a silo based on their tier. Basic, Standard, and premium tiers tenants will go into pool, which means they will share the infrastructure related to product and order services. Platinum tenants will go into a silo and each one of them will have their own product and order service. It is worth mentioning at this point, that although pooled tenants share common set of resources, but are still logically isolated using the tenant isolation mechanisms, as described in later sections.
+For this solution, we've implemented the tiering pattern described above. As new tenants are onboarded, they will be placed in a pool or a silo based on their tier. Basic, Standard, and Premium tiers tenants will go into pool, which means they will share the infrastructure related to product and order services. Platinum tenants will go into a silo where each tenant will have dedicated deployments of the product and order service. It's worth noting at this point, that although pooled tenants share common set of resources, they still will be logically isolated using the tenant isolation mechanisms (described in later sections).
 
-The sections below provides more details, along with other architectural and design patterns that comes as part of this reference implementation. The deployment is broken down in two parts, baseline infrastructure and tenant-level infrastructure. We will examine both, one at a time, and the underlying AWS resources provisioned by them. This sample solution uses [AWS SAM](https://aws.amazon.com/serverless/sam/) to provision all its AWS resources.
+The sections below provide a more detailed view of the inner working of this reference SaaS solution. We’ve broken this down in two parts, baseline infrastructure and tenant-level infrastructure. For each of these areas, we will examine the underlying AWS resources and strategies that are used to deploy this multi-tenant serverless solution. This sample solution uses [AWS SAM](https://aws.amazon.com/serverless/sam/) to provision all its AWS resources.
 
 # Baseline Infrastructure Provisioning
 
-The instructions in the [README](README.md) file allows you install a baseline infrastructure of this architecture. Figure 2 provides a high-level representation of the architecture deployed as part of baseline infrastructure.
+The instructions in the [README](README.md) file allows you install a baseline infrastructure of this architecture. The baseline resources represent those elements of the architecture, that establish the foundation of our environment before any tenants are onboarded into the system. Figure 2 provides a high-level representation of the architecture deployed as part of baseline infrastructure.
 
 <p align="center"><img src="images/Baseline.png" alt="Baseline Infrastructure"/>Figure 2: Baseline infrastructure</p>
 
@@ -93,9 +93,9 @@ The landing page is a simple, anonymous signup page. It's representative of our 
 
 #### Tenant Admin creation
 
-As part of this sign-up/onboarding flow, the system will also create a tenant admin user and send a verification email to the address that was provided during sign-up. The information in this email will allow you to access the system with a temporary password. This Tenant Admin user can now provision more tenant users as needed, using the "Sample SaaS Application", described below.
+As part of this sign-up/onboarding flow, the system will also create a tenant admin user and send a verification email to the address that was provided during sign-up. The information in this email will allow you to access the system with a temporary password. This tenant admin user can now provision more tenant users as needed, using the sample SaaS application, described below.
 
-### Admin Application
+### Adminstration Application
 
 The administration application is meant to represent the experience that would be used by a SaaS Provider. This application provides the management and operations experience for your environment and its tenants.
 
@@ -117,7 +117,7 @@ The application and shared services of the serverless SaaS environment are acces
 
 ### Serverless Microservices
 
-The notion of microservices in case of AWS Serverless technologies encapsulates various AWS Services and features inside them. In this case our microservice boundary is the API Gateway, backed by one of more Lambda functions. Each microservice can further also have one or more data stores. Figure 3 gives a high-level representation of this concept.
+The notion of a microservice can be a bit different in a serverless environment. It’s true that each function could be a microservice. However, it’s more common to have a collection of functions that represent a logical microservice. In this case our microservice boundary is the API Gateway, backed by one of more Lambda functions. Imagine, for example, a order service that has separate functions for create, read, update, and delete. These functions all operate on the same data and should be grouped together as a logical microservice. Figure 3 provides a high-level representation of this concept.
 
 <p align="center"><img src="images/Microservice.png" alt="Serverles Microservices"/>Figure 3: Serverless Microservices</p>
 
@@ -131,9 +131,9 @@ The serverless SaaS sample solution applies these tier-based strategies through 
 
 Depending upon your scenario, you might consider having one usage plan per tenant as well. This is usually the case when you have limited number of tenants. In this case, your registration and provisioning service would have to create the API key and usage plan during onboarding.
 
-Another thing to consider while designing a serverless application, especially with Lambda, is the concurrent execution limits of Lambda. As per the Lambda quotas documentation, although this can be increased to hundred of thousands, but it is still a good idea to ensure that your Platinum tier tenants are not throttled, because other tiers are consuming concurrency quota.
+Another thing to consider while designing a serverless application, especially with Lambda, is the concurrent execution limits of Lambda. As per the Lambda quotas documentation, although this can be increased to hundreds of thousands, it is still a good idea to ensure that your Platinum tier tenants are not throttled, because other tiers are consuming concurrency quota.
 
-To achieve this, we have implemented reserve concurrency for certain methods, only for platinum tier tenants.
+To achieve this, we have implemented reserve concurrency for certain methods, only for Platinum tier tenants.
 
 ## Shared Services
 
@@ -147,33 +147,33 @@ The Tenant Registration service allows new tenants to register themselves and on
 
 ### User Management
 
-This Shared Service is used to manage users inside Amazon Cognito. It allows to add, update, disable and get user. It also allows to get all users, disable all users, and enable all users by tenant.
+This shared Service is used to manage users. It allows to add, update, disable and get user. It also allows to get all users, disable all users, and enable all users by tenant. The users, in this scenario, will be stored in Amazon Cognito.
 
 ### Tenant Management
 
-Tenant management service handles get, create, update, activate and disable tenant operations. Tenant Details are stored inside an Amazon DynamoDB table.
+The Tenant Management service centralizes all of the configuration and operations that can be performed on a tenant. This includes get, create, update, activate, and disable tenant functionality. Tenant details are stored inside an Amazon DynamoDB table.
 
 ### Tenant Provisioning
 
-Tenant provisioning handles provisioning and de-provisioning of a tenant. This service is only invoked for Platinum tier tenants, since they are provisioned using a Silo stack. This service further reiles on AWS CodePipeline to manage the provisioning experience.
+Tenant provisioning handles provisioning and de-provisioning of a tenant. This service is only invoked for Platinum tier tenants, since they are provisioned using a silo stack. This service further relies on AWS CodePipeline to manage the provisioning experience.
 
 ## Pooled Application Services
 
-We have provisioned Order and Product services as part of baseline infrastructure, as a representation of business microservices that SaaS providers usually create as part of their SaaS Solution. These microservices use Amazon DynamoDB as their data store. The objectives of these services are to demonstrate the principles of tenant isolation and data partitioning that any SaaS provider need to implement inside their solutions.
+As part of provisioning the baseline environment, we must also provision the application services that are needed for pooled tenants. You’ll see here that we’ve provisioned pooled versions of the Order and Product services as part of baseline infrastructure. These microservices use Amazon DynamoDB as their data store. The objectives of these services are to demonstrate the principles of tenant isolation and data partitioning that any SaaS provider need to implement inside their solutions.
 
 In order to facilitate this, our API Gateway exposes "order" and "product" resources, which further have POST, GET, PUT and DELETE methods to support basic CRUD operations. Each of these methods integrates with a lambda function of its own to accomplish the needed operation.
 
-As part of baseline infrastructure, we have created a pooled implementation of these microservices, which means that Basic, Standard and Premium tenants all share the same deployment of these services. On the other hand, we provision a new instance of order and product service for platinum tier tenants. That happens as part of the onboarding process, which has been described in the subsequent sections.
+### Storing Pooled Multi-Tenant Data 
 
-### Partition Key Structure
+For our pooled tenants, we are also storing their data in a pooled construct where tenant data is co-mingled in a shared DynamoDB table. This approach requires the introduction of a tenant partitioning key that associates DynamoDB items with individual tenants. 
 
-In order to understand the Data Partitioning strategy for pooled tenants, we need to understand the partitioning key we have chosen to implement inside DynamoDB. Take Product table, as an example. The primary key for Product table is a composite key, where shardId is the partition key and productId is the sort key. shardId is generated by combining tenantId with a random suffix, in a format of {tenantid}-{suffix}. This allows us to distinguish data across tenants and use the LeadingKey feature of DynamoDB to apply tenant isolation. Details around tenant isolation has been described in later sections.
+The Product table, for example, has a composite key, where shardId is the partition key and productId is the sort key. The shardId is generated by combining tenantId with a random suffix, in a format of {tenantid}-{suffix}. This allows us to distinguish data across tenants and use the LeadingKey feature of DynamoDB to apply tenant isolation. Details around tenant isolation has been described in [later sections](#applying-tenant-isolation).
 
 You can read [this](https://aws.amazon.com/blogs/apn/partitioning-pooled-multi-tenant-saas-data-with-amazon-dynamodb/) blog post to get more details about this approach.
 
-# Tenant Registration & Onboarding
+# Tenant registration & onboarding
 
-Tenant can register themselves using the sign-up page. The tenant registration flow varies a little depending upon the tenant tier.
+Now that we have a sense of the baseline environment, let’s looks that how tenants can get introduced into this environment. Tenants can register themselves using the sign-up page web application. The tenant registration flow varies slightly based on the tier the tenant selects during the sign-up process. 
 
 Figure 4 depicts the tenant registration flow and how this service leverages other services to orchestrate the tenant registration.
 
@@ -183,43 +183,47 @@ The sign-up process for a tenant is a combination of few steps. The tenant uses 
 
 As we mentioned earlier, the serverless SaaS architecture uses a tiered deployment model. This becomes especially important as we look at our registration experience. The registration service will examine the tier. If the tenant has selected a Platinum tier, the system will set the "isDedicatedTenancy" flag to true, indicating that this tenant will be onboarded in a siloed model (dedicated resources). If any other tier is selected, this flag will be set to false, indicating that the tenant will be onboarded in a pooled model (shared resources).
 
-Step 2 of the flow invokes the User Management service to create a new tenant admin user. We have here used Cognito as our identity provider. For Platinum tier tenants, you'll notice that a separate user pool is provisioned. For other tiers, the User Management service will create a Cognito UserGroup inside the pooled user pool for that tenant. Finally, a tenant admin user is created for the tenant inside the user pool.
+Step 2 of the flow invokes the User Management service to create a new tenant admin user. We have here used Amazon Cognito as our identity provider. For Platinum tier tenants, you'll notice that a separate user pool is provisioned for each tenant. For other tiers, the User Management service will create a Cognito UserGroup inside the pooled user pool for that tenant. Finally, a tenant admin user is created for the tenant inside the user pool.
 
 As part of creating the tenant admin user, we must also associate this user with tenant specific attributes. This is achieved through Cognito's custom claims. These claims store certain tenant and user specific information. For this solution we've stored TenantId and User Role as custom claims.
 
-Step 3 will then call the Tenant Management service to create a new entry inside DynamoDB table to store tenant details. We also store the user pool information for the tenant, based upon the output from prior step. Tenant management table also keep track of the API key based upon the tenant tier selected.
+Step 3 will then call the Tenant Management service to store tenant details. We also store the user pool information for the tenant, based upon the data collected from the prior step. The Tenant details also includes the API key, based upon the tenant tier selected.
 
-Finally in step 4, tenant provisioning service is used to provision any tenant specific infrastructure for Platinum/silo tenants. It makes use of AWS CodePipeline to manage the deployment of tenant specific application services. More details around this CodePipeline is provided in later sections.
+Finally in step 4, Tenant Provisioning service is used to provision any tenant specific infrastructure for Platinum/silo tenants. It makes use of AWS CodePipeline to manage the deployment of tenant specific application services. More details around this CodePipeline are provided in [later sections](#tenant-provisioning-with-codepipeline).
 
-One thing you might have noticed is that tenant registration service doesn't have any authentication built-in. This is by design so that tenants can come and register themselves in. However, the endpoints that are used to create a tenant admin, create a tenant, and provision a user cannot be left un-protected. These endpoints can only be invoked from the Tenant Registration service.
+One thing you might have noticed is that tenant registration service doesn't require any authentication. This is by design since new tenants are unable to be authenticated.  However, the endpoints that are used to create a tenant admin, create a tenant, and provision a user are protected. These endpoints can only be invoked from the Tenant Registration service.
 
-To keep these internal endpoint private and protected, we have used the [API Gateway Resource Policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-resource-policies.html) feature. These policies ensure that the private REST entry points of our services are not publicly accessible.
+To keep these internal endpoints private and protected, we have used the [API Gateway Resource Policies](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-resource-policies.html) feature. These policies ensure that the private REST entry points of our services are not publicly accessible.
 
 ## Login as an onboarded tenant
 
-As mentioned above, the user management service creates a tenant admin user as part of the registration process. User management service uses the email address, provided during registration, to send an email with login information of this newly created user. The tenant admin can now use this information to login into the SaaS application.
+As mentioned above, the user management service creates a tenant admin user as part of the registration process. The user management service uses the email address, provided during registration, to send an email with login information of this newly created user. The tenant admin can now use this information to login into the SaaS application.
 
 Once logged in, they can onboard new tenant users into the system. These users naturally exist in the context of this tenant now and can only access orders and products that have been created by users belonging to this tenant.
 
-Given the hybrid nature of our application, and the fact that we are creating separate Cognito user pools and separate Application APIs for platinum tier tenants, it is important to understand how our web application do the discovery of the tenant specific settings for routing purposes. Figure 5 below, illustrates this discovery and routing mechanism.
+Given the hybrid nature of our application, and the fact that we are creating separate Cognito user pools and separate application APIs for Platinum tier tenants, we must understand the service discovery and authentication routing flow.
 
 <p align="center"><img src="images/AuthenticationFlow.png" alt="Authentication Flow"/>Figure 5: Authentication flow</p>
 
-In Step 1, tenant user is required to enter the tenant's name as part of login process. This tenant name is same as provided during registration process.
+The following is a breakdown of the steps that are part of this authentication and routing experience:
 
-Step 2 uses tenant name to retrieve tenant specific information, namely user pool id, app client id and API Gateway URL. This information is passed onto the SaaS web application, which uses it to initialize the authorization code with these settings, as seen in Step 3.
+- Step 1 - the tenant user is required to enter the tenant's name as part of login process. This tenant name is same as provided during registration process.
 
-This experience can be modified according to your needs. As an example, you can ask for user email address and use the email domain name to retrieve the necessary information. Another way could be to create subdomain for each tenant, such as tenant1.yoursaasapplication.com.
+- Step 2 - the tenant name is used to retrieve tenant specific information, namely user pool id, app client id and API Gateway URL. 
 
-The application will then redirect to the Cognito hosted UI, associated with that tenant, as seen in Step 4. This is where the user is required to provide his username and password.
+- Step 3 - this tenant specific information is passed onto the SaaS web application, which uses it to initialize the authorization code with these settings. This experience can be modified according to your needs. As an example, you can ask for user email address and use the email domain name to retrieve the necessary information. Another way could be to create subdomain for each tenant, such as tenant1.yoursaasapplication.com.
 
-Step 5 and 6 are representation of the Authorization code grant flow of Cognito. Cognito uses username and password to authenticate against the user pool. Once the login information is successfully validated, it issues an OAuth code in return. This OAuth code is sent back to Cognito which in return issues a JWT token. Step 7 shows how you can use the JWT token to authenticate against your microservices. More details around Step 7 are provide in the API Authorization section later.
+- Step 4 - the application will be redirected to the Cognito hosted UI, associated with the tenant. This is where the user is required to provide his username and password.
+
+- Step 5 and 6 - these are a representation of the authorization code grant flow of Cognito. Cognito uses username and password to authenticate against the user pool. Once the login information is successfully validated, it issues an OAuth code in return. This OAuth code is sent back to Cognito which in return issues a JWT token. 
+
+- Step 7 - shows how you can use the JWT token to authenticate against your microservices. More details around Step 7 are provide in the API authorization section later.
 
 ## Tenant provisioning with CodePipeline
 
-Tenant CodePipeline is responsible for the deployment of application services (product and order service in our case).
+The tenant CodePipeline is responsible for the deployment of application services (product and order service in our case). It provisions the tenant specific infrastructure as part of the tenant registration process (for Platinum tier tenants). 
 
-This pipeline is responsible for provisioning the tenant specific infrastructure as part of the tenant registration process, for platinum tier tenants. Moving forward this pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform all the necessary unit tests, and deploy the services for all your tenants in an automated fashion.
+Moving forward, this pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform all the necessary unit tests, and deploy the services for all your tenants in an automated fashion.
 
 <p align="center"><img src="images/TenantPipeline.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 
@@ -227,13 +231,17 @@ Figure 6 provides a clearer picture of the moving parts of the deployment experi
 
 Once the build completes, a Lambda function is used to deploy the tenant infrastructure (more detail on how to invoke lambda inside CodeDeploy can be found [here](https://docs.aws.amazon.com/codepipeline/latest/userguide/actions-invoke-lambda-function.html)).
 
-The TenantStackMapping Table is at the heart of this deploy step. This table is seeded with an entry for pooled stack (basic, standard, premium tier tenants) as part of baseline infrastructure deployment. We then use this pipeline to provision pooled application services during baseline infrastructure creation. Registration process further creates an entry inside this table for any new platinum tier tenant created. The CodePipeline uses this table to create and update stacks, as needed.
+The TenantStackMapping Table is at the heart of this deploy step. This table is seeded with an entry for pooled stack (Basic, Standard, Premium tier tenants) as part of baseline infrastructure deployment. We then use this pipeline to provision pooled application services during baseline infrastructure creation. The registration process further creates an entry inside this table for any new Platinum tier tenant created. The CodePipeline uses this table to create and update stacks, as needed.
 
 You will also notice the "applyLatestRelease" flag in the table. The intent here is to build a canary deployment across tenants. In some cases, you might want to delay the release for your Platinum tier tenants. In that case you can turn this flag off and the Pipeline will not roll out the release to those tenants. The table also, in this case, keeps track of the latest commit id from CodeCommit. This helps to identify the current deployed release number for that tenant.
 
 # API Authorization and Tenant Isolation
 
-As also mentioned before, we have used Cognito as our Identity Provider. The Web application uses Cognito's hosted UI to authenticate using a username and password. It is now the responsibility of API Gateway to ensure that only authenticated users can access the services. API Gateway also need to apply usage plans based upon tenant tier at this stage. Finally, our microservices need to implement tenant isolation based upon the tenant that is trying to access the system. We have leveraged [Lambda Authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html), Dynamic IAM Policies & [STS service](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html) to implement these controls.
+The serverless SaaS reference solution leverages various mechanisms to manage security and control tenant activity. We’ve talked about how Cognito is used to authenticate your user and get a JWT token with tenant context. This context is supplied to the API Gateway with each request.
+
+ As these requests are processed by the API Gateway, the system will examine this tenant context. This context is used for multiple purposes. It is used to determine your tier and associate your request with an API Key and usage plan. It also uses this data as part of your authorization and tenant isolation story.
+ 
+ The solution leverages [Lambda Authorizer](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html), Dynamic IAM Policies & [STS service](https://docs.aws.amazon.com/STS/latest/APIReference/welcome.html) to implement these controls. The following is a breakdown of some of the key elements of this experience: 
 
 ## Authentication & Authorization
 
@@ -243,27 +251,27 @@ Figure 7. represents a flow of how API Gateway enforces this authentication and 
 
 <p align="center"><img src="images/AuthorizationFlow.png" alt="Authorization Flow"/>Figure 7: Authorization Flow</p>
 
-Step 1 and Step 2 are a representation of authentication flow that happens between the web application and Cognito Hosted UI. Once Authenticated the user is provided a JWT token that is used to invoke the API, as depicted in Step 3.
+Step 1 and Step 2 are a representation of authentication flow that happens between the web application and Cognito Hosted UI. Once authenticated, the user is provided a JWT token that is used to invoke the API, as depicted in Step 3.
 
-Lambda authorizer further carries out a series of steps to validate and authorize the request, as highlighted in Step 4 above.
+The Lambda authorizer further carries out a series of steps to validate and authorize the request, as highlighted in Step 4 above.
 
-The first action is to validate if the JWT is valid or not. This is achieved by validating the JWT against the user pool. Once validated, the authorizer then extracts the UserRole and TenantId from the validated Custom Claims.
+The first action is to validate whether the JWT is valid or not. This is achieved by validating the JWT against the user pool. Once validated, the authorizer then extracts the UserRole and TenantId from the validated Custom Claims.
 
-Authorizer further allows methods/routes selectively based upon the user role. As an example, only system admin can get all tenants.
+This authorizer further allows specific API Gateway methods/routes based upon the user’s role. As an example, only system admin can make a request to get all of the system’s tenants.
 
-We have also set the [API key source](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-key-source.html) of our APIs as AUTHORIZER. This means that the Authorizer is responsible for associating the API key with the incoming request.
+The authorizer is also used to acquire API keys (that connect to usage plans). This is achieved by setting [API key source](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-key-source.html) of our APIs as AUTHORIZER. This means that the authorizer is responsible for associating the API key with each incoming request.
 
-Lambda authorizer in our case is also responsible for generating short lived credentials for fine-grained-access-control. We are dynamically generating IAM policy that is specific to that Tenant, based upon Tenant Id and UserRole.
+The Lambda authorizer is also essential to the overall tenant isolation model of the SaaS reference solution. The idea here was to move the acquisition of isolation policies to the API Gateway authorizer (instead of doing this in each lambda function). 
 
-Lambda Authorizer will now authorize the user based upon all these parameters and generates the final Policy, which allows the route and apply the Usage plan based up the API key returned by the Authorizer. Step 5 of the Figure 7 above illustrates this flow.
+The basic approach here is to examine your tenant context and generate the tenant-scoped credentials that would control your access to other resources (storage, etc.). In this scenario, the authorizer will dynamically generate the IAM policies from the tenant context and acquire the short-lived credentials that will be used to enforce your tenant isolation. 
 
-To add efficiency to this process, the Lambda Authorizer caches the credentials for X seconds (60 seconds in our case), based upon the JWT token. So, the above steps are only executed once per minute, per JWT token (or per user in other words). The number of seconds is configurable and can be customizes according to your needs.
+As shown in Step 5, Lambda authorizer will now authorize the user and apply the Usage plan based up the API key returned by the authorizer. The authorizer also provides the short-lived credentials to the downstream Lambda function as part of the Lambda context. As shown in Step 6, Lambda uses this to enforce tenant level isolation.
+
+To add efficiency to this process, the Lambda Authorizer caches the credentials for a configurable duration (60 seconds in our case), based upon the JWT token. So, the above steps are only executed once per minute, per JWT token (or per user in other words). The number of seconds is configurable and can be customized according to your needs.
 
 ## Generating tenant isolation policies
 
-Tenant isolation refers to the controls applied to ensure that one tenant is not able to access other tenant's data. As also mentioned above, in our case Lambda Authorizer is responsible for generating the tenant isolation policies.
-
-The Lambda Authorizer dynamically generates the IAM policy based upon the incoming tenant id. Below json snippet is an example of how this happens.
+This tenant isolation model of the serverless SaaS reference solution relies on IAM policies that prevent one tenant from accessing the resources of another tenant. These policies are dynamically generated by the Lambda based upon the incoming tenant id. Below is a JSON snippet that provides an example of a tenant isolation policy for a DynamoDB table:
 
 ```
 {
@@ -290,25 +298,31 @@ The Lambda Authorizer dynamically generates the IAM policy based upon the incomi
 
 In this snippet the "tenant_id" variable is a placeholder that gets replaced by the id of the incoming tenant. As a result, you will get a policy that is relevant for that tenant only.
 
-The Lambda Authorizer then uses this IAM policy to generate fine-grained short-lived credentials using the [AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) method of STS Service. The outcome of this is a secret and access key which has access to the data for that tenant only.
+The Lambda authorizer then uses this IAM policy to generate fine-grained short-lived credentials using the [AssumeRole](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) method of STS Service. The outcome of this is a secret and access key which has access to the data for that tenant only.
 
 This access and secret key are passed onto the Lambda function, which uses it to apply tenant isolation, as described in the following section.
 
-## Applying Tenant Isolation inside Lambda
+## Applying Tenant Isolation
 
-The Lambda function is responsible for interacting with the data store (DynamoDB in this case) and applying the tenant isolation mechanism during this interaction. The application of tenant isolation also varies by tenant tier, as shown in Figure 8 below.
+Once the credentials are passed to a function of your microservice, you can then use the supplied credentials as you access tenant resources. The application of tenant isolation also varies by tenant tier, as shown in Figure 8 below.
 
 <p align="center"><img src="images/TenantIsolation.png" alt="Tenant isolation"/>Figure 8: Tenant isolation</p>
 
-For pooled tenants, the lambda function uses the secret and access key provided by the Lambda Authorizer. As mentioned above, these credentials are scoped to access data for that tenant only.
+For pooled tenants, the lambda function uses the secret and access key provided by the Lambda Authorizer. As mentioned above, these credentials are scoped to access data for the current tenant only.
 
-The strategy for Silo tenants differs a bit, since we are provisioning siloed tables for them. There is no need to apply the scoped credentials while accessing the DynamoDB table. Instead, the tenant execution role, applied during provisioning of lambda functions, restricts access to the specific table provisioned for that tenant.
+The strategy for silo tenants differs a bit, since we are provisioning siloed tables for each tenant. There is no need to apply the scoped credentials while accessing the DynamoDB table. Instead, the tenant execution role, applied during provisioning of lambda functions, restricts access to the specific table provisioned for that tenant.
 
 ## Alternate approaches to Tenant Isolation
 
 In our case the primary reason of generating scoped credentials inside Lambda Authorizer is to take advantage of the caching feature that comes with the Lambda Authorizer inside API Gateway. We are caching the authorization based upon the JWT token. Along with limiting the calls to Cognito, this also ensures that our code is not generating scoped credentials for every execution of the APIs, but rather cache it for certain time. The caching time will vary upon your needs from few seconds to few minutes depending upon your workload. The maximum allowed is 3600 seconds or one hour.
 
-Another approach could be to generate scoped credentials inside your lambda function itself. This may allow you to fine-grain your policies further based upon the lambda function. This approach is described in more details [here](https://aws.amazon.com/blogs/apn/isolating-saas-tenants-with-dynamically-generated-iam-policies/).
+While this approach adds efficiency, it does move the resolution of tenant isolation outside the scope of individual Lambda functions. An alternate approach would be to move this tenant isolation inside each function.
+
+In this model, you would use shared libraries to acquire IAM policies and assume roles with STS within each function itself. The advantage here is that the tenant isolation mechanism are applied more locally to the resources that are relevant to that function. This does, however, push all the optimization/caching into each Lambda function (vs. the centrally managed model used here).
+
+Both of these models are valid and the approach you choose would likely vary based the needs of your application and how much value you see in localizing and scoping the policy management to your Lambda functions.
+
+This approach is described in more details [here](https://aws.amazon.com/blogs/apn/isolating-saas-tenants-with-dynamically-generated-iam-policies/).
 
 # Hiding tenant details with Lambda Layers
 
@@ -338,7 +352,7 @@ If you look into the code of product and order service, you'll notice that we ha
 
 SaaS based delivery model requires operational excellence. The tenants expect zero downtime and constant availability of your services. This requires a careful deployment strategy of your services, ensuring that new function versions are deployed with minimal impact.
 
-Lambda Traffic shifting feature allows you to do just that. It allows you to slowly and incrementally shift traffic to the new function versions. Meanwhile, it also monitors the newly deployed functions using CloudWatch alarms and roll back the deployment in case errors are encountered in the newly deployed function version. We have implemented this across all the lambda functions in this solution.
+The Lambda Traffic shifting feature allows you to do just that. It allows you to slowly and incrementally shift traffic to the new function versions. Meanwhile, it also monitors the newly deployed functions using CloudWatch alarms and roll back the deployment in case errors are encountered in the newly deployed function version. We have implemented this across all the lambda functions in this solution.
 
 Below code block is added to the lambda functions inside the CloudFormation to implement this.
 
@@ -379,6 +393,6 @@ You can also view the status of the Canary deployment inside CodeDeploy. Figure 
 
 # Conclusion
 
-This document explored the core elements of the Serverless SaaS solution by providing a summary of the building blocks used in the overall experience. It should give you a better sense of how the application is built and allow you to more easily navigate the resources in the repository.
+This document explored the core elements of the Serverless SaaS reference solution by providing a summary of the building blocks used in the overall experience. It should give you a better sense of how the application is built and allow you to more easily navigate the resources in the repository.
 
 We encourage you to dig into the code and provide feedback to help us shape the evolution of this environment. We expect to continue to make enhancements to the solution and address new strategies as they emerge.
