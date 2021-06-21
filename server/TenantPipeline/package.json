@@ -22,13 +22,13 @@
     "typescript": "~3.9.7"
   },
   "dependencies": {
-    "@aws-cdk/aws-codebuild": "^1.64.1",
-    "@aws-cdk/aws-codecommit": "^1.64.1",
-    "@aws-cdk/aws-codedeploy": "^1.64.1",
-    "@aws-cdk/aws-codepipeline-actions": "^1.64.1",
-    "@aws-cdk/aws-dynamodb": "^1.66.0",
-    "@aws-cdk/aws-s3": "^1.64.1",
-    "@aws-cdk/core": "1.64.1",
-    "source-map-support": "^0.5.16"
+    "@aws-cdk/aws-codebuild": "^1.109.0",
+    "@aws-cdk/aws-codecommit": "^1.109.0",
+    "@aws-cdk/aws-codedeploy": "^1.109.0",
+    "@aws-cdk/aws-codepipeline-actions": "^1.109.0",
+    "@aws-cdk/aws-dynamodb": "^1.109.0",
+    "@aws-cdk/aws-s3": "^1.109.0",
+    "@aws-cdk/core": "^1.109.0",
+    "source-map-support": "^0.5.19"
   }
 }
