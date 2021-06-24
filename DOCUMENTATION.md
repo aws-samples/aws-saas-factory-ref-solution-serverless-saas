@@ -348,6 +348,26 @@ If you look into the code of product and order service, you'll notice that we ha
 
 <p align="center"><img src="images/Traces.png" alt="Tenant-aware Tracing"/>Figure 11: Tenant-aware Tracing</p>
 
+### Visualizing tenant metrics inside CloudWatch
+We are recording metrics using [embedded metric format](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Embedded_Metric_Format_Specification.html). You can visualize this metric in CloudWatch using Metrics dashboard or CloudWatch Log Insights.
+
+These metrics will be available inside the ServerlessSaaS custom namespace, inside the metrics dashboard. Further when you drill down this namespace, you will notice that tenant id exists as a dimension to all of our metrics. This helps you visualize your metrics by tenant. Figure 12 shows the custom namespace inside CloudWatch. You will need to navigate to Metrics -> All metrics to view this.
+
+<p align="center"><img src="images/Metrics_1.png" alt="Tenant-aware metrics"/><br>Figure 12: Custom namespace</p> 
+
+Figure 13 shows the dimensions by tenant id. You need to drill down inside the ServerlessSaaS namespace to view this. You can then further graph these metrics, as needed.
+
+<p align="center"><img src="images/Metrics_2.png" alt="Tenant-aware metrics"/>Figure 13: Dimensions by tenant</p>
+
+Since we are using Embedded metric format to log metrics, we can also use [CloudWatch Log Insights](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html) to query and summarize these metrics. Below query, as an example, provides the sum of products retrieved/searched by each tenant. In this case, I am running the below query on my GetProducts CloudWatch Log Group.
+
+```
+fields @timestamp, @message
+| filter @message like /_aws/
+| fields tenant_id as TenantId, service as Service, _aws.CloudWatchMetrics.0.Metrics.0.Name as MetricName, ProductsRetrieved.0 as NumberOfProducts
+| stats sum (NumberOfProducts) as TotalProductsSearched by TenantId
+```
+
 # Canary deployments to AWS Lambda
 
 SaaS based delivery model requires operational excellence. The tenants expect zero downtime and constant availability of your services. This requires a careful deployment strategy of your services, ensuring that new function versions are deployed with minimal impact.
@@ -387,9 +407,9 @@ Properties:
         Value: !GetAtt CreateProductFunction.Version.Version    
 ```
 
-You can also view the status of the Canary deployment inside CodeDeploy. Figure 12 is an example of this looks like.
+You can also view the status of the Canary deployment inside CodeDeploy. Figure 14 is an example of this looks like.
 
-<p align="center"><img src="images/CodeDeployInProgress.png" alt="Canary deployment inside CodeDeploy"/>Figure 12: Canary deployment inside CodeDeploy</p>
+<p align="center"><img src="images/CodeDeployInProgress.png" alt="Canary deployment inside CodeDeploy"/>Figure 14: Canary deployment inside CodeDeploy</p>
 
 # Conclusion
 

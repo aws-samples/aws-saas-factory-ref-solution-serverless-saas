@@ -23,7 +23,7 @@ def get_product(event, context):
     product = product_service_dal.get_product(event, key)
 
     logger.log_with_tenant_context(event, "Request completed to get a product")
-    metrics_manager.record_metric(event, "Rows Received", "Count", 1)
+    metrics_manager.record_metric(event, "SingleProductRequested", "Count", 1)
     return utils.generate_response(product)
     
 @tracer.capture_lambda_handler
@@ -35,7 +35,7 @@ def create_product(event, context):
     payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d))
     product = product_service_dal.create_product(event, payload)
     logger.log_with_tenant_context(event, "Request completed to create a product")
-    metrics_manager.record_metric(event, "Number of rows created", "Count", 1)
+    metrics_manager.record_metric(event, "ProductCreated", "Count", 1)
     return utils.generate_response(product)
     
 @tracer.capture_lambda_handler
@@ -49,7 +49,7 @@ def update_product(event, context):
     key = params['id']
     product = product_service_dal.update_product(event, payload, key)
     logger.log_with_tenant_context(event, "Request completed to update a product") 
-    metrics_manager.record_metric(event, "Number of rows updated", "Count", 1)   
+    metrics_manager.record_metric(event, "ProductUpdated", "Count", 1)   
     return utils.generate_response(product)
 
 @tracer.capture_lambda_handler
@@ -62,7 +62,7 @@ def delete_product(event, context):
     key = params['id']
     response = product_service_dal.delete_product(event, key)
     logger.log_with_tenant_context(event, "Request completed to delete a product")
-    metrics_manager.record_metric(event, "Number of rows deleted", "Count", 1)
+    metrics_manager.record_metric(event, "ProductDeleted", "Count", 1)
     return utils.create_success_response("Successfully deleted the product")
 
 @tracer.capture_lambda_handler
@@ -72,7 +72,7 @@ def get_products(event, context):
     
     logger.log_with_tenant_context(event, "Request received to get all products")
     response = product_service_dal.get_products(event, tenantId)
-    metrics_manager.record_metric(event, "Number of products", "Count", len(response))
+    metrics_manager.record_metric(event, "ProductsRetrieved", "Count", len(response))
     logger.log_with_tenant_context(event, "Request completed to get all products")
     return utils.generate_response(response)
 
