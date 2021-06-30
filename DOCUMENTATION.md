@@ -4,16 +4,16 @@ This section details the architecture of this SaaS Solution. Refer [README.md](R
 - [High Level Architecture](#high-level-architecture)
   * [Web Applications](#web-applications)
   * [Shared Services](#shared-services)
-  * [Application Services (Tiered Deployment Model)](#application-services--tiered-deployment-model-)
+  * [Application Services (Tiered Deployment Model)](#application-services-tiered-deployment-model)
 - [Baseline Infrastructure Provisioning](#baseline-infrastructure-provisioning)
   * [Web Applications](#web-applications-1)
-    + [Landing/Sign-up Page](#landing-sign-up-page)
+    + [Landing/Sign-up Page](#landingsign-up-page)
       - [Tenant Admin creation](#tenant-admin-creation)
     + [Administration Application](#administration-application)
     + [SaaS Application](#saas-application)
   * [Application API](#application-api)
     + [Serverless Microservices](#serverless-microservices)
-    + [Usage Plans & Reserved Concurrency by Tenant Tiers](#usage-plans---reserved-concurrency-by-tenant-tiers)
+    + [Usage Plans & Reserved Concurrency by Tenant Tiers](#usage-plans--reserved-concurrency-by-tenant-tiers)
   * [Shared Services](#shared-services-1)
     + [Tenant Registration](#tenant-registration)
     + [User Management](#user-management)
@@ -21,16 +21,16 @@ This section details the architecture of this SaaS Solution. Refer [README.md](R
     + [Tenant Provisioning](#tenant-provisioning)
   * [Pooled Application Services](#pooled-application-services)
     + [Storing Pooled Multi-Tenant Data](#storing-pooled-multi-tenant-data)
-- [Tenant Registration & Onboarding](#tenant-registration---onboarding)
+- [Tenant Registration & Onboarding](#tenant-registration--onboarding)
   * [Login as an onboarded tenant](#login-as-an-onboarded-tenant)
   * [Tenant provisioning with CodePipeline](#tenant-provisioning-with-codepipeline)
 - [API Authorization and Tenant Isolation](#api-authorization-and-tenant-isolation)
-  * [Authentication & Authorization](#authentication---authorization)
+  * [Authentication & Authorization](#authentication--authorization)
   * [Generating tenant isolation policies](#generating-tenant-isolation-policies)
   * [Applying Tenant Isolation inside Lambda](#applying-tenant-isolation)
   * [Alternate approaches to Tenant Isolation](#alternate-approaches-to-tenant-isolation)
 - [Hiding tenant details with Lambda Layers](#hiding-tenant-details-with-lambda-layers)
-    + [Tenant aware logging, metrics, and tracing](#tenant-aware-logging--metrics--and-tracing)
+    + [Tenant aware logging, metrics, and tracing](#tenant-aware-logging-metrics-and-tracing)
 - [Canary deployments to AWS Lambda](#canary-deployments-to-aws-lambda)
 - [Conclusion](#conclusion)
 
@@ -95,7 +95,7 @@ The landing page is a simple, anonymous signup page. It's representative of our 
 
 As part of this sign-up/onboarding flow, the system will also create a tenant admin user and send a verification email to the address that was provided during sign-up. The information in this email will allow you to access the system with a temporary password. This tenant admin user can now provision more tenant users as needed, using the sample SaaS application, described below.
 
-### Adminstration Application
+### Administration Application
 
 The administration application is meant to represent the experience that would be used by a SaaS Provider. This application provides the management and operations experience for your environment and its tenants.
 
