@@ -342,7 +342,7 @@ The serverless SaaS architecture also has a lightweight version of how you can i
 
 By calling the "record\_metric" method from your application, the system will record the metric which included the context of the tenant associated with that metric event. In Figure 10, you will see a sample metrics with tenant context.
 
-<p align="center"><img src="images/Metrics.png" alt="Tenant-aware metrics"/>Figure 10: Tenant-aware metrics</p>
+<p align="center"><img src="images/metrics.png" alt="Tenant-aware metrics"/>Figure 10: Tenant-aware metrics</p>
 
 If you look into the code of product and order service, you'll notice that we have used "@tracer.capture_lambda_handler" decorator above your lambda functions, provided by Lambda Powertools, along with a "tracer.put_annotation" method call. This was added to support tracing of your activity with X-Ray. This enables X-Ray to capture each and every call to the lambda function and add the tenant id as an annotation. Figure 11 below shows how you can use annotations to filter traces by tenant.
 
