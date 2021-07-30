@@ -35,7 +35,8 @@
                 <td>{{ tenant.tenantId }}</td>
                 <td>{{tenant.tenantTier }}</td>
                 <td>
-                  <span class="badge badge-success">Active</span>
+                  <span *ngIf="tenant.isActive" class="badge badge-success">Active</span>
+                  <span *ngIf="!tenant.isActive" class="badge badge-success">Inactive</span>
                 </td>
               </tr>
             </tbody>

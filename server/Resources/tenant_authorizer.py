@@ -28,7 +28,6 @@ def lambda_handler(event, context):
     if (token[0] != 'Bearer'):
         raise Exception('Authorization header should have a format Bearer <JWT> Token')
     jwt_bearer_token = token[1]
-    logger.info("Client token: " + jwt_bearer_token)
     logger.info("Method ARN: " + event['methodArn'])
     
     #only to get tenant id to get user pool info
@@ -126,7 +125,6 @@ def lambda_handler(event, context):
     
     authResponse['context'] = context
     authResponse['usageIdentifierKey'] = api_key
-    logger.info(authResponse)
     
     return authResponse
 
