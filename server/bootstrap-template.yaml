@@ -9,35 +9,35 @@ Parameters:
   AdminEmailParameter:
     Type: String
     Default: "test@test.com"
-    Description: "Enter system admin email address"
+    Description: "Enter the System Administrator email address"
   SystemAdminRoleNameParameter:
     Type: String
     Default: "SystemAdmin"
-    Description: "Enter the role name for system admin"
+    Description: "Enter the role name for the System Administrator"
   ApiKeyOperationUsersParameter:
     Type: String
     Default: "9a7743fa-3ae7-11eb-adc1-0242ac120002"
-    Description: "Enter default api key value to be used by api gateway for system admins"
+    Description: "Enter default API key value to be used by API Gateway for System Administrators"
   ApiKeyPlatinumTierParameter:
     Type: String
     Default: "88b43c36-802e-11eb-af35-38f9d35b2c15"
-    Description: "Enter default api key value to be used by api gateway for platinum tier tenants"
+    Description: "Enter default API key value to be used by API Gateway for Platinum Tier Tenants"
   ApiKeyPremiumTierParameter:
     Type: String
     Default: "6db2bdc2-6d96-11eb-a56f-38f9d33cfd0f"
-    Description: "Enter default api key value to be used by api gateway for premium tier tenants"
+    Description: "Enter default API key value to be used by API Gateway for Premium Tier Tenants"
   ApiKeyStandardTierParameter:
     Type: String
     Default: "b1c735d8-6d96-11eb-a28b-38f9d33cfd0f"
-    Description: "Enter default api key value to be used by api gateway for standard tier tenants"
+    Description: "Enter default API key value to be used by API Gateway for Standard Tier Tenants"
   ApiKeyBasicTierParameter:
     Type: String
     Default: "daae9784-6d96-11eb-a28b-38f9d33cfd0f"
-    Description: "Enter default api key value to be used by api gateway for basic tier tenants"
+    Description: "Enter default API key value to be used by API Gateway for Basic Tier Tenants"
   StageName:
     Type: String
     Default: "prod"
-    Description: "Stage Name for the api"
+    Description: "Stage Name for the API"
   LambdaCanaryDeploymentPreference:
     Type: String
     Default: "False"
@@ -194,47 +194,47 @@ Outputs:
     Export:
       Name: "Serverless-SaaS-LandingAppBucket"    
   ApplicationSite:
-    Description: The name of the cloudfornt url for Tenant Management site
+    Description: The name of the CloudFront url for Tenant Management site
     Value: !GetAtt UserInterface.Outputs.ApplicationSite
     Export:
       Name: "Serverless-SaaS-ApplicationSite"  
   AdminAppSite:
-    Description: The name of the cloudfornt url for Admin Management site
+    Description: The name of the CloudFront url for Admin Management site
     Value: !GetAtt UserInterface.Outputs.AdminAppSite
     Export:
       Name: "Serverless-SaaS-AdminAppSite"
   LandingApplicationSite:
-    Description: The name of the cloudfornt url for Landing site
+    Description: The name of the CloudFront url for Landing site
     Value: !GetAtt UserInterface.Outputs.LandingApplicationSite
     Export:
       Name: "Serverless-SaaS-LandingApplicationSite"    
   CognitoOperationUsersUserPoolProviderURL:
-    Description: The Admin Management userpool provider url
+    Description: The Admin Management Cognito User Pool provider url
     Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolProviderURL
     Export:
       Name: "Serverless-SaaS-AdminUserPoolProviderURL"  
   CognitoOperationUsersUserPoolClientId:
-    Description: The Admin Management userpool client id
+    Description: The Admin Management Cognito User Pool client id
     Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
     Export:
       Name: "Serverless-SaaS-AdminUserPoolClientId" 
   UsagePlanBasicTier: 
-    Description: The basic tier usage plan
+    Description: The Basic Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanBasicTier
     Export:
       Name: "Serverless-SaaS-UsagePlanBasicTier"
   UsagePlanStandardTier: 
-    Description: The standard tier usage plan
+    Description: The Standard Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanStandardTier
     Export:
       Name: "Serverless-SaaS-UsagePlanStandardTier"
   UsagePlanPremiumTier: 
-    Description: The premium tier usage plan
+    Description: The Premium Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanPremiumTier
     Export:
       Name: "Serverless-SaaS-UsagePlanPremiumTier"
   UsagePlanPlatinumTier: 
-    Description: The premium tier usage plan
+    Description: The Platinum Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanPlatinumTier
     Export:
       Name: "Serverless-SaaS-UsagePlanPlatinumTier" 
