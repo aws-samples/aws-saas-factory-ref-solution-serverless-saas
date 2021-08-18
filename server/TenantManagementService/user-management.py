@@ -22,7 +22,6 @@ def create_tenant_admin_user(event, context):
     tenant_user_pool_id = os.environ['TENANT_USER_POOL_ID']
     tenant_app_client_id = os.environ['TENANT_APP_CLIENT_ID']
     
-    logger.info(event)
     tenant_details = json.loads(event['body'])
     tenant_id = tenant_details['tenantId']
     logger.info(tenant_details)
@@ -71,7 +70,6 @@ def create_user(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to create new user")
-    logger.log_with_tenant_context(event, event)    
     
     if (auth_manager.isSystemAdmin(user_role)):
         user_tenant_id = user_details['tenantId']
@@ -128,8 +126,7 @@ def get_users(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to get user")
-    logger.log_with_tenant_context(event, event) 
-
+    
     if (auth_manager.isTenantAdmin(user_role) or auth_manager.isSystemAdmin(user_role)):
         response = client.list_users(
             UserPoolId=user_pool_id
@@ -174,7 +171,6 @@ def get_user(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to get user")
-    logger.log_with_tenant_context(event, event)    
 
     if (auth_manager.isSystemAdmin(user_role)):
         user_tenant_id = event['queryStringParameters']['tenantid']
@@ -212,8 +208,7 @@ def update_user(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to get user")
-    logger.log_with_tenant_context(event, event)    
-
+   
     if (auth_manager.isSystemAdmin(user_role)):
         user_tenant_id = user_details['tenantId']
         tenant_details = table_tenant_details.get_item( 
@@ -262,7 +257,6 @@ def disable_user(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to disable new user")
-    logger.log_with_tenant_context(event, event)    
     
     if (auth_manager.isSystemAdmin(user_role)):
         user_tenant_id = event['queryStringParameters']['tenantid']

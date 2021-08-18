@@ -20,7 +20,7 @@ table_tenant_stack_mapping = dynamodb.Table(tenant_stack_mapping_table_name)
 stack_name = 'stack-{0}'
 @tracer.capture_lambda_handler
 def provision_tenant(event, context):
-    logger.info(event)        
+    
     tenant_details = json.loads(event['body'])
     
     try:          
@@ -50,7 +50,6 @@ def provision_tenant(event, context):
 #this method uses IAM Authorization and protected using a resource policy. This method is also invoked async
 def deprovision_tenant(event, context):
     logger.info("Request received to deprovision a tenant")
-    logger.info(event) 
     
     tenantid_to_deprovision = event['tenantId']
     

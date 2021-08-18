@@ -92,7 +92,7 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       MethodSettings:
-        - DataTraceEnabled: True
+        - DataTraceEnabled: False
           LoggingLevel: INFO
           MetricsEnabled: True
           ResourcePath: "/*"

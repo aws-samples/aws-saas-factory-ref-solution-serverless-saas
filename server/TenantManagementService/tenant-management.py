@@ -22,7 +22,7 @@ region = os.environ['AWS_REGION']
 
 #This method has been locked down to be only
 def create_tenant(event, context):
-    logger.info(event)
+    
     api_gateway_url = ''       
     tenant_details = json.loads(event['body'])
 
@@ -64,7 +64,6 @@ def create_tenant(event, context):
         return utils.create_success_response("Tenant Created")
 
 def get_tenants(event, context):
-    logger.info(event)
     
     table_tenant_details = __getTenantManagementTable(event)
 
@@ -90,8 +89,7 @@ def update_tenant(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to update tenant")
-    logger.log_with_tenant_context(event, event)      
-
+    
     if ((auth_manager.isTenantAdmin(user_role) and tenant_id == requesting_tenant_id) or auth_manager.isSystemAdmin(user_role)):
         exiting_tenant_details = table_tenant_details.get_item(
                 Key={
@@ -140,8 +138,7 @@ def get_tenant(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to get tenant details")
-    logger.log_with_tenant_context(event, event)      
-
+    
     if ((auth_manager.isTenantAdmin(user_role) and tenant_id == requesting_tenant_id) or auth_manager.isSystemAdmin(user_role)):
         tenant_details = table_tenant_details.get_item(
             Key={
@@ -183,8 +180,7 @@ def deactivate_tenant(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to deactivate tenant")
-    logger.log_with_tenant_context(event, event)      
-
+    
     if ((auth_manager.isTenantAdmin(user_role) and tenant_id == requesting_tenant_id) or auth_manager.isSystemAdmin(user_role)):
         response = table_tenant_details.update_item(
             Key={
@@ -238,8 +234,7 @@ def activate_tenant(event, context):
     tracer.put_annotation(key="TenantId", value=tenant_id)
     
     logger.log_with_tenant_context(event, "Request received to activate tenant")
-    logger.log_with_tenant_context(event, event)      
-
+    
     if (auth_manager.isSystemAdmin(user_role)):
         response = table_tenant_details.update_item(
             Key={
@@ -275,7 +270,6 @@ def activate_tenant(event, context):
         return utils.create_unauthorized_response()    
 
 def load_tenant_config(event, context):
-    logger.info(event)
     params = event['pathParameters']
     tenantName = urllib.parse.unquote(params['tenantname'])
 

@@ -414,7 +414,6 @@ def lambda_handler(event, context):
         
     """
     try:
-        print (event)        
         # Extract the Job ID
         job_id = event['CodePipeline.job']['id']
         

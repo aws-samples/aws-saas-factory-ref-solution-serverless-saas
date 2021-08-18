@@ -88,7 +88,6 @@ def do_nothing(_, __):
     pass
 
 def handler(event, context):   
-    logger.info(event)
     helper(event, context)
         
     

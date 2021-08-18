@@ -588,7 +588,7 @@ Resources:
       # Auth:
       #   UsagePlan: !Ref TierUsagePlanParameter
       MethodSettings:
-        - DataTraceEnabled: True
+        - DataTraceEnabled: False
           LoggingLevel: INFO
           MetricsEnabled: True
           ResourcePath: '/*' 
