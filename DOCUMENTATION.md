@@ -53,7 +53,7 @@ Figure 1 represents the high-level architecture of this sample implementation. T
 
 ## Web Applications
 
-You will see that we have built three different applications that interact with the backend services of the environment. Each of these applications are built with AngularJS.
+You will see that we have built three different applications that interact with the backend services of the environment. Each of these applications are built with Angular.
 
 The "SaaS provider admin console" represents an application that is used by the administrators of a SaaS provider. These administrators can perform operations, such as, provisioning a new tenant, updating an existing tenant, and adding/updating users in the system. They can also disable and enable tenants/users as needed. 
 
