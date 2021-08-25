@@ -4,7 +4,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Template to deploy cloudfront and s3 bucket for UI code
+  Template to deploy CloudFront and S3 bucket for UI code
 Resources:
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -196,22 +196,22 @@ Resources:
         PriceClass: 'PriceClass_All'       
 Outputs:
   AdminBucket:
-    Description: The name of the bucket for uploading the Admin Management site to
+    Description: The name of the S3 Bucket for uploading the Admin Management site to
     Value: !Ref AdminAppBucket
   AdminAppSite:
-    Description: The name of the cloudfornt url for Admin Management site
+    Description: The name of the CloudFront url for the Admin Management site
     Value: !GetAtt AdminAppSite.DomainName
   AppBucket:
-    Description: The name of the bucket for uploading the Tenant Management site to
+    Description: The name of the S3 Bucket for uploading the Tenant Management site to
     Value: !Ref AppBucket
   ApplicationSite:
-    Description: The name of the cloudfornt url for Tenant Management site
+    Description: The name of the CloudFront url for the Tenant Management site
     Value: !GetAtt ApplicationSite.DomainName    
   LandingAppBucket:
-    Description: The name of the bucket for uploading the Landing site to
+    Description: The name of the S3 Bucket for uploading the Landing site to
     Value: !Ref LandingAppBucket
   LandingApplicationSite:
-    Description: The name of the cloudfornt url for Landing site
+    Description: The name of the CloudFront url for the Landing site
     Value: !GetAtt LandingApplicationSite.DomainName   
 
          
