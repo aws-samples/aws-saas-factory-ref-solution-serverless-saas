@@ -1,9 +1,11 @@
+#!/bin/bash -x
 #Create CodeCommit repo
 REGION=$(aws configure get region)
 aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
 if [[ $? -ne 0 ]]; then
      echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
-     aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository"
+     CREATE_REPO=$(aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository")
+     echo $CREATE_REPO
      REPO_URL="codecommit::${REGION}://aws-saas-factory-ref-serverless-saas"
      git remote add cc $REPO_URL
      if [[ $? -ne 0 ]]; then
@@ -102,7 +104,7 @@ export const environment = {
 };
 EoF
 
-npm install && npm run build
+npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://$ADMIN_SITE_BUCKET"
 aws s3 sync --delete --cache-control no-store dist s3://$ADMIN_SITE_BUCKET 
@@ -146,7 +148,7 @@ export const environment = {
 };
 EoF
 
-npm install && npm run build
+npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://$APP_SITE_BUCKET"
 aws s3 sync --delete --cache-control no-store dist s3://$APP_SITE_BUCKET 
@@ -188,7 +190,7 @@ export const environment = {
 };
 EoF
 
-npm install && npm run build
+npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://$LANDING_APP_SITE_BUCKET"
 aws s3 sync --delete --cache-control no-store dist s3://$LANDING_APP_SITE_BUCKET
