@@ -1,0 +1,72 @@
+name: SAM sample application
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  Build:
+    steps:
+      - name: Create folders
+        run: |
+          mkdir repo
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ./repo
+
+      - name: Build the app
+        working-directory: ./repo
+        run: |
+          sam build --use-container -t tenant-template.yaml
+          
+  DeploytoDev:
+    needs: [Build]
+    name: Deploy stack to AWS Dev Account
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ./repo
+
+      - name: Configure AWS credentials
+        id: dev_creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_DEV }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_DEV }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Dev Account
+        working-directory: ./repo
+        run: |
+          sam deploy --config-env dev --no-confirm-changeset
+
+  DeploytoProd:
+    needs: [Build, DeploytoDev]
+    name: Deploy stack to AWS Prod Account
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ./repo
+          
+      - name: Configure AWS credentials
+        id: creds
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          
+      - name: Deploy the Prod if dev deployment succeeds
+        working-directory: ./repo
+        run: |
+          sam deploy --config-env prod --no-confirm-changeset
