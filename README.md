@@ -25,13 +25,6 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 * Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
 * Make sure that you have Angular 11 or above
 * Make sure that you have Node 12 or above.
-* Ensure that CloudWatch log role ARN is set for the API Gateway. In order to do so, go to the API Gateway page, inside AWS Console, and click on any one of the REST APIs listed in the console (You might have to create an [Example REST API](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-from-example.html) if you don't have one created.). Click on Settings from the left navigation bar and provide an IAM role that have access to publish logs to CloudWatch. Refer [this](https://aws.amazon.com/premiumsupport/knowledge-center/api-gateway-cloudwatch-logs/) link if you need more details.
-<p align="center">
-    <img width=800 height=600 src="./images/APIGatewaySettings.png" alt="Settings"/>
-    <br>
-    Figure 2: CloudWatch log role ARN
-</p>
-
 ## Setting up the environment
 
     NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to select at least t3.large instance size and increase the volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). This is to make sure that you have enough compute and space to build the solution. 

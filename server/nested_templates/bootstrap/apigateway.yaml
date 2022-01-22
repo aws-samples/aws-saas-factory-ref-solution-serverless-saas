@@ -90,6 +90,7 @@ Resources:
       RetentionInDays: 30
   AdminApiGatewayApi:
     Type: AWS::Serverless::Api
+    DependsOn: ApiGatewayAttachCloudwatchLogArn
     Properties:
       MethodSettings:
         - DataTraceEnabled: False
