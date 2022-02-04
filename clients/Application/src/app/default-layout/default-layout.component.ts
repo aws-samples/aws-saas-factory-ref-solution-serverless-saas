@@ -45,7 +45,7 @@ export class DefaultLayoutComponent implements OnInit {
   }
 
   login() {
-    this.oidcSecurityService.authorize();
+    this.router.navigate(['/unauthorized']);
   }
 
   logout() {
