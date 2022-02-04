@@ -224,8 +224,8 @@ def update_user(event, context):
         logger.info(tenant_details)
         user_pool_id = tenant_details['Item']['userPoolId']        
     
-    if (auth_manager.isTenantUser(user_role) and user_name != requesting_user_name):                
-        logger.log_with_tenant_context(event, "Request completed as unauthorized. User can only update itself!")        
+    if (auth_manager.isTenantUser(user_role)):                
+        logger.log_with_tenant_context(event, "Request completed as unauthorized. Only tenant admin or system admin can update user!")        
         return utils.create_unauthorized_response()
     else:
         user_info = get_user_info(event, user_pool_id, user_name)
