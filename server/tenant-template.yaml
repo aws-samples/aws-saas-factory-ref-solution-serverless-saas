@@ -45,6 +45,7 @@ Parameters:
     Description: "Pass it as False if you want to disable the canary release for Lambda and don't want to wait for 5 mins to complete the release"
 Conditions:
   IsPooledDeploy: !Equals [ !Ref TenantIdParameter, pooled]
+  IsSiloDeploy: !Not [!Equals [ !Ref TenantIdParameter, pooled]]
   
 Resources: 
   ServerlessSaaSLayers:
@@ -96,6 +97,26 @@ Resources:
         WriteCapacityUnits: 5
       TableName: !Join ['-', [Order, !Ref TenantIdParameter]]  
 
+  ProductFunctionExecutionRolePolicy:
+    Condition: IsSiloDeploy
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Join ['-', [!Ref TenantIdParameter, product-function-policy]]
+      Roles: 
+        - !Ref ProductFunctionExecutionRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:              
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:Query
+            Resource:
+              - !GetAtt ProductTable.Arn
+
   ProductFunctionExecutionRole:
     Type: AWS::IAM::Role     
     Properties:
@@ -113,22 +134,7 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy    
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-      Policies:
-        - PolicyName: !Join ['-', [!Ref TenantIdParameter, product-function-policy]]
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:              
-              - Effect: Allow
-                Action:
-                  - dynamodb:GetItem
-                  - dynamodb:UpdateItem
-                  - dynamodb:PutItem
-                  - dynamodb:DeleteItem
-                  - dynamodb:Query
-                Resource:
-                  - !GetAtt ProductTable.Arn
-             
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess      
   GetProductFunction:
     Type: AWS::Serverless::Function 
     DependsOn: ProductFunctionExecutionRole 
@@ -335,7 +341,27 @@ Resources:
           Value: !Ref DeleteProductFunction
         - Name: ExecutedVersion
           Value: !GetAtt DeleteProductFunction.Version.Version    
-  
+
+  OrderFunctionExecutionRolePolicy:
+    Condition: IsSiloDeploy
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Join ['-', [!Ref TenantIdParameter, order-function-policy]]
+      Roles: 
+        - !Ref OrderFunctionExecutionRole
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:              
+          - Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:UpdateItem
+              - dynamodb:PutItem
+              - dynamodb:DeleteItem
+              - dynamodb:Query
+            Resource:
+              - !GetAtt OrderTable.Arn
+
   OrderFunctionExecutionRole:
     Type: AWS::IAM::Role     
     Properties:
@@ -353,22 +379,7 @@ Resources:
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy    
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
-      Policies:
-        - PolicyName: !Join ['-', [!Ref TenantIdParameter, order-function-policy]]
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:              
-              - Effect: Allow
-                Action:
-                  - dynamodb:GetItem
-                  - dynamodb:UpdateItem
-                  - dynamodb:PutItem
-                  - dynamodb:DeleteItem
-                  - dynamodb:Query
-                Resource:
-                  - !GetAtt OrderTable.Arn
-                
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess        
   GetOrdersFunction:
     Type: AWS::Serverless::Function 
     DependsOn: OrderFunctionExecutionRole 
