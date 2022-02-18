@@ -77,7 +77,10 @@ Resources:
       ProvisionedThroughput: 
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-      TableName: !Join ['-', [Product, !Ref TenantIdParameter]]  
+      TableName: !Join ['-', [Product, !Ref TenantIdParameter]] 
+      Tags:
+        - Key: "TenantId"
+          Value: !Ref TenantIdParameter 
 
   OrderTable:
     Type: AWS::DynamoDB::Table
@@ -95,7 +98,10 @@ Resources:
       ProvisionedThroughput: 
         ReadCapacityUnits: 5
         WriteCapacityUnits: 5
-      TableName: !Join ['-', [Order, !Ref TenantIdParameter]]  
+      TableName: !Join ['-', [Order, !Ref TenantIdParameter]] 
+      Tags:
+        - Key: "TenantId"
+          Value: !Ref TenantIdParameter  
 
   ProductFunctionExecutionRolePolicy:
     Condition: IsSiloDeploy
