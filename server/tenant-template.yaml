@@ -158,6 +158,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref GetProductFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter       
   GetProductFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -200,6 +202,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref GetProductsFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   GetProductsFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -241,6 +245,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref CreateProductFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   CreateProductFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -282,6 +288,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref UpdateProductFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter  
   UpdateProductFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -323,6 +331,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref DeleteProductFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   DeleteProductFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -403,6 +413,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref GetOrdersFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   GetOrdersFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -445,6 +457,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref GetOrderFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter   
   GetOrderFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -486,6 +500,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref CreateOrderFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter   
   CreateOrderFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -527,6 +543,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref UpdateOrderFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   UpdateOrderFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -568,6 +586,8 @@ Resources:
         Type: Canary10Percent5Minutes
         Alarms:
           - !Ref DeleteOrderFunctionCanaryErrorsAlarm
+      Tags:
+        TenantId: !Ref TenantIdParameter    
   DeleteOrderFunctionCanaryErrorsAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
