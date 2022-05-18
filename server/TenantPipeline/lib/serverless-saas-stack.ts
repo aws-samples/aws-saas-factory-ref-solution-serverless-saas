@@ -1,22 +1,22 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 
-import * as cdk from '@aws-cdk/core';
-import { CfnParameter, Duration } from '@aws-cdk/core'; 
+import { Construct } from 'constructs';
+import * as cdk from 'aws-cdk-lib';
 
-import s3 = require('@aws-cdk/aws-s3');
-import codecommit = require('@aws-cdk/aws-codecommit');
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import * as codecommit from 'aws-cdk-lib/aws-codecommit';
+import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
+import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
+import * as codebuild from 'aws-cdk-lib/aws-codebuild';
 
-import codepipeline = require('@aws-cdk/aws-codepipeline');
-import codepipeline_actions = require('@aws-cdk/aws-codepipeline-actions');
-import codebuild = require('@aws-cdk/aws-codebuild');
-
-import { Function, Runtime, AssetCode } from '@aws-cdk/aws-lambda'
-import { PolicyStatement } from "@aws-cdk/aws-iam"
+import { Function, Runtime, AssetCode } from 'aws-cdk-lib/aws-lambda';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { Duration } from 'aws-cdk-lib';
 
 
 export class ServerlessSaaSStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const artifactsBucket = new s3.Bucket(this, "ArtifactsBucket");

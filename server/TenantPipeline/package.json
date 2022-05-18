@@ -14,21 +14,18 @@
     "@aws-cdk/assert": "1.64.1",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
-    "aws-cdk": "^1.102.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0",
     "jest": "^26.4.2",
     "node-notifier": "^8.0.1",
     "ts-jest": "^26.2.0",
     "ts-node": "^8.1.0",
-    "typescript": "~3.9.7"
+    "typescript": "~3.9.7",
+    "@types/prettier": "2.6.0"
   },
   "dependencies": {
-    "@aws-cdk/aws-codebuild": "^1.109.0",
-    "@aws-cdk/aws-codecommit": "^1.109.0",
-    "@aws-cdk/aws-codedeploy": "^1.109.0",
-    "@aws-cdk/aws-codepipeline-actions": "^1.109.0",
-    "@aws-cdk/aws-dynamodb": "^1.109.0",
-    "@aws-cdk/aws-s3": "^1.109.0",
-    "@aws-cdk/core": "^1.109.0",
+    "aws-cdk-lib": "^2.0.0",
+    "constructs": "^10.0.0",
     "source-map-support": "^0.5.19"
   }
 }
