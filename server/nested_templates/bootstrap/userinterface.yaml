@@ -15,6 +15,10 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy : Retain
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
       PublicAccessBlockConfiguration: 
         BlockPublicAcls: True
         BlockPublicPolicy: True
@@ -78,6 +82,10 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy : Retain
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
       PublicAccessBlockConfiguration: 
         BlockPublicAcls: True
         BlockPublicPolicy: True
@@ -138,6 +146,10 @@ Resources:
     Type: AWS::S3::Bucket
     DeletionPolicy : Retain
     Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: 'AES256'
       PublicAccessBlockConfiguration: 
         BlockPublicAcls: True
         BlockPublicPolicy: True

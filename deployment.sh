@@ -38,6 +38,9 @@ if [ $? -ne 0 ]; then
     UUID=$(uuidgen | awk '{print tolower($0)}')
     SAM_S3_BUCKET=sam-bootstrap-bucket-$UUID
     aws s3 mb s3://$SAM_S3_BUCKET --region $REGION
+    aws s3api put-bucket-encryption \
+      --bucket $SAM_S3_BUCKET \
+      --server-side-encryption-configuration '{"Rules": [{"ApplyServerSideEncryptionByDefault": {"SSEAlgorithm": "AES256"}}]}'
     if [[ $? -ne 0 ]]; then
       exit 1
     fi
