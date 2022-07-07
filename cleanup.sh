@@ -84,10 +84,14 @@ STACK_STATUS_FILTER="CREATE_COMPLETE ROLLBACK_COMPLETE UPDATE_COMPLETE UPDATE_RO
 while true; do
     if [[ "${next_token}" == "" ]]; then
         echo "$(date) making api call to search for platinum tenants..."
-        response=$(aws cloudformation list-stacks --stack-status-filter "$STACK_STATUS_FILTER")
+        # shellcheck disable=SC2086
+        # ignore shellcheck error for adding a quote as that causes the api call to fail
+        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER)
     else
         echo "$(date) making api call to search for platinum tenants..."
-        response=$(aws cloudformation list-stacks --stack-status-filter "$STACK_STATUS_FILTER" --starting-token "$next_token")
+        # shellcheck disable=SC2086
+        # ignore shellcheck error for adding a quote as that causes the api call to fail
+        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER --starting-token "$next_token")
     fi
 
     tenant_stacks=$(echo "$response" | jq -r '.StackSummaries[].StackName | select(. | test("^stack-*"))')
