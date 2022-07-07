@@ -25,13 +25,14 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 * Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
 * Make sure that you have Angular 11 or above
 * Make sure that you have Node 12 or above.
+
 ## Setting up the environment
 
     NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to select at least t3.large instance size and increase the volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). This is to make sure that you have enough compute and space to build the solution. 
 
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
-```
+```bash
 . deployment.sh test@test.com
 ```
 
@@ -42,7 +43,6 @@ This script will take few minutes to complete. Once complete it will deploy the 
 * Deploy the pooled tenant stack, using code pipeline, which deploys the multi-tenant order and product services. 
 * Deploy three web applications, namely "SaaS Provider Admin console", "Landing/sign-up application" and "Sample SaaS commerce application", using S3 and CloudFront. The script will output the URL for these three user interfaces, after it finishes.
 
-
 Once the above script finishes successfully, go to the CodePipeline page, inside AWS Console, to make sure that the Pipeline has been deployed successfully. You might have to wait for few minutes before the Pipeline finishes.
 <p align="center">
     <img  width=700 height=200  src="./images/CodePipeline.png" alt="CodePipeline"/>
@@ -50,15 +50,25 @@ Once the above script finishes successfully, go to the CodePipeline page, inside
     Figure 3: Code Pipeline
 </p>
 
-
 ## Steps to Clean-up
-Use the below steps to perform clean-up in your account:
+
+Run the following helper script to clean up reference solution resources:
+
+```bash
+./cleanup.sh
+```
+This script will complete the following steps in order:
+
 1. Delete the CloudFormation stack named "stack-pooled".
-2. Depending upon how many Platinum tier tenants you have provisioned, delete the tenant specific stacks. They will all be named as "stack-TENANTID", where TENANTID is a UUID.
-3. Delete the baseline stack named as "serverless-saas". Make sure the above two stacks are deleted before you try deleting this.
+2. Delete the tenant specific stacks. They will all be named as "stack-TENANTID", where TENANTID is a UUID.
+3. Delete the baseline stack named as "serverless-saas".
 4. Delete the Tenant Pipeline stack named as "serverless-saas-pipeline".
 5. Delete the CodeCommit repository created by the script. It should be named as "aws-saas-factory-ref-serverless-saas".
 6. Delete any left over S3 Buckets. They should start with a prefix "serverless-saas" and "sam-bootstrap-bucket".
+7. Delete leftover CloudWatch Log Groups. These are logs created by different lambdas and have the prefix "stack-" or "serverless-saas-".
+8. Delete leftover AWS Cognito User Pools. These have the suffix "-ServerlessSaaSUserPool".
+
+NOTE: If you used Cloud9 to deploy the architecture, then make sure to delete that instance. This will not be done by the script, and will need to be done manually.
 
 ## License
 This library is licensed under the MIT-0 License. See the LICENSE file.
