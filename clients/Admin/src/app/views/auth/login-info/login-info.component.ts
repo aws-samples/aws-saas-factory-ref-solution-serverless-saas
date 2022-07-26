@@ -1,57 +1,63 @@
 /*
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * SPDX-License-Identifier: MIT-0
  */
 import { Component, OnInit } from '@angular/core';
-import { OidcClientNotification, OidcSecurityService, PublicConfiguration } from 'angular-auth-oidc-client';
-import { Observable } from 'rxjs';
+import { from, Observable, pipe } from 'rxjs';
+import { Auth } from 'aws-amplify';
+import { CognitoUserSession } from 'amazon-cognito-identity-js';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-info',
   templateUrl: './login-info.component.html',
-  styleUrls: ['login-info.component.scss']
+  styleUrls: ['login-info.component.scss'],
 })
 export class LoginInfoComponent implements OnInit {
-  configuration: PublicConfiguration;
-  userDataChanged$: Observable<OidcClientNotification<any>>;
+  session$: Observable<CognitoUserSession>;
   userData$: Observable<any>;
   isAuthenticated$: Observable<boolean>;
   checkSessionChanged$: Observable<boolean>;
+  idToken$: Observable<string>;
+  accessToken$: Observable<string>;
   checkSessionChanged: any;
-  idToken: any;
-  accessToken: any;
 
-  constructor(public oidcSecurityService: OidcSecurityService) {}
+  constructor() {}
 
-  ngOnInit() {
-      this.configuration = this.oidcSecurityService.configuration;
-      this.userData$ = this.oidcSecurityService.userData$;
-      this.isAuthenticated$ = this.oidcSecurityService.isAuthenticated$;
-      this.checkSessionChanged$ = this.oidcSecurityService.checkSessionChanged$;
-      this.idToken = this.oidcSecurityService.getIdToken()?.trim();
-      this.accessToken = this.oidcSecurityService.getToken()?.trim();
-    }
-
-  login() {
-      this.oidcSecurityService.authorize();
+  ngOnInit(): void {
+    this.session$ = from(Auth.currentSession());
+    this.accessToken$ = this.session$.pipe(
+      map((sesh) => sesh.getAccessToken().getJwtToken())
+    );
+    this.idToken$ = this.session$.pipe(
+      map((sesh) => sesh.getIdToken().getJwtToken())
+    );
+    this.isAuthenticated$ = this.session$.pipe(map((sesh) => sesh.isValid()));
   }
 
-  forceRefreshSession() {
-      this.oidcSecurityService.forceRefreshSession().subscribe((result) => console.warn(result));
-  }
   logout() {
-      this.oidcSecurityService.logoff();
+    Auth.signOut();
+  }
+
+  async forceRefreshSession() {
+    try {
+      const cognitoUser = await Auth.currentAuthenticatedUser();
+      const currentSession = await Auth.currentSession();
+      cognitoUser.refreshSession(
+        currentSession.getRefreshToken(),
+        (err, session) => {
+          console.log('session', err, session);
+          this.accessToken$ = new Observable<string>((s) => {
+            s.next(session.getAccessToken().getJwtToken());
+          });
+
+          this.idToken$ = new Observable<string>((s) => {
+            s.next(session.getIdToken().getJwtToken());
+          });
+        }
+      );
+    } catch (e) {
+      console.log('Unable to refresh Token', e);
+    }
   }
 }

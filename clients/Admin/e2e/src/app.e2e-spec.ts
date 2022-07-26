@@ -10,7 +10,7 @@ describe('workspace-project App', () => {
 
   it('should display welcome message', async () => {
     await page.navigateTo();
-    expect(await page.getTitleText()).toEqual('serverless-saas-ref-arch-admin app is running!');
+    expect(await page.getTitleText()).toEqual('admin app is running!');
   });
 
   afterEach(async () => {

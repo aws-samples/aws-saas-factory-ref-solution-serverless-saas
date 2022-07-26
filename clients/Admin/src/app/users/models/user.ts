@@ -1,5 +1,8 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: MIT-0
+ */
 export interface User {
-  user_name: string;
   email: string;
   created?: string;
   modified?: string;

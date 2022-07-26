@@ -44,3 +44,27 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# We want to exclude the environment settings here because we're rewriting all the time upon build
+# This is NOT something you would normally do in an Angular project
+environments/
+
+#amplify
+amplify/\#current-cloud-backend
+amplify/.config/local-*
+amplify/logs
+amplify/mock-data
+amplify/backend/amplify-meta.json
+amplify/backend/awscloudformation
+amplify/backend/.temp
+build/
+dist/
+node_modules/
+aws-exports.js
+awsconfiguration.json
+amplifyconfiguration.json
+amplifyconfiguration.dart
+amplify-build-config.json
+amplify-gradle-config.json
+amplifytools.xcconfig
+.secret-*

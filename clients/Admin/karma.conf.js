@@ -25,7 +25,7 @@ module.exports = function (config) {
       suppressAll: true // removes the duplicated traces
     },
     coverageReporter: {
-      dir: require('path').join(__dirname, './coverage/serverless-saas-ref-arch-admin'),
+      dir: require('path').join(__dirname, './coverage/admin'),
       subdir: '.',
       reporters: [
         { type: 'html' },

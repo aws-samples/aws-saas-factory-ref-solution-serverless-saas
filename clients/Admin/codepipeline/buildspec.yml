@@ -1,0 +1,27 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - REGISTRY=$(echo $ADMINAPPLICATIONECR| cut -d'/' -f 1)
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $REGISTRY
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - cd client/web/admin
+      - chmod +x setenv.sh
+      - ./setenv.sh $ELBURL $REGION $USERPOOLID $APPCLIENTID
+      - docker build -t $ADMINAPPLICATIONECR:latest .
+      - docker tag $ADMINAPPLICATIONECR:latest $ADMINAPPLICATIONECR:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $ADMINAPPLICATIONECR:latest
+      - docker push $ADMINAPPLICATIONECR:$IMAGE_TAG
+      - echo $ADMINAPPLICATIONECR:$IMAGE_TAG

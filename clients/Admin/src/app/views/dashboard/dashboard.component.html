@@ -26,7 +26,7 @@
           <div class="small text-muted">December 2020</div>
         </div><!--/.col-->
         <div class="col-sm-7 d-none d-md-block">
-          <button type="button" class="btn btn-primary float-right"><i class="icon-cloud-download"></i></button>
+          <button type="button" class="btn btn-primary float-right"><i class="fa fa-cloud"></i></button>
           <div class="btn-group btn-group-toggle float-right mr-3" data-toggle="buttons">
             <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Day" id="option1">Day</label>
             <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Month" id="option2">Month</label>
@@ -36,7 +36,7 @@
       </div><!--/.row-->
       <div class="chart-wrapper" style="height:300px;margin-top:40px;">
         <canvas baseChart class="chart"
-        [datasets]="mainChartData"j
+        [datasets]="mainChartData"
         [labels]="mainChartLabels"
         [options]="mainChartOptions"
         [colors]="mainChartColours"

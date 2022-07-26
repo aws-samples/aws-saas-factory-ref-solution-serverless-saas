@@ -20,22 +20,24 @@
           <div class="card-header">Access Token</div>
           <div class="card-body">
             <pre>
-              <code contenteditable spellcheck="false">
-                {{accessToken}}
+              <code spellcheck="false">
+                {{accessToken$ | async}}
               </code>
             </pre>
           </div>
         </div>
       </div>
       <div class="col-sm-6">
-        <figure>
-          <figcaption>ID Token</figcaption>
-          <pre>
-            <code contenteditable spellcheck="false">
-              {{idToken}}
-            </code>
-          </pre>
-        </figure>
+        <div class="card">
+          <div class="card-header">ID Token</div>
+          <div class="card-body">
+            <pre>
+              <code spellcheck="false">
+                {{idToken$ | async}}
+              </code>
+            </pre>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -43,10 +45,10 @@
   <hr />
 
   <br />
-  Is Authenticated: {{ isAuthenticated }}
+  Is Authenticated: {{ isAuthenticated$ | async }}
   <br />
   userData
-  <pre>{{ userData$ | async | json }}</pre>
+  <pre>{{ session$ | async | json }}</pre>
   <br />
 </div>
 
@@ -55,6 +57,3 @@
   <hr />
   You are NOT authenticated
 </ng-template>
-
-<div>Configuration loaded:</div>
-<pre>{{ configuration | json }}</pre>

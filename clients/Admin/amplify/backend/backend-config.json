@@ -1,0 +1,11 @@
+{
+  "auth": {
+    "admin211a75b9": {
+      "service": "Cognito",
+      "serviceType": "imported",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  }
+}

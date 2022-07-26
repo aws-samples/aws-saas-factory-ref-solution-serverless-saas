@@ -122,7 +122,14 @@
           <a class="ml-auto" routerLink="/tenants"
             ><button class="btn button-secondary">Cancel</button></a
           >
-          <button type="submit" (click)="onSubmit()" class="btn btn-primary" [disabled]="!form.valid || submitting">Create</button>
+          <button
+            type="submit"
+            (click)="onSubmit()"
+            class="btn btn-primary"
+            [disabled]="!form.valid"
+          >
+            Create
+          </button>
         </div>
       </div>
     </div>
