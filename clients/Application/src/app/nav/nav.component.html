@@ -1,0 +1,87 @@
+<amplify-authenticator [hideSignUp]="true">
+  <ng-template
+    amplifySlot="authenticated"
+    let-user="user"
+    let-signOut="signOut"
+  >
+    <mat-sidenav-container fullscreen>
+      <mat-sidenav
+        [mode]="'side'"
+        #drawer
+        class="sidenav"
+        fixedInViewport
+        [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+        [mode]="(isHandset$ | async) ? 'over' : 'side'"
+        [opened]="(isHandset$ | async) === false"
+      >
+        <div class="sidebar-icon-container">
+          <mat-icon svgIcon="saas-commerce" class="logo"></mat-icon>
+        </div>
+        <mat-divider></mat-divider>
+        <mat-nav-list>
+          <mat-list-item *ngFor="let navItem of navItems">
+            <mat-icon mat-list-icon class="nav-icon material-symbols-outlined">{{
+              navItem.icon
+            }}</mat-icon>
+            <a mat-list-item routerLink="{{ navItem.url }}">{{ navItem.name }}</a>
+          </mat-list-item>
+        </mat-nav-list>
+      </mat-sidenav>
+
+      <mat-toolbar #toolbar class="sidenav-content-container">
+        <button
+          type="button"
+          mat-icon-button
+          (click)="drawer.toggle()"
+          title="Open sidenav"
+        >
+          <mat-icon>menu</mat-icon>
+        </button>
+        <span>{{ (companyName$ | async) || "" }}</span>
+        <span class="spacer"></span>
+        <button
+          mat-icon-button
+          aria-label="account circle with outlined person icon"
+          [matMenuTriggerFor]="useroptions"
+        >
+          <mat-icon class="material-symbols-outlined">person_filled</mat-icon>
+        </button>
+      </mat-toolbar>
+      <mat-menu #useroptions="matMenu">
+        <ng-template #loggedOut>
+          <button mat-menu-item>
+            <mat-icon class="material-symbols-outlined">lock_open</mat-icon>
+            <span>Login</span>
+          </button>
+        </ng-template>
+        <span style="margin: 8px">{{ (username$ | async) || user.username}}</span>
+        <mat-divider></mat-divider>
+        <button mat-menu-item>
+          <mat-icon class="material-symbols-outlined">face</mat-icon>
+          <span>Profile</span>
+        </button>
+        <button routerLink="/auth/info" mat-menu-item>
+          <mat-icon class="material-symbols-outlined">construction</mat-icon>
+          <span>Auth Debug</span>
+        </button>
+        <button (click)="signOut()" mat-menu-item>
+          <mat-icon class="material-symbols-outlined">construction</mat-icon>
+          <span>Sign Out</span>
+        </button>
+      </mat-menu>
+      <div class="content" #main>
+        <router-outlet></router-outlet>
+      </div>
+
+      <div class="footer" #footer>
+        <div class="footer-text">
+          <span>EKS SaaS Workshop &copy; 2022 AWS</span>
+          <span class="spacer"></span>
+          <span>
+            Powered by <a href="https://aws.amazon.com">SaaS Factory</a>
+          </span>
+        </div>
+      </div>
+    </mat-sidenav-container>
+  </ng-template>
+</amplify-authenticator>

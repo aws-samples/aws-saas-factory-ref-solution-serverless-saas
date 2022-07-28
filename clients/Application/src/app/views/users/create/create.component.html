@@ -1,0 +1,118 @@
+<!-- <alert type="danger" *ngIf="error" [dismissible]="true">
+  <strong>Oh snap!</strong> There was an error create.
+</alert> -->
+<!-- <alert type="success" *ngIf="success" [dismissible]="true">
+  <strong>Success!</strong> Sucessfully created new user.
+</alert> -->
+<mat-card class="card">
+  <mat-card-title>Create User</mat-card-title>
+  <mat-card-subtitle>Upon submission, a new user account will be created and we'll send an email to the provided address with login instructions</mat-card-subtitle>
+  <mat-card-content>
+    <mat-form-field appearance="outline">
+      <input
+      type="email"
+      id="email"
+      name="email"
+      class="form-control"
+      formControlName="email"
+      placeholder="Email"
+      [ngClass]="displayFieldCss('email')"
+      required
+      />
+      <mat-icon matSuffix>home</mat-icon>
+    </mat-form-field>
+
+    <mat-card-actions>
+      <div class="button-panel">
+        <button
+        mat-raised-button
+        class="btn btn-block btn-primary"
+        [disabled]="!!userForm.errors"
+        (click)="onSubmit()"
+        type="button"
+        >
+          <span>Create</span>
+        </button>
+        <button
+          mat-raised-button
+          class="btn btn-block btn-danger"
+          routerLink="/users"
+          type="button"
+        >
+          <span>Cancel</span>
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card-content>
+</mat-card>
+
+
+<div class="app-body">
+  <div class="container d-flex">
+    <div class="row mt-3">
+      <div class="col-md-6">
+        <div class="card mx-4">
+          <div class="card-body p-4">
+            <form [formGroup]="userForm">
+              <h1>Create User</h1>
+              <p class="text-muted">
+                Upon submission, a new user account will be created and we'll
+                send an email to the provided address with login instructions
+              </p>
+              <div class="form-group">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="fa fa-envelope"></i>
+                    </span>
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    class="form-control"
+                    formControlName="email"
+                    placeholder="Email"
+                    [ngClass]="displayFieldCss('email')"
+                    required
+                  />
+                </div>
+                <div *ngIf="isFieldInvalid('email')" class="alert alert-danger">
+                  <div *ngIf="hasRequiredError('email')">
+                    Email is required.
+                  </div>
+                  <div *ngIf="hasError('email', 'email')">
+                    Email is invalid.
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer p-4">
+            <div class="row">
+              <div class="col-6">
+                <button
+                  class="btn btn-block btn-primary"
+                  [disabled]="!!userForm.errors"
+                  (click)="onSubmit()"
+                  type="button"
+                >
+                  <span>Create</span>
+                </button>
+              </div>
+              <div class="col-6">
+                <button
+                  class="btn btn-block btn-danger"
+                  routerLink="/users"
+                  type="button"
+                >
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

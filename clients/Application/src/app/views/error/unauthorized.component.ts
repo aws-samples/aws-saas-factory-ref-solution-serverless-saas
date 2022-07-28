@@ -15,37 +15,64 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { Component, OnInit } from '@angular/core';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthConfigurationService } from './../auth/auth-configuration.service';
 import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDialogModule } from '@angular/material/dialog';
+import {
+  MatFormFieldModule,
+  MAT_FORM_FIELD_DEFAULT_OPTIONS,
+} from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-unauthorized',
   templateUrl: './unauthorized.component.html',
-  styleUrls: [ './unauthorized.component.scss'  ]
+  styleUrls: ['./unauthorized.component.scss'],
 })
 export class UnauthorizedComponent implements OnInit {
   tenantForm: FormGroup;
   params$: Observable<void>;
   error = false;
-  errorMessage : string;
+  errorMessage: string;
 
-  constructor(private oidcSecurityService: OidcSecurityService, private fb: FormBuilder,
+  constructor(
+    private fb: FormBuilder,
     private authConfigService: AuthConfigurationService,
-    private router: Router) {
-    this.tenantForm = this.fb.group({
-      tenantName: [null, [Validators.required]]
-    });
-  }
+    private _snackBar: MatSnackBar,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    this.tenantForm = this.fb.group({
+      tenantName: [null, [Validators.required]],
+    });
+
+    console.log('checking if tenant name is provided...');
+
+    if (localStorage.getItem('tenantName')) {
+      console.log(
+        'exists, routing to dashboard',
+        localStorage.getItem('tenantName')
+      );
+      this.router.navigate(['/dashboard']);
+    }
   }
 
   isFieldInvalid(field: string) {
     const formField = this.tenantForm.get(field);
-    return formField.invalid && (formField.dirty || formField.touched);
+    return (
+      formField && formField.invalid && (formField.dirty || formField.touched)
+    );
   }
 
   displayFieldCss(field: string) {
@@ -55,31 +82,41 @@ export class UnauthorizedComponent implements OnInit {
   }
 
   hasRequiredError(field: string) {
-    return this.hasError(field, 'required');
+    return !!this.tenantForm.get(field)?.hasError('required');
   }
 
-  hasError(field: string, error: any) {
-    const formField = this.tenantForm.get(field);
-    return !!formField.errors[error];
-  }
+  // hasError(field: string, error: any) {
+  //   const formField = this.tenantForm.get(field);
+  //   return !!formField?.errors[error];
+  // }
 
+  openErrorMessageSnackBar(errorMessage: string) {
+    this._snackBar.open(errorMessage, 'Dismiss', {
+      duration: 4 * 1000, // seconds
+    });
+  }
 
   login() {
-
     let tenantName = this.tenantForm.value.tenantName;
-    this.authConfigService.setTenantConfig(tenantName)
-     .then((val)=>{
-      this.oidcSecurityService.authorize();
-
-    }).catch((errorResponse) => {
+    if (!tenantName) {
+      this.errorMessage = 'No tenant name provided.';
       this.error = true;
-      this.errorMessage = errorResponse.error.message;
+      this.openErrorMessageSnackBar(this.errorMessage);
+      return false;
+    }
 
-    });
+    this.authConfigService
+      .setTenantConfig(tenantName)
+      .then((val) => {
+        console.log('done configuring auth!!!');
+        this.router.navigate(['/dashboard']);
+      })
+      .catch((errorResponse) => {
+        this.error = true;
+        this.errorMessage = errorResponse.error.message;
+        this.openErrorMessageSnackBar(this.errorMessage);
+      });
 
     return false;
   }
-
-
-
 }

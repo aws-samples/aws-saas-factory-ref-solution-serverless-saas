@@ -1,0 +1,36 @@
+<div class="row">
+  <div class="col-lg-12">
+    <div class="card">
+      <div class="card-header">
+        <i class="fa fa-align-justify"></i> Users Table
+      </div>
+      <div class="card-body">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Created Date</th>
+              <th>Modified Date</th>
+              <th>Verified</th>
+              <th>Status</th>
+              <th>Enabled</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users | async">
+              <td>{{user.email}}</td>
+              <td>{{user.created | date}}</td>
+              <td>{{user.modified | date}}</td>
+              <td>{{user.verified}}</td>
+              <td>{{user.status}}</td>
+              <td>{{user.enabled}}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="row">
+          <button routerLink="/users/create" class="ml-3 btn btn-primary">Add User</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

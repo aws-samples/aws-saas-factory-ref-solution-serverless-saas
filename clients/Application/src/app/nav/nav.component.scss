@@ -1,0 +1,57 @@
+.sidenav {
+  width: 200px;
+  background-color: #2f353a;
+}
+
+.mat-list-item {
+  color: whitesmoke;
+}
+
+.sidebar-icon-container {
+  height: 64px;
+  background-color: whitesmoke;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+.nav-icon {
+  color: #20a8d8;
+}
+
+.footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 40px;
+  background-color: whitesmoke;
+  color: #2d3337;
+  // text-align: center;
+  margin: 0px;
+}
+
+.footer-text {
+  display: flex;
+}
+
+.content {
+  position: absolute;
+  width: 100%;
+  height: 90%;
+  max-height: 90%;
+  overflow: auto;
+  background-color: lightgray;
+}

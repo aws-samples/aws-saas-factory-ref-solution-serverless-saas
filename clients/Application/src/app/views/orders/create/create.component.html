@@ -1,0 +1,69 @@
+<div class="order-form container">
+  <div class="row">
+    <div class="col-md-6">
+      <form [formGroup]="orderForm" (submit)="submit()">
+        <mat-card class="card">
+          <mat-card-title>Create new order</mat-card-title>
+          <mat-card-content>
+            <mat-form-field>
+              <mat-label>Enter order name</mat-label>
+              <input
+                matInput
+                placeholder="order name"
+                formControlName="orderName"
+                required
+              />
+              <mat-error *ngIf="name?.invalid">Name is required</mat-error>
+            </mat-form-field>
+            <div class="order-products">
+              <div *ngFor="let op of orderProducts" class="row">
+                <div class="col-6">{{ op.product.name }}</div>
+                <div class="col-3">{{ op.product.price | currency }}</div>
+                <div class="col-1">{{ op.quantity || 0 }}</div>
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    color="primary"
+                    aria-label="Icon button with add icon"
+                    (click)="add(op)"
+                  >
+                    <mat-icon>add</mat-icon>
+                  </button>
+                </div>
+                <div class="col-1">
+                  <button
+                    mat-mini-fab
+                    color="warn"
+                    aria-label="Icon button with remove icon"
+                    (click)="remove(op)"
+                  >
+                    <mat-icon>remove</mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <mat-card-footer>
+              <div class="button-panel">
+                <button
+                  mat-raised-button
+                  color="primary"
+                  type="submit"
+                  [disabled]="!orderForm.valid"
+                >
+                  Submit
+                </button>
+                <button
+                  mat-raised-button
+                  color="warn"
+                  [routerLink]="['orders']"
+                >
+                  Cancel
+                </button>
+              </div>
+            </mat-card-footer>
+          </mat-card-content>
+        </mat-card>
+      </form>
+    </div>
+  </div>
+</div>

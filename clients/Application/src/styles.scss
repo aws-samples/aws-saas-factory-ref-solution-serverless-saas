@@ -1,1 +1,23 @@
 /* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/icon?family=Material+Symbols|Material+Symbols+Outlined");
+@import "~@aws-amplify/ui-angular/theme.css";
+
+@import "~bootstrap/scss/functions";
+@import "styles/variables";
+
+// Import functions, variables, and mixins needed by other Bootstrap files
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/maps";
+@import "~bootstrap/scss/mixins";
+
+// Import Bootstrap Reboot
+@import "~bootstrap/scss/root"; // Contains :root CSS variables used by other Bootstrap files
+@import "~bootstrap/scss/reboot";
+
+@import "~bootstrap/scss/containers"; // Add .container and .container-fluid classes
+@import "~bootstrap/scss/grid"; // Add the grid system
+
+@import "~bootstrap/scss/utilities"; // Configures the utility classes that should be generated
+@import "~bootstrap/scss/utilities/api"; // Generates the actual utility classes
+
+@import "styles/reset";

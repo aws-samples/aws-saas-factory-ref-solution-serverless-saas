@@ -1,48 +1,63 @@
 /*
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * SPDX-License-Identifier: MIT-0
  */
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
-import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  ActivatedRouteSnapshot,
+  CanActivate,
+  Router,
+  RouterStateSnapshot,
+} from '@angular/router';
+import { Auth } from 'aws-amplify';
+import { AuthConfigurationService } from './views/auth/auth-configuration.service';
 
 @Injectable({ providedIn: 'root' })
 export class CognitoGuard implements CanActivate {
-    constructor(private oidcSecurityService: OidcSecurityService, private router: Router) {}
+  constructor(
+    private router: Router,
+    private authConfigService: AuthConfigurationService
+  ) {}
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
-
-      function getResolvedUrl(route: ActivatedRouteSnapshot): string {
-        return route.pathFromRoot
-            .map(v => v.url.map(segment => segment.toString()).join(''))
-            .join('/');
-      }
-
-      return this.oidcSecurityService.isAuthenticated$.pipe(
-          map((isAuthorized: boolean) => {
-
-              console.log('AuthorizationGuard, canActivate isAuthorized: ' + isAuthorized);
-              if (!isAuthorized) {
-                  this.router.navigate(['/unauthorized']);
-                  return false;
-              }
-
-              return true;
-          })
-      );
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Promise<boolean> {
+    console.log('cognito guard checking...');
+    if (!this.authConfigService.configureAmplifyAuth()) {
+      console.log('cognito guard unable to configure amplify');
+      this.authConfigService.cleanLocalStorage();
+      this.router.navigate(['/unauthorized']);
+      return new Promise<boolean>((res, rej) => {
+        res(false);
+      });
     }
+    console.log('configured amplify...');
+
+    return Auth.currentSession()
+      .then((u) => {
+        if (u.isValid()) {
+          console.log('valid session...', u);
+          return true;
+        } else {
+          console.log('cognito guard: not logged in...');
+          this.authConfigService.cleanLocalStorage();
+          this.router.navigate(['/unauthorized']);
+          return false;
+        }
+      })
+      .catch((e) => {
+        if (state.url === '/dashboard') {
+          // if we're going to the dashboard and we're not logged in,
+          // don't stop the flow as the amplify-authenticator will
+          // route requests going to the dashboard to the sign-in page.
+          return new Promise<boolean>((res, rej) => {
+            res(true);
+          });
+        }
+
+        console.log('error getting current session', e);
+        return false;
+      });
+  }
 }
