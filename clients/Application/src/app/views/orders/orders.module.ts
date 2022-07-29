@@ -6,6 +6,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
 import {
   MatFormFieldModule,
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
@@ -37,6 +39,7 @@ import { OrdersRoutingModule } from './orders-routing.module';
     MatRadioModule,
     MatSelectModule,
     MatTableModule,
+    MatProgressSpinnerModule,
   ],
   providers: [
     {

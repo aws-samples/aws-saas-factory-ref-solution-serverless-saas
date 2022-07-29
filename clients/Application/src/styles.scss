@@ -21,3 +21,16 @@
 @import "~bootstrap/scss/utilities/api"; // Generates the actual utility classes
 
 @import "styles/reset";
+
+.chart-container canvas {
+    max-height: 250px;
+    width: auto;
+}
+
+.chart-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

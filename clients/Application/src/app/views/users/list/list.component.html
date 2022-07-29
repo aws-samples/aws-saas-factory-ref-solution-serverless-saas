@@ -1,36 +1,57 @@
-<div class="row">
-  <div class="col-lg-12">
-    <div class="card">
-      <div class="card-header">
-        <i class="fa fa-align-justify"></i> Users Table
-      </div>
-      <div class="card-body">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Created Date</th>
-              <th>Modified Date</th>
-              <th>Verified</th>
-              <th>Status</th>
-              <th>Enabled</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let user of users | async">
-              <td>{{user.email}}</td>
-              <td>{{user.created | date}}</td>
-              <td>{{user.modified | date}}</td>
-              <td>{{user.verified}}</td>
-              <td>{{user.status}}</td>
-              <td>{{user.enabled}}</td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="row">
-          <button routerLink="/users/create" class="ml-3 btn btn-primary">Add User</button>
+<mat-card class="card">
+  <mat-card-content>
+    <div>
+      <h2>User List</h2>
+      <div class="row">
+        <div class="col-md-12">
+          <table mat-table [dataSource]="users" class="mat-elevation-z8" style="width: 100%;">
+            <!-- Email Column -->
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+            </ng-container>
+    
+            <!-- Created Date Column -->
+            <ng-container matColumnDef="created">
+              <th mat-header-cell *matHeaderCellDef>Created Date</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.created | date }}
+              </td>
+            </ng-container>
+    
+            <!-- Modified Date Column -->
+            <ng-container matColumnDef="modified">
+              <th mat-header-cell *matHeaderCellDef>Modified Date</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.modified | date }}
+              </td>
+            </ng-container>
+    
+            <!-- Status Column -->
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.status }}
+              </td>
+            </ng-container>
+    
+            <!-- Enabled Column -->
+            <ng-container matColumnDef="enabled">
+              <th mat-header-cell *matHeaderCellDef>Enabled</th>
+              <td mat-cell *matCellDef="let element">
+                {{ element.enabled }}
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
         </div>
       </div>
     </div>
-  </div>
-</div>
+    <mat-card-actions>
+      <div class="button-panel">
+        <button routerLink="/users/create" mat-raised-button color="primary">Add User</button>
+      </div>
+    </mat-card-actions>
+  </mat-card-content>
+</mat-card>

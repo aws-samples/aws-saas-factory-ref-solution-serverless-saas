@@ -23,38 +23,19 @@ export class CreateComponent implements OnInit {
     private _snackBar: MatSnackBar
   ) {
     this.userForm = this.fb.group({
-      email: [null, [Validators.email, Validators.required]],
+      userName: [null, [Validators.required]],
+      userEmail: [null, [Validators.email, Validators.required]],
+      userRole: [null, [Validators.required]],
     });
   }
 
   ngOnInit(): void {}
-
-  isFieldInvalid(field: string) {
-    const formField = this.userForm.get(field);
-    return (
-      formField && formField.invalid && (formField.dirty || formField.touched)
-    );
-  }
-
-  displayFieldCss(field: string) {
-    return {
-      'is-invalid': this.isFieldInvalid(field),
-    };
-  }
-
-  hasRequiredError(field: string) {
-    return !!this.userForm.get(field)?.hasError('required');
-  }
 
   openErrorMessageSnackBar(errorMessage: string) {
     this._snackBar.open(errorMessage, 'Dismiss', {
       duration: 4 * 1000, // seconds
     });
   }
-  // hasError(field: string, error: any) {
-  //   const formField = this.userForm.get(field);
-  //   return !!formField?.errors[error];
-  // }
 
   onSubmit() {
     const user = this.userForm.value;

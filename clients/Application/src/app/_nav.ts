@@ -20,4 +20,9 @@ export const navItems: INavData[] = [
     url: '/orders',
     icon: 'shopping_cart',
   },
+  {
+    name: 'Users',
+    url: '/users',
+    icon: 'supervisor_account',
+  },
 ];

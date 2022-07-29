@@ -19,6 +19,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { find, mergeMap, defaultIfEmpty } from 'rxjs/operators';
 import { User } from './models/user';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -27,7 +28,7 @@ export class UsersService {
   apiUrl: string;
 
   constructor(private http: HttpClient) {
-    this.apiUrl = `${localStorage.getItem('apiGatewayUrl')}`;
+    this.apiUrl = environment.regApiGatewayUrl;
   }
 
   fetch(): Observable<User[]> {

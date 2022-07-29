@@ -14,6 +14,13 @@ import { UsersService } from '../users.service';
 })
 export class ListComponent implements OnInit {
   users: Observable<User[]>;
+  displayedColumns: string[] = [
+    'email',
+    'created',
+    'modified',
+    'status',
+    'enabled',
+  ];
 
   constructor(private userSvc: UsersService) {
     this.users = userSvc.fetch();
