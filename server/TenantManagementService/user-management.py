@@ -95,6 +95,10 @@ def create_user(event, context):
                     'Value': user_details['userEmail']
                 },
                 {
+                    'Name': 'email_verified',
+                    'Value': 'true'
+                },
+                {
                     'Name': 'custom:userRole',
                     'Value': user_details['userRole'] 
                 },            
@@ -478,6 +482,10 @@ class UserManagement:
                 {
                     'Name': 'email',
                     'Value': user_details['tenantEmail']
+                },
+                {
+                    'Name': 'email_verified',
+                    'Value': 'true'
                 },
                 {
                     'Name': 'custom:userRole',
