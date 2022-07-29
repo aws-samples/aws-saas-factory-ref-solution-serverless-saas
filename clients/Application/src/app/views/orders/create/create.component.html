@@ -41,6 +41,15 @@
                   </button>
                 </div>
               </div>
+              <mat-card *ngIf="isLoadingProducts" style="display: flex; justify-content: center; align-items: center">
+                <mat-progress-spinner
+                  color="primary"
+                  mode="indeterminate"
+                  diameter="15"
+                >
+                </mat-progress-spinner>
+              </mat-card>
+        
             </div>
             <mat-card-footer>
               <div class="button-panel">

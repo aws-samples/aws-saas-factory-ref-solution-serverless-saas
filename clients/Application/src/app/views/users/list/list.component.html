@@ -4,7 +4,7 @@
       <h2>User List</h2>
       <div class="row">
         <div class="col-md-12">
-          <table mat-table [dataSource]="users" class="mat-elevation-z8" style="width: 100%;">
+          <table mat-table [dataSource]="userData" class="mat-elevation-z8" style="width: 100%;">
             <!-- Email Column -->
             <ng-container matColumnDef="email">
               <th mat-header-cell *matHeaderCellDef>Email</th>
@@ -45,6 +45,14 @@
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
           </table>
+          <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+            <mat-progress-spinner
+              color="primary"
+              mode="indeterminate"
+              diameter="15"
+            >
+            </mat-progress-spinner>
+          </mat-card>
         </div>
       </div>
     </div>

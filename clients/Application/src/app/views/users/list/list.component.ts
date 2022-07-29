@@ -3,7 +3,6 @@
  * SPDX-License-Identifier: MIT-0
  */
 import { Component, OnInit } from '@angular/core';
-import { Observable, of } from 'rxjs';
 import { User } from '../models/user';
 import { UsersService } from '../users.service';
 
@@ -13,7 +12,8 @@ import { UsersService } from '../users.service';
   styles: [],
 })
 export class ListComponent implements OnInit {
-  users: Observable<User[]>;
+  userData: User[] = [];
+  isLoading: boolean = true;
   displayedColumns: string[] = [
     'email',
     'created',
@@ -22,9 +22,12 @@ export class ListComponent implements OnInit {
     'enabled',
   ];
 
-  constructor(private userSvc: UsersService) {
-    this.users = userSvc.fetch();
-  }
+  constructor(private userSvc: UsersService) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.userSvc.fetch().subscribe((data) => {
+      this.userData = data;
+      this.isLoading = false;
+    });
+  }
 }

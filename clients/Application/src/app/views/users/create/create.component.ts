@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',
-  styles: [],
+  styleUrls: ['./create.component.scss'],
 })
 export class CreateComponent implements OnInit {
   userForm: FormGroup;

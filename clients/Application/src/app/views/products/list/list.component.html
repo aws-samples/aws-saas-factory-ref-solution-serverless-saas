@@ -2,7 +2,7 @@
   <h2>Product List</h2>
   <div class="row">
     <div class="col-md-6">
-      <table mat-table [dataSource]="products$" class="mat-elevation-z1">
+      <table mat-table [dataSource]="productData" class="mat-elevation-z1">
         <!-- Name Column -->
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Name</th>
@@ -26,6 +26,14 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
       </table>
+      <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+        <mat-progress-spinner
+          color="primary"
+          mode="indeterminate"
+          diameter="15"
+        >
+        </mat-progress-spinner>
+      </mat-card>
       <div class="button-panel">
         <button (click)="onCreate()" mat-raised-button color="primary">
           Create Product

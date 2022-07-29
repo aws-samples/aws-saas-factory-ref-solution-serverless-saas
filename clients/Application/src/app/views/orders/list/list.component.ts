@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { Order } from '../models/order.interface';
 import { OrdersService } from '../orders.service';
-import { first } from 'rxjs';
+
 @Component({
   selector: 'app-list',
   templateUrl: './list.component.html',
@@ -16,9 +15,9 @@ export class ListComponent implements OnInit {
   constructor(private orderSvc: OrdersService, private router: Router) {}
 
   ngOnInit(): void {
-    this.orderSvc.fetch().subscribe((s) => {
+    this.orderSvc.fetch().subscribe((data) => {
       this.isLoading = false;
-      this.orderData = s;
+      this.orderData = data;
     });
   }
 

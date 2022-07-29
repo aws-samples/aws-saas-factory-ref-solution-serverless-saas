@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { Product } from '../models/product.interface';
 import { ProductService } from '../product.service';
 
@@ -10,15 +9,17 @@ import { ProductService } from '../product.service';
   styleUrls: ['./list.component.scss'],
 })
 export class ListComponent implements OnInit {
-  products$: Observable<Product[]>;
+  productData: Product[] = [];
+  isLoading: boolean = true;
   displayedColumns: string[] = ['name', 'price', 'description'];
 
-  constructor(private productSvc: ProductService, private router: Router) {
-    this.products$ = new Observable<Product[]>();
-  }
+  constructor(private productSvc: ProductService, private router: Router) {}
 
   ngOnInit(): void {
-    this.refresh();
+    this.productSvc.fetch().subscribe((data) => {
+      this.productData = data;
+      this.isLoading = false;
+    });
   }
 
   onEdit(product: Product) {
@@ -28,14 +29,14 @@ export class ListComponent implements OnInit {
 
   onRemove(product: Product) {
     this.productSvc.delete(product);
-    this.refresh();
+    this.isLoading = true;
+    this.productSvc.fetch().subscribe((data) => {
+      this.productData = data;
+      this.isLoading = false;
+    });
   }
 
   onCreate() {
     this.router.navigate(['products', 'create']);
-  }
-
-  refresh() {
-    this.products$ = this.productSvc.fetch();
   }
 }

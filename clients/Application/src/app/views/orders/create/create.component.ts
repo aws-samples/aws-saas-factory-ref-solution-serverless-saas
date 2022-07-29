@@ -19,6 +19,7 @@ export class CreateComponent implements OnInit {
   displayedColumns = [];
   orderForm: FormGroup;
   orderProducts: LineItem[] = [];
+  isLoadingProducts: boolean = true;
   error = '';
   constructor(
     private fb: FormBuilder,
@@ -34,6 +35,7 @@ export class CreateComponent implements OnInit {
   ngOnInit(): void {
     this.productSvc.fetch().subscribe((products) => {
       this.orderProducts = products.map((p) => ({ product: p }));
+      this.isLoadingProducts = false;
     });
     this.orderForm = this.fb.group({
       orderName: ['', Validators.required],
