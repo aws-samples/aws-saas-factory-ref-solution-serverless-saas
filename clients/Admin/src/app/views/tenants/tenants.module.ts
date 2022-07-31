@@ -15,6 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 import { ListComponent } from './list/list.component';
 import { TenantsRoutingModule } from './tenants-routing.module';
@@ -36,6 +37,7 @@ import { CreateComponent } from './create/create.component';
     MatSelectModule,
     MatTableModule,
     ReactiveFormsModule,
+    MatSnackBarModule,
   ],
   providers: [
     {

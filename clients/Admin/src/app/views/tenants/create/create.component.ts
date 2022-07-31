@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TenantService } from '../tenants.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-create',
@@ -21,10 +22,17 @@ export class CreateComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private tenantSvc: TenantService,
-    private router: Router
+    private router: Router,
+    private _snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {}
+
+  openErrorMessageSnackBar(errorMessage: string) {
+    this._snackBar.open(errorMessage, 'Dismiss', {
+      duration: 4 * 1000, // seconds
+    });
+  }
 
   submit() {
     this.submitting = true;
@@ -34,11 +42,11 @@ export class CreateComponent implements OnInit {
 
     this.tenantSvc.post(this.tenantForm.value).subscribe({
       next: () => {
-        alert('created tenant!');
+        this.openErrorMessageSnackBar('Successfully created new tenant!');
         this.router.navigate(['tenants']);
       },
       error: (err) => {
-        alert(err.message);
+        this.openErrorMessageSnackBar('An unexpected error occurred!');
         console.error(err);
       },
     });
