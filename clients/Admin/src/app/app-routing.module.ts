@@ -32,6 +32,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./views/tenants/tenants.module').then((m) => m.TenantsModule),
       },
+      {
+        path: 'users',
+        loadChildren: () =>
+          import('./views/users/users.module').then((m) => m.UsersModule),
+      },
     ],
   },
 ];

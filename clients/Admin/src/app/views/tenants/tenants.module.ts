@@ -16,13 +16,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 
-import { DetailComponent } from './detail/detail.component';
 import { ListComponent } from './list/list.component';
 import { TenantsRoutingModule } from './tenants-routing.module';
 import { CreateComponent } from './create/create.component';
 
 @NgModule({
-  declarations: [DetailComponent, ListComponent, CreateComponent],
+  declarations: [ListComponent, CreateComponent],
   imports: [
     CommonModule,
     TenantsRoutingModule,

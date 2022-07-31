@@ -1,0 +1,90 @@
+<div class="user-form container">
+  <div class="row">
+    <div class="col-md-6">
+      <form [formGroup]="userForm">
+      <mat-card class="card">
+        <mat-card-title>Create User</mat-card-title>
+        <mat-card-subtitle>Upon submission, a new user account will be created and we will send an email to the provided address with login instructions.</mat-card-subtitle>
+        <mat-card-content>
+            <mat-form-field appearance="outline">
+              <mat-label>Username</mat-label>
+              <input
+                matInput
+                id="username"
+                name="username"
+                formControlName="userName"
+                required
+              />
+              <mat-icon matSuffix>person</mat-icon>
+            </mat-form-field>
+            <br />
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input
+                matInput
+                id="useremail"
+                name="useremail"
+                formControlName="userEmail"
+                required
+              />
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="userForm.get('userEmail')?.errors">A valid email must be provided.</mat-error>
+            </mat-form-field>
+            <br />
+
+            <mat-form-field appearance="outline">
+              <mat-label>User Role</mat-label>
+              <input
+                matInput
+                id="userrole"
+                name="userrole"
+                formControlName="userRole"
+                placeholder="User Role"
+                required
+              />
+              <mat-icon matSuffix>vpn_key</mat-icon>
+            </mat-form-field>
+            <br />
+
+            <mat-form-field appearance="outline">
+              <mat-label>Tenant Id</mat-label>
+              <input
+                matInput
+                id="tenantid"
+                name="tenantid"
+                formControlName="tenantId"
+                placeholder="Tenant Id"
+                required
+              />
+              <mat-icon matSuffix>folder_special</mat-icon>
+            </mat-form-field>
+            <br />
+
+            <mat-card-actions>
+              <div class="button-panel">
+                <button
+                mat-raised-button
+                class="btn btn-block btn-primary"
+                [disabled]="!userForm.valid"
+                (click)="onSubmit()"
+                type="button"
+                >
+                  <span>Create</span>
+                </button>
+                <button
+                  mat-raised-button
+                  class="btn btn-block btn-danger"
+                  routerLink="/users"
+                  type="button"
+                >
+                  <span>Cancel</span>
+                </button>
+              </div>
+            </mat-card-actions>
+        </mat-card-content>
+      </mat-card>
+      </form>
+    </div>
+  </div>
+</div>
