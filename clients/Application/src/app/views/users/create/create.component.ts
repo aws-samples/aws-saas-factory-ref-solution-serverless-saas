@@ -42,7 +42,7 @@ export class CreateComponent implements OnInit {
     this.userSvc.create(user).subscribe(
       () => {
         this.success = true;
-        this.openErrorMessageSnackBar('Sucessfully created new user!');
+        this.openErrorMessageSnackBar('Successfully created new user!');
       },
       (err) => {
         this.error = true;

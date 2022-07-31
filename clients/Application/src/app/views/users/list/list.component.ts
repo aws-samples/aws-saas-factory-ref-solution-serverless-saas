@@ -9,7 +9,7 @@ import { UsersService } from '../users.service';
 @Component({
   selector: 'app-user',
   templateUrl: './list.component.html',
-  styles: [],
+  styleUrls: ['./list.component.scss'],
 })
 export class ListComponent implements OnInit {
   userData: User[] = [];

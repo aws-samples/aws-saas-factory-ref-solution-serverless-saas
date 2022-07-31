@@ -11,6 +11,8 @@ import { CreateComponent } from './create/create.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 import {
   MatFormFieldModule,
   MAT_FORM_FIELD_DEFAULT_OPTIONS,
@@ -42,6 +44,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatTableModule,
     MatIconModule,
     MatProgressSpinnerModule,
+    MatSnackBarModule,
   ],
 })
 export class UsersModule {}
