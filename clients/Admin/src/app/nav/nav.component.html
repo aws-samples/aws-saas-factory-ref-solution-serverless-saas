@@ -1,0 +1,64 @@
+<mat-sidenav-container class="sidenav-container">
+  <mat-sidenav
+    #drawer
+    class="sidenav"
+    fixedInViewport
+    [attr.role]="(isHandset$ | async) ? 'dialog' : 'navigation'"
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="(isHandset$ | async) === false"
+  >
+    <mat-toolbar
+      ><mat-icon svgIcon="saas-commerce" class="logo"></mat-icon
+    ></mat-toolbar>
+    <mat-nav-list>
+      <mat-list-item *ngFor="let navItem of navItems">
+        <mat-icon mat-list-icon class="nav-icon material-symbols-outlined">{{
+          navItem.icon
+        }}</mat-icon>
+        <a mat-list-item routerLink="{{ navItem.url }}">{{ navItem.name }}</a>
+      </mat-list-item>
+    </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content class="sidenav-content-container">
+    <mat-toolbar>
+      <button
+        type="button"
+        aria-label="Toggle sidenav"
+        mat-icon-button
+        (click)="drawer.toggle()"
+      >
+        <mat-icon aria-label="Side nav toggle icon">menu</mat-icon>
+      </button>
+      <span class="spacer"></span>
+      <button
+        mat-icon-button
+        aria-label="account circle with outlined person icon"
+        [matMenuTriggerFor]="useroptions"
+      >
+        <mat-icon class="material-symbols-outlined">person_filled</mat-icon>
+      </button>
+    </mat-toolbar>
+    <mat-menu #useroptions="matMenu">
+      <ng-template #loggedOut>
+        <button mat-menu-item>
+          <mat-icon class="material-symbols-outlined">lock_open</mat-icon>
+          <span>Login</span>
+        </button>
+      </ng-template>
+      <span style="margin: 8px">{{ username$ | async }}</span>
+      <mat-divider></mat-divider>
+      <button mat-menu-item>
+        <mat-icon class="material-symbols-outlined">face</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button routerLink="/auth/info" mat-menu-item>
+        <mat-icon class="material-symbols-outlined">construction</mat-icon>
+        <span>Auth Debug</span>
+      </button>
+    </mat-menu>
+    <div class="spinner-container" *ngIf="loading$ | async">
+      <mat-spinner></mat-spinner>
+    </div>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,26 +1,29 @@
-/*
- * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- * SPDX-License-Identifier: MIT-0
- */
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { ChartsModule } from 'ng2-charts';
-import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
-import { ButtonsModule } from 'ngx-bootstrap/buttons';
-
-import { DashboardComponent } from './dashboard.component';
-import { DashboardRoutingModule } from './dashboard-routing.module';
 import { CommonModule } from '@angular/common';
+import { DashboardComponent } from './dashboard.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatGridListModule } from '@angular/material/grid-list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+
+import { NgChartsModule } from 'ng2-charts';
+
+import { DashboardRoutingModule } from './dashboard-routing.module';
 
 @NgModule({
+  declarations: [DashboardComponent],
   imports: [
     CommonModule,
-    FormsModule,
     DashboardRoutingModule,
-    ChartsModule,
-    BsDropdownModule,
-    ButtonsModule.forRoot(),
+    MatButtonModule,
+    MatCardModule,
+    MatGridListModule,
+    MatIconModule,
+    MatListModule,
+    MatMenuModule,
+    NgChartsModule,
   ],
-  declarations: [DashboardComponent],
 })
 export class DashboardModule {}

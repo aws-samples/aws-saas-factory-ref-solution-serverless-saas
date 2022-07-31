@@ -2,22 +2,17 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { INavData } from '@coreui/angular';
+import { INavData } from './models';
 
 export const navItems: INavData[] = [
   {
     name: 'Dashboard',
     url: '/dashboard',
-    icon: 'icon-graph',
+    icon: 'insights',
   },
   {
     name: 'Tenants',
     url: '/tenants',
-    icon: 'icon-layers',
-  },
-  {
-    name: 'Users',
-    url: '/users',
-    icon: 'icon-user',
+    icon: 'groups',
   },
 ];

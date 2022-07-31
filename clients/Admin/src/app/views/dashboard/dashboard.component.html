@@ -1,48 +1,19 @@
-<div class="animated fadeIn">
-  <div class="row">
-    <div *ngFor="let tenant of data" class="col-sm-6 col-lg-3">
-      <div class="card text-white bg-info">
-        <div class="card-body pb-0">
-          <div class="text-value">{{tenant.tenantId}}</div>
-          <div>Total Orders: {{tenant.totalOrders}}</div>
-        </div>
-        <div class="chart-wrapper mt-3 mx-3" style="height:70px;">
-          <canvas baseChart class="chart"
-            [datasets]="tenant.dataSet"
-            [labels]="lineChart2Labels"
-            [options]="lineChart2Options"
-            [colors]="lineChart2Colours"
-            [legend]="lineChart2Legend"
-            [chartType]="lineChart2Type"></canvas>
-        </div>
-      </div>
+<!--/.row-->
+<mat-card class="card">
+  <mat-card-header class="card-body">
+    <div class="col-sm-5">
+      <h4 class="card-title mb-0">Traffic</h4>
+      <div class="small text-muted">December 2020</div>
     </div>
-  </div><!--/.row-->
-  <div class="card">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-sm-5">
-          <h4 class="card-title mb-0">Traffic</h4>
-          <div class="small text-muted">December 2020</div>
-        </div><!--/.col-->
-        <div class="col-sm-7 d-none d-md-block">
-          <button type="button" class="btn btn-primary float-right"><i class="fa fa-cloud"></i></button>
-          <div class="btn-group btn-group-toggle float-right mr-3" data-toggle="buttons">
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Day" id="option1">Day</label>
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Month" id="option2">Month</label>
-            <label class="btn btn-outline-secondary" [(ngModel)]="radioModel" btnRadio="Year" id="option3">Year</label>
-          </div>
-        </div><!--/.col-->
-      </div><!--/.row-->
-      <div class="chart-wrapper" style="height:300px;margin-top:40px;">
-        <canvas baseChart class="chart"
-        [datasets]="mainChartData"
-        [labels]="mainChartLabels"
-        [options]="mainChartOptions"
-        [colors]="mainChartColours"
-        [legend]="mainChartLegend"
-        [chartType]="mainChartType"></canvas>
-      </div>
-    </div>
-  </div>
-</div>
+  </mat-card-header>
+  <mat-card-content class="chart-wrapper">
+    <canvas
+      baseChart
+      [type]="lineChartType"
+      [datasets]="lineChartData"
+      [labels]="lineChartLabels"
+      [options]="lineChartOptions"
+      [legend]="lineChartLegend"
+    ></canvas>
+  </mat-card-content>
+</mat-card>

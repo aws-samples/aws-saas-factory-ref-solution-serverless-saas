@@ -1,0 +1,47 @@
+.sidenav-container {
+  height: 100%;
+}
+
+.sidenav-content-container {
+  background-color: lightgray;
+}
+
+.sidenav {
+  width: 200px;
+  background-color: #2f353a;
+}
+
+.mat-list-item {
+  color: whitesmoke;
+}
+
+.mat-toolbar.mat-primary {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+.nav-icon {
+  color: #20a8d8;
+}
+
+.spinner-container {
+  height: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
