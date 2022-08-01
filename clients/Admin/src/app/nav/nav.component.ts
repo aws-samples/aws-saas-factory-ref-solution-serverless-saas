@@ -40,7 +40,6 @@ export class NavComponent implements OnInit {
     private router: Router,
     private auth: AuthenticatorService
   ) {
-    // this.configSvc.loadConfigurations().subscribe((val) => console.log(val));
     this.loading$ = this.router.events.pipe(
       filter(
         (e) =>
