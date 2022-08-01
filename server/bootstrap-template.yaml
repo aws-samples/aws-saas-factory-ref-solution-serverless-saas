@@ -218,6 +218,11 @@ Outputs:
     Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
     Export:
       Name: "Serverless-SaaS-AdminUserPoolClientId" 
+  CognitoOperationUsersUserPoolId:
+    Description: The Admin Management Cognito User Pool Id
+    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolId
+    Export:
+      Name: "Serverless-SaaS-AdminUserPoolId"
   UsagePlanBasicTier: 
     Description: The Basic Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanBasicTier
