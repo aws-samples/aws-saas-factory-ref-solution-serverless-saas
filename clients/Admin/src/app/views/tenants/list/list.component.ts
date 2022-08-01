@@ -10,6 +10,8 @@ import { TenantService } from '../tenants.service';
 })
 export class ListComponent implements OnInit {
   tenants$ = new Observable<Tenant[]>();
+  tenantData: Tenant[] = [];
+  isLoading: boolean = true;
   displayedColumns = [
     'tenantId',
     'tenantName',
@@ -20,6 +22,9 @@ export class ListComponent implements OnInit {
   constructor(private tenantSvc: TenantService) {}
 
   ngOnInit(): void {
-    this.tenants$ = this.tenantSvc.fetch();
+    this.tenantSvc.fetch().subscribe((data) => {
+      this.tenantData = data;
+      this.isLoading = false;
+    });
   }
 }

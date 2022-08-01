@@ -27,7 +27,7 @@ export class UsersService {
   apiUrl: string;
 
   constructor(private http: HttpClient) {
-    this.apiUrl = environment.apiGatewayUrl;
+    this.apiUrl = environment.apiUrl;
   }
 
   fetch(): Observable<User[]> {
