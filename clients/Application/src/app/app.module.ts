@@ -86,44 +86,8 @@ import { MatTableModule } from '@angular/material/table';
       provide: LocationStrategy,
       useClass: HashLocationStrategy,
     },
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: InitAuthSettings,
-    //   deps: [HttpClient],
-    //   multi: true,
-    // },
     httpInterceptorProviders,
   ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
-
-export function InitAuthSettings(http: HttpClient) {
-  console.log('In INITAUTHSETTINGS');
-  return () => {
-    return http.get<Configuration>('./assets/config/config.json').pipe(
-      switchMap((config) => {
-        console.log('CONFIG: ', JSON.stringify(config));
-        const apiUrl = `${config.apiUrl}/api/tenants/auth-info`;
-        return http.get<AuthInfo>(apiUrl);
-      }),
-      map((authInfo) => {
-        console.log(authInfo);
-        Amplify.configure(authInfo);
-      }),
-      shareReplay(1)
-    );
-  };
-}
-
-interface Configuration {
-  apiUrl: string;
-  stage: string;
-}
-
-export interface AuthInfo {
-  aws_project_region: string;
-  aws_cognito_region: string;
-  aws_user_pools_id: string;
-  aws_user_pools_web_client_id: string;
-}

@@ -44,13 +44,7 @@ export class UnauthorizedComponent implements OnInit {
       tenantName: [null, [Validators.required]],
     });
 
-    console.log('checking if tenant name is provided...');
-
     if (localStorage.getItem('tenantName')) {
-      console.log(
-        'exists, routing to dashboard',
-        localStorage.getItem('tenantName')
-      );
       this.router.navigate(['/dashboard']);
     }
   }
@@ -72,11 +66,6 @@ export class UnauthorizedComponent implements OnInit {
     return !!this.tenantForm.get(field)?.hasError('required');
   }
 
-  // hasError(field: string, error: any) {
-  //   const formField = this.tenantForm.get(field);
-  //   return !!formField?.errors[error];
-  // }
-
   openErrorMessageSnackBar(errorMessage: string) {
     this._snackBar.open(errorMessage, 'Dismiss', {
       duration: 4 * 1000, // seconds
@@ -95,7 +84,6 @@ export class UnauthorizedComponent implements OnInit {
     this.authConfigService
       .setTenantConfig(tenantName)
       .then((val) => {
-        console.log('done configuring auth!!!');
         this.router.navigate(['/dashboard']);
       })
       .catch((errorResponse) => {

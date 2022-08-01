@@ -37,10 +37,6 @@ export class CreateComponent implements OnInit {
     return this.productForm.get('price');
   }
 
-  // get description() {
-  //   return this.productForm.get('description');
-  // }
-
   submit() {
     this.productSvc.post(this.productForm.value).subscribe({
       next: () => this.router.navigate(['products']),

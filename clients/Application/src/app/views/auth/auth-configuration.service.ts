@@ -45,14 +45,12 @@ export class AuthConfigurationService {
   ) {}
 
   public setTenantConfig(tenantName: string): Promise<any> {
-    console.log('setting tenant config...');
     const url = `${environment.regApiGatewayUrl}/tenant/init/` + tenantName;
     this.params$ = this.http.get<ConfigParams>(url);
     const setup$ = this.params$.pipe(
       map((val) => {
         // remove trailing slash (/) if present
         val.apiGatewayUrl = val.apiGatewayUrl.replace(/\/$/, '');
-        console.log('setting localstorage.....', val);
         localStorage.setItem('userPoolId', val.userPoolId);
         localStorage.setItem('tenantName', tenantName);
         localStorage.setItem('appClientId', val.appClientId);
@@ -60,7 +58,7 @@ export class AuthConfigurationService {
         return 'success';
       }),
       catchError((error) => {
-        console.log('error!!!', error);
+        console.log('Error setting tenant config: ', error);
         return throwError(error);
       })
     );
@@ -69,11 +67,6 @@ export class AuthConfigurationService {
   }
 
   configureAmplifyAuth(): boolean {
-    console.log('configuring amplify auth...');
-    // if (Amplify.configure()) {
-    //   console.log('already set!');
-    //   return true;
-    // }
     try {
       const userPoolId = localStorage.getItem('userPoolId');
       const appClientId = localStorage.getItem('appClientId');
@@ -86,7 +79,6 @@ export class AuthConfigurationService {
       };
 
       Amplify.configure(awsmobile);
-      console.log('Amplify.configure()', Amplify.configure());
       return true;
     } catch (err) {
       console.error('Unable to initialize amplify auth.', err);
@@ -95,16 +87,9 @@ export class AuthConfigurationService {
   }
 
   cleanLocalStorage() {
-    console.log(
-      'removing tenantName, userpool, and client id from localStorage'
-    );
     localStorage.removeItem('tenantName');
     localStorage.removeItem('userPoolId');
     localStorage.removeItem('appClientId');
     localStorage.removeItem('apiGatewayUrl');
-  }
-
-  private isValid(input: string) {
-    return input != null && input != '' && input != 'undefined';
   }
 }

@@ -11,20 +11,6 @@ export const routes: Routes = [
     redirectTo: 'unauthorized',
     pathMatch: 'full',
   },
-  // {
-  //   path: '404',
-  //   component: P404Component,
-  //   data: {
-  //     title: 'Page 404',
-  //   },
-  // },
-  // {
-  //   path: '500',
-  //   component: P500Component,
-  //   data: {
-  //     title: 'Page 500',
-  //   },
-  // },
   {
     path: '',
     component: NavComponent,
@@ -67,7 +53,6 @@ export const routes: Routes = [
     path: 'unauthorized',
     component: UnauthorizedComponent,
   },
-  // { path: '**', component: P404Component },
 ];
 
 @NgModule({

@@ -55,8 +55,6 @@ export class NavComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('default layout init...');
-    console.log('localstorage[tenantname]', localStorage.getItem('tenantName'));
     if (!localStorage.getItem('tenantName')) {
       this.router.navigate(['/unauthorized']);
     } else {
@@ -65,7 +63,7 @@ export class NavComponent implements OnInit {
 
     try {
       const s = Auth.currentSession().catch((err) => {
-        console.log('failed to get current session. Err: ', err);
+        console.log('Failed to get current session. Err: ', err);
         return err;
       });
       const session$ = from(s);
@@ -88,19 +86,6 @@ export class NavComponent implements OnInit {
       this.companyName$ = token$.pipe(
         map((t) => t.payload && t.payload['custom:company-name'])
       );
-      // const s = Auth.currentSession().catch((err) => err);
-      // const session$ = from(s);
-      // this.isAuthenticated$ = session$.pipe(
-      //   filter((sesh) => !!sesh),
-      //   map((sesh) => sesh && sesh.isValid())
-      // );
-      // const token$ = session$.pipe(map((sesh) => sesh && sesh.getIdToken()));
-      // this.username$ = token$.pipe(
-      //   map((t) => t && t.payload['cognito:username'])
-      // );
-      // this.companyName$ = token$.pipe(
-      //   map((t) => t.payload['custom:company-name'])
-      // );
     } catch (err) {
       console.error('Unable to get current session.');
     }

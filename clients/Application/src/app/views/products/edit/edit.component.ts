@@ -41,9 +41,7 @@ export class EditComponent implements OnInit {
       description: [''],
     });
 
-    // Is this right? Seems like I should be able to feed the form an observable
     this.product$.subscribe((val) => {
-      console.log(val);
       this.productForm?.patchValue({
         ...val,
       });
