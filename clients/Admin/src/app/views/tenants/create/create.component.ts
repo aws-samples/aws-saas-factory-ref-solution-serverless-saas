@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TenantService } from '../tenants.service';
+import { TenantsService } from '../tenants.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
@@ -21,7 +21,7 @@ export class CreateComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private tenantSvc: TenantService,
+    private tenantSvc: TenantsService,
     private router: Router,
     private _snackBar: MatSnackBar
   ) {}

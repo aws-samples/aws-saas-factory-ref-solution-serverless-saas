@@ -4,7 +4,7 @@
  */
 import { Component, OnInit } from '@angular/core';
 import { ChartConfiguration, ChartType } from 'chart.js';
-import { TenantService } from '../tenants/tenants.service';
+import { TenantsService } from '../tenants/tenants.service';
 
 interface DataSet {
   label: string;
@@ -22,7 +22,7 @@ interface ChartData {
   selector: 'app-dashboard',
 })
 export class DashboardComponent implements OnInit {
-  constructor(private tenantSvc: TenantService) {}
+  constructor(private tenantSvc: TenantsService) {}
 
   data: ChartData[] = [];
 

@@ -12,7 +12,7 @@ import { Tenant } from './models/tenant';
 @Injectable({
   providedIn: 'root',
 })
-export class TenantService {
+export class TenantsService {
   constructor(private http: HttpClient) {}
   baseUrl = `${environment.apiUrl}`;
   tenantsApiUrl = `${this.baseUrl}/tenants`;

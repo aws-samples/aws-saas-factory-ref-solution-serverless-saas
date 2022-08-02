@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Tenant } from '../models/tenant';
-import { TenantService } from '../tenants.service';
+import { TenantsService } from '../tenants.service';
 
 @Component({
   selector: 'app-list',
@@ -19,7 +19,7 @@ export class ListComponent implements OnInit {
     'tenantTier',
     'isActive',
   ];
-  constructor(private tenantSvc: TenantService) {}
+  constructor(private tenantSvc: TenantsService) {}
 
   ngOnInit(): void {
     this.tenantSvc.fetch().subscribe((data) => {
