@@ -31,7 +31,7 @@ describe('check that the app redirects to a page with a sign-in form when tenant
     cy.visit(Cypress.env('host'))
 
     cy.get('#tenantname').should('exist')
-    cy.get('#tenantname').type(Cypress.env('tenantId'))
+    cy.get('#tenantname').type(Cypress.env('tenantName'))
 
     cy.intercept({
       method: 'GET',

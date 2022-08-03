@@ -4,7 +4,7 @@ describe('check that product, order and user functionality works as expected', (
   beforeEach(() => {
     cy.visit(Cypress.env('host'))
 
-    cy.get('#tenantname').type(Cypress.env('tenantId'))
+    cy.get('#tenantname').type(Cypress.env('tenantName'))
 
     cy.intercept({
       method: 'GET',
@@ -14,9 +14,18 @@ describe('check that product, order and user functionality works as expected', (
     cy.contains('Submit').click()
     cy.wait('@getTenantInfo')
 
-    cy.get('form input[name="username"]').type(Cypress.env('tenantName'))
-    cy.get('form input[name="password"]').type(Cypress.env('tenantPassword'))
+    cy.get('form input[name="username"]').type(Cypress.env('tenantUsername'))
+    cy.get('form input[name="password"]').type(Cypress.env('tenantUserPassword'))
     cy.get('form button[type="submit"]').click()
+    cy.wait(1500)
+
+    cy.get('body').then(body => {
+      if (body.find('form input[name="confirm_password"]').length > 0) {
+        cy.get('form input[name="password"]').type(Cypress.env('tenantUserPassword'))
+        cy.get('form input[name="confirm_password"]').type(Cypress.env('tenantUserPassword'))
+        cy.get('form button[type="submit"]').click()
+      }
+    })
   })
 
   it('can create new users and display them', () => {

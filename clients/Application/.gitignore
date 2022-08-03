@@ -64,3 +64,4 @@ amplifytools.xcconfig
 
 #cypress
 cypress/videos/*
+cypress.env.json
