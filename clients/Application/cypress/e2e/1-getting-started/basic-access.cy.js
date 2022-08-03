@@ -32,7 +32,15 @@ describe('check that the app redirects to a page with a sign-in form when tenant
 
     cy.get('#tenantname').should('exist')
     cy.get('#tenantname').type(Cypress.env('tenantId'))
+
+    cy.intercept({
+      method: 'GET',
+      url: '**/tenant/init/*',
+    }).as('getTenantInfo')
+
     cy.contains('Submit').click()
+    cy.wait('@getTenantInfo')
+
     cy.location('href').should('contain', '/dashboard')
   })
 

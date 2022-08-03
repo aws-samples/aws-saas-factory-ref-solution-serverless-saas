@@ -5,7 +5,15 @@ describe('check that product, order and user functionality works as expected', (
     cy.visit(Cypress.env('host'))
 
     cy.get('#tenantname').type(Cypress.env('tenantId'))
+
+    cy.intercept({
+      method: 'GET',
+      url: '**/tenant/init/*',
+    }).as('getTenantInfo')
+
     cy.contains('Submit').click()
+    cy.wait('@getTenantInfo')
+
     cy.get('form input[name="username"]').type(Cypress.env('tenantName'))
     cy.get('form input[name="password"]').type(Cypress.env('tenantPassword'))
     cy.get('form button[type="submit"]').click()
@@ -65,14 +73,11 @@ describe('check that product, order and user functionality works as expected', (
       name: "myProduct-"+Date.now(),
       price: Date.now().toString().slice(-3),
       sku: Date.now().toString().slice(-5),
-      category: "category1",
+      category: "category3",
     }
 
     const myOrder = {
       name: "myOrder-"+Date.now(),
-      price: Date.now().toString().slice(-3),
-      sku: Date.now().toString().slice(-5),
-      category: "category2",
     }
 
     // NOW TESTING PRODUCT CREATION //
@@ -108,7 +113,7 @@ describe('check that product, order and user functionality works as expected', (
     }).as('getProducts')
 
     cy.get("button").contains("Submit").click()
-    cy.wait('@postProduct', {timeout: 10 * 1000})
+    cy.wait('@postProduct')
 
     cy.location().should((loc) => {
       expect(loc.href).to.contain('/products/list')
@@ -151,7 +156,7 @@ describe('check that product, order and user functionality works as expected', (
     }).as('getOrders')
 
     cy.get("button").contains("Submit").click()
-    cy.wait('@postOrder', {timeout: 10 * 1000})
+    cy.wait('@postOrder')
 
     cy.location().should((loc) => {
       expect(loc.href).to.contain('/orders/list')
