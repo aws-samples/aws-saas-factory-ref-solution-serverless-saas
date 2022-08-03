@@ -46,12 +46,11 @@ export class CognitoGuard implements CanActivate {
           // if we're going to the dashboard and we're not logged in,
           // don't stop the flow as the amplify-authenticator will
           // route requests going to the dashboard to the sign-in page.
-          return new Promise<boolean>((res, rej) => {
-            res(true);
-          });
+          return true;
         }
 
         console.log('Error getting current session', e);
+        this.router.navigate(['/unauthorized']);
         return false;
       });
   }

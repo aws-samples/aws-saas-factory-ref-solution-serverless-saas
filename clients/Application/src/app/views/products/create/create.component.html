@@ -34,15 +34,15 @@
           />
         </mat-form-field>
         <mat-form-field>
-          <mat-label>SKU</mat-label>
-          <select
-            matNativeControl
-            required
+          <mat-label>Category</mat-label>
+          <mat-select
             formControlName="category"
-            >
-            <option disabled>Select Category</option>
-            <option *ngFor="let category of categories">{{category}}</option>
-          </select>
+            required
+          >
+            <mat-option *ngFor="let category of categories" [value]="category">
+              {{category}}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
         <mat-card-footer>
           <div class="button-panel">
