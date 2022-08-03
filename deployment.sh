@@ -16,7 +16,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # enable yarn
-corepack enable
+corepack enable || npm install --global yarn
 
 # Deploying CI/CD pipeline
 cd server/TenantPipeline/ || exit # stop execution if cd fails
