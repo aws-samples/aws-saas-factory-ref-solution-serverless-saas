@@ -1,7 +1,6 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 
@@ -22,7 +21,6 @@ export class RegisterComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private router: Router,
     private _snackBar: MatSnackBar,
     private http: HttpClient
   ) {}
@@ -37,20 +35,23 @@ export class RegisterComponent implements OnInit {
 
   submit() {
     this.submitting = true;
+    this.tenantForm.disable();
     const tenant = {
       ...this.tenantForm.value,
     };
     this.http
-      .post(`${environment.registrationApiUrl}/registration`, tenant)
+      .post(`${environment.apiGatewayUrl}/registration`, tenant)
       .subscribe({
         next: () => {
           this.openErrorMessageSnackBar('Successfully created new tenant!');
           this.tenantForm.reset();
+          this.tenantForm.enable();
           this.submitting = false;
         },
         error: (err) => {
           this.openErrorMessageSnackBar('An unexpected error occurred!');
           console.error(err);
+          this.tenantForm.enable();
           this.submitting = false;
         },
       });

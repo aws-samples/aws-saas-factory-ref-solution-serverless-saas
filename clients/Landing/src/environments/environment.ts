@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  registrationApiUrl: '',
+  apiGatewayUrl: 'https://duobieudcl.execute-api.us-west-2.amazonaws.com/prod',
 };
