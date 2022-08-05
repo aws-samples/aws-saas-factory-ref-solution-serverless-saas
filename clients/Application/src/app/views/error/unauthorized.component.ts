@@ -88,7 +88,8 @@ export class UnauthorizedComponent implements OnInit {
       })
       .catch((errorResponse) => {
         this.error = true;
-        this.errorMessage = errorResponse.error.message;
+        this.errorMessage =
+          errorResponse.error.message || 'An unexpected error occurred!';
         this.openErrorMessageSnackBar(this.errorMessage);
       });
 

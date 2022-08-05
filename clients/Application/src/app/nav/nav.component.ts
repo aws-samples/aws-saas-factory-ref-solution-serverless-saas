@@ -35,10 +35,8 @@ export class NavComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private configSvc: ConfigAssetLoaderService,
     private router: Router,
-    private authConfigService: AuthConfigurationService,
-    private auth: AuthenticatorService
+    private authConfigService: AuthConfigurationService
   ) {
     // this.configSvc.loadConfigurations().subscribe((val) => console.log(val));
     this.loading$ = this.router.events.pipe(

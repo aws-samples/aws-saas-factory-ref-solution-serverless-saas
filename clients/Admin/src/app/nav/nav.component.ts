@@ -35,9 +35,7 @@ export class NavComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private configSvc: ConfigAssetLoaderService,
-    private router: Router,
-    private auth: AuthenticatorService
+    private router: Router
   ) {
     this.loading$ = this.router.events.pipe(
       filter(
