@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "dashboard": {
+    "Landing": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -36,9 +36,6 @@
               "src/custom-theme.scss",
               "src/styles.scss",
               "node_modules/font-awesome/css/font-awesome.min.css"
-            ],
-            "scripts": [
-              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ]
           },
           "configurations": {
@@ -46,13 +43,13 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1mb",
-                  "maximumError": "2mb"
+                  "maximumWarning": "2mb",
+                  "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
-                  "maximumError": "4kb"
+                  "maximumWarning": "6kb",
+                  "maximumError": "10kb"
                 }
               ],
               "fileReplacements": [
@@ -78,10 +75,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "dashboard:build:production"
+              "browserTarget": "Landing:build:production"
             },
             "development": {
-              "browserTarget": "dashboard:build:development"
+              "browserTarget": "Landing:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -89,7 +86,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "dashboard:build"
+            "browserTarget": "Landing:build"
           }
         },
         "test": {

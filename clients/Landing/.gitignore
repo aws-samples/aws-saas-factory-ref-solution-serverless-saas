@@ -61,3 +61,7 @@ amplifytools.xcconfig
 .secret-*
 **.sample
 #amplify-do-not-edit-end
+
+# ignore yarn.lock and package-lock.json files for now
+yarn.lock
+package-lock.json
