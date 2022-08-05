@@ -208,11 +208,6 @@ Outputs:
     Value: !GetAtt UserInterface.Outputs.LandingApplicationSite
     Export:
       Name: "Serverless-SaaS-LandingApplicationSite"    
-  CognitoOperationUsersUserPoolProviderURL:
-    Description: The Admin Management Cognito User Pool provider url
-    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolProviderURL
-    Export:
-      Name: "Serverless-SaaS-AdminUserPoolProviderURL"  
   CognitoOperationUsersUserPoolClientId:
     Description: The Admin Management Cognito User Pool client id
     Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId

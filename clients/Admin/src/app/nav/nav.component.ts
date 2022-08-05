@@ -12,7 +12,6 @@ import {
 
 import { AuthenticatorService } from '@aws-amplify/ui-angular';
 import { Auth } from 'aws-amplify';
-import { ConfigAssetLoaderService } from 'config-asset-loader';
 import { navItems } from '../_nav';
 
 @Component({

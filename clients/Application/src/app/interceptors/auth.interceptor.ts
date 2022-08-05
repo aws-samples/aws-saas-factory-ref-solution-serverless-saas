@@ -25,9 +25,6 @@ export class AuthInterceptor implements HttpInterceptor {
     if (req.url.includes('tenant/init')) {
       return next.handle(req);
     }
-    if (req.url.includes('auth-info') || req.url.includes('config.json')) {
-      return next.handle(req);
-    }
 
     const s = Auth.currentSession().catch((err) => console.log(err));
     const session$ = from(s);

@@ -1,7 +1,7 @@
-import { APP_INITIALIZER, NgModule } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { LayoutModule } from '@angular/cdk/layout';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
@@ -20,22 +20,16 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { UnauthorizedComponent } from './views/error/unauthorized.component';
 
-import { map, shareReplay, switchMap } from 'rxjs/operators';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
-import { ConfigAssetLoaderService } from 'config-asset-loader';
 import { NavComponent } from './nav/nav.component';
-import { Amplify } from 'aws-amplify';
 import { AuthComponent } from './views/auth/auth.component';
 import { httpInterceptorProviders } from './interceptors';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDialogModule } from '@angular/material/dialog';
-import {
-  MatFormFieldModule,
-  MAT_FORM_FIELD_DEFAULT_OPTIONS,
-} from '@angular/material/form-field';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
@@ -80,7 +74,6 @@ import { MatTableModule } from '@angular/material/table';
     MatTableModule,
   ],
   providers: [
-    ConfigAssetLoaderService,
     HttpClientModule,
     {
       provide: LocationStrategy,

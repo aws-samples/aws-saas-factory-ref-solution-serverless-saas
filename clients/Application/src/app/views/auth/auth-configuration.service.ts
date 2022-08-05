@@ -70,6 +70,10 @@ export class AuthConfigurationService {
     try {
       const userPoolId = localStorage.getItem('userPoolId');
       const appClientId = localStorage.getItem('appClientId');
+
+      if (!userPoolId || !appClientId) {
+        return false;
+      }
       const region = userPoolId?.split('_')[0];
       const awsmobile = {
         aws_project_region: region,
