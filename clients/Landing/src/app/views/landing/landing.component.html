@@ -3,8 +3,6 @@
     <a class="navbar-brand" href="#">AWS Serverless SaaS Reference Architecture</a>
     <button
       aria-controls="navbarSupportedContent"
-      (click)="IsCollapsed = !IsCollapsed"
-      [attr.aria-expanded]="!IsCollapsed"
       class="navbar-toggler"
       type="button"
       aria-label="Toggle navigation"
@@ -15,8 +13,6 @@
     <div
       class="collapse navbar-collapse"
       id="navbarSupportedContent"
-      [collapse]="IsCollapsed"
-      [isAnimated]="true"
     >
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
