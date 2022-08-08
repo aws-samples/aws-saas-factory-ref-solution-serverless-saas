@@ -17,5 +17,5 @@ export class AppComponent {
       this.domSanitizer.bypassSecurityTrustResourceUrl('./assets/logo.svg')
     );
   }
-  title = 'dashboard';
+  title = 'landing';
 }
