@@ -23,8 +23,7 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 * Make sure you have the latest version of [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed. Not having the release version of SAM can cause deployment issues.
 * Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed.  Not having the release version of CDK can cause deployment issues.
 * Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
-* Make sure that you have Angular 11 or above
-* Make sure that you have Node 12 or above.
+* Make sure that you have Node 14 or above.
 
 ## Setting up the environment
 
