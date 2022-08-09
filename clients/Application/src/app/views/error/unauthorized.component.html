@@ -1,19 +1,17 @@
-<alert type="danger" *ngIf="error" [dismissible]="true">
+<!-- <alert type="danger" *ngIf="error" [dismissible]="true">
   <p class="text-center"><strong>Oh snap!</strong> {{this.errorMessage}}</p>
-</alert>
+</alert> -->
 <div class="jumbotron jumbotron-fluid center-screen">
-  <h1 class="display-2 text-center">Unauthorized</h1>
   <div>
-    <form [formGroup]="tenantForm">
-      <div class="form-group">
-        <p class="lead text-center">Enter your tenant name and click login below</p>
-        <div class="input-group">
-          <div class="input-group-prepend">
-            <span class="input-group-text">
-              <i class="fa fa-envelope"></i>
-            </span>
-          </div>
-          <input
+    <form [formGroup]="tenantForm" (submit)="login()">
+      <mat-card class="card">
+        <mat-card-title>Unauthorized</mat-card-title>
+        <mat-card-subtitle>Enter your tenant name and click submit below</mat-card-subtitle>
+        <mat-card-content>
+          <mat-form-field appearance="outline">
+            <mat-label>Tenant Name</mat-label>
+            <input
+            matInput
             type="tenantname"
             id="tenantname"
             name="tenantname"
@@ -23,14 +21,22 @@
             [ngClass]="displayFieldCss('tenantName')"
             required
           />
-        </div>
-        <div *ngIf="isFieldInvalid('tenantName')" class="alert alert-danger">
-          <div *ngIf="hasRequiredError('tenantName')">
-            Tenant Name is required.
-          </div>
-        </div>
-      </div>
+            <mat-icon matSuffix>home</mat-icon>
+          </mat-form-field>
+          <mat-card-actions>
+            <div class="button-panel">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                [disabled]="!tenantForm.valid"
+              >
+                Submit
+              </button>
+            </div>
+          </mat-card-actions>
+        </mat-card-content>
+      </mat-card>
     </form>
   </div>
-  <p class="lead text-center">You must <a href="" (click)="login()">login</a> to view this content.</p>
 </div>

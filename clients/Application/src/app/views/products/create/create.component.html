@@ -1,0 +1,65 @@
+<div class="product-form">
+  <form [formGroup]="productForm" (submit)="submit()">
+    <mat-card class="card">
+      <mat-card-title>Create new Product</mat-card-title>
+      <mat-card-content>
+        <mat-form-field>
+          <mat-label>Enter product name</mat-label>
+          <input
+            matInput
+            placeholder="Product name"
+            formControlName="name"
+            required
+          />
+          <mat-error *ngIf="name?.invalid">Name is required</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Enter product price</mat-label>
+          <input
+            type="number"
+            matInput
+            placeholder="Product price"
+            formControlName="price"
+            required
+          />
+          <mat-error *ngIf="price?.invalid">Price is required</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>SKU</mat-label>
+          <input
+            matInput
+            type="text"
+            formControlName="sku"
+            placeholder="Enter product sku"
+          />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Category</mat-label>
+          <mat-select
+            formControlName="category"
+            required
+          >
+            <mat-option *ngFor="let category of categories" [value]="category">
+              {{category}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-card-footer>
+          <div class="button-panel">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="(submit)"
+              [disabled]="!productForm.valid"
+            >
+              Submit
+            </button>
+            <button mat-raised-button color="warn" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </mat-card-footer>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</div>

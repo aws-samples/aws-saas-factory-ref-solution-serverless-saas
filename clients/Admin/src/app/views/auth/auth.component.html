@@ -1,0 +1,48 @@
+<div *ngIf="isAuthenticated$ | async as isAuthenticated">
+  <div class="animated fadeIn">
+    <div class="row">
+      <div class="col-md-6">
+        <button type="button" class="btn btn-primary" (click)="logout()">
+          Logout
+        </button>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-sm-6">
+        <mat-card class="card">
+          <mat-card-header class="card-header">Access Token</mat-card-header>
+          <div class="card-body">
+            <pre>
+              <code spellcheck="false">
+                {{accessToken$ | async}}
+              </code>
+            </pre>
+          </div>
+        </mat-card>
+      </div>
+      <div class="col-sm-6">
+        <mat-card class="card">
+          <mat-card-header class="card-header">ID Token</mat-card-header>
+          <div class="card-body">
+            <pre>
+              <code spellcheck="false">
+                {{idToken$ | async}}
+              </code>
+            </pre>
+          </div>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <br />
+  <br />
+  <mat-card class="card">
+    <mat-card-header><h2>User Data</h2></mat-card-header>
+    Is Authenticated: {{ isAuthenticated$ | async }}
+    <pre>{{ session$ | async | json }}</pre>
+  </mat-card>
+  <br />
+</div>

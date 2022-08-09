@@ -15,23 +15,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 export interface ConfigParams {
-  //clearHashAfterLogin: boolean;
-  issuer?: string;
   appClientId: string;
   userPoolId: string;
-  clientId?: string;
-  // nonceStateSeparator: string;
-  redirectUri?: string;
-  responseType?: string;
-  scope?: string;
-  sessionChecksEnabled?: boolean;
-  // showDebugInformation: boolean;
-  silentRefreshRedirectUri?: string;
-  // silentRefreshTimeout: number;
-  start_checksession?: boolean;
-  // strictDiscoveryDocumentValidation: boolean;
-  // timeoutFactor: number;
-  // useSilentRefresh: boolean;
-  cognitoDomain?: string;
-  apiGatewayUrl?: string;
+  apiGatewayUrl: string;
 }

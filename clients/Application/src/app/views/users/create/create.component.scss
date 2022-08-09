@@ -1,0 +1,26 @@
+.user-form {
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mat-card-title {
+  display: flex;
+  justify-content: center;
+}
+
+.button-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.row {
+  width: 100%;
+  align-items: center;
+}
+
+button {
+  margin: 4px;
+}
