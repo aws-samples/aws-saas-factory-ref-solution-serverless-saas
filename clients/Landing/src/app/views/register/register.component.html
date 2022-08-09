@@ -1,0 +1,81 @@
+<div fxLayout="column" class="tenant-form">
+  <form [formGroup]="tenantForm" class="wide-form">
+    <mat-card class="card">
+      <mat-card-title>Provision a new Tenant</mat-card-title>
+      <mat-card-subtitle>
+        Login details will be sent to the email provided.
+      </mat-card-subtitle>
+      <mat-card-content>
+        <mat-form-field class="full-width" appearance="fill">
+          <mat-label>Name</mat-label>
+          <input
+            matInput
+            placeholder="tenant1"
+            formControlName="tenantName"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            placeholder="jsmith@example.com"
+            formControlName="tenantEmail"
+            required
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Phone</mat-label>
+          <input
+            matInput
+            placeholder="1234567890"
+            formControlName="tenantPhone"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Address</mat-label>
+          <input
+            matInput
+            placeholder=""
+            formControlName="tenantAddress"
+          />
+        </mat-form-field>
+        <mat-form-field appearance="fill">
+          <mat-label>Plan</mat-label>
+          <select matNativeControl required formControlName="tenantTier">
+            <option>Select one...</option>
+            <option value="Basic">Basic</option>
+            <option value="Standard">Standard</option>
+            <option value="Premium">Premium</option>
+            <option value="Platinum">Platinum</option>
+          </select>
+        </mat-form-field>
+        <mat-card-footer>
+          <div class="button-panel">
+            <div *ngIf="submitting">
+              <mat-progress-spinner
+                color="primary"
+                mode="indeterminate"
+                diameter="15"
+              >
+              </mat-progress-spinner>
+            </div>
+            <div *ngIf="!submitting">
+                <button
+                mat-raised-button
+                color="primary"
+                (click)="submit()"
+                [disabled]="!tenantForm.valid || submitting"
+                >
+                Submit
+              </button>
+              <button mat-raised-button color="warn" [routerLink]="['/landing']">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </mat-card-footer>
+      </mat-card-content>
+    </mat-card>
+  </form>
+</div>
