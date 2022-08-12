@@ -11,7 +11,7 @@ import { ProductService } from '../product.service';
 export class ListComponent implements OnInit {
   productData: Product[] = [];
   isLoading: boolean = true;
-  displayedColumns: string[] = ['name', 'price', 'description'];
+  displayedColumns: string[] = ['name', 'price', 'sku'];
 
   constructor(private productSvc: ProductService, private router: Router) {}
 
