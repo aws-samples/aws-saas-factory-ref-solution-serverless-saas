@@ -52,12 +52,6 @@ export class NavComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (!localStorage.getItem('tenantName')) {
-      this.router.navigate(['/unauthorized']);
-    } else {
-      this.authConfigService.configureAmplifyAuth();
-    }
-
     try {
       const s = Auth.currentSession().catch((err) => {
         console.log('Failed to get current session. Err: ', err);
@@ -89,6 +83,13 @@ export class NavComponent implements OnInit {
   }
 
   async logout() {
-    await Auth.signOut({ global: true });
+    await Auth.signOut({ global: true })
+      .then((e) => {
+        this.authConfigService.cleanLocalStorage();
+        this.router.navigate(['/unauthorized']);
+      })
+      .catch((err) => {
+        console.error('Error logging out: ', err);
+      });
   }
 }
