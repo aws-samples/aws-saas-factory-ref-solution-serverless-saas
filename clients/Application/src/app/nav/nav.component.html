@@ -2,7 +2,6 @@
   <ng-template
     amplifySlot="authenticated"
     let-user="user"
-    let-signOut="signOut"
   >
     <mat-sidenav-container fullscreen>
       <mat-sidenav
@@ -64,8 +63,8 @@
           <mat-icon class="material-symbols-outlined">construction</mat-icon>
           <span>Auth Debug</span>
         </button>
-        <button (click)="signOut()" mat-menu-item>
-          <mat-icon class="material-symbols-outlined">construction</mat-icon>
+        <button (click)="logout()" mat-menu-item>
+          <mat-icon class="material-symbols-outlined">logout</mat-icon>
           <span>Sign Out</span>
         </button>
       </mat-menu>
