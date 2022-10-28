@@ -1,4 +1,4 @@
-aws-lambda-powertools
+aws-lambda-powertools[all]
 simplejson
 jsonpickle
 aws_requests_auth
