@@ -18,6 +18,11 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 <p align="center"><img src="images/Baseline.png" alt="Baseline Infrastructure"/>Figure 1: Baseline infrastructure</p>
 
 ## Pre-requisites
+
+    NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to select at least t3.large instance size and increase the volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). This is to make sure that you have enough compute and space to build the solution. 
+    
+    You can also use the scripts under "Cloud9Setup" folder to increase disk size and install pre-requisites inside your Cloud9 environment.
+
 * This reference architecture uses Python. Make sure you have Python 3.8 Installed.
 * Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) Installed. 
 * Make sure you have the latest version of [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed. Not having the release version of SAM can cause deployment issues.
@@ -26,8 +31,6 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 * Make sure that you have Node 14 or above.
 
 ## Setting up the environment
-
-    NOTE: If you are using Cloud9 to deploy the architecture, then make sure that to select at least t3.large instance size and increase the volume size of the underlying EC2 instance to 50 GB (instead of default 10 GB). This is to make sure that you have enough compute and space to build the solution. 
 
 Run the below script to deploy the required component. Replace the "test@test.com" email address with yours. This email address is used to setup an admin user in the architecture.
 
