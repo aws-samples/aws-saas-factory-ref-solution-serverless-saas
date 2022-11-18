@@ -54,12 +54,22 @@
               color="primary"
               (click)="(submit)"
               [disabled]="!tenantForm.valid"
+              type="submit"
+              *ngIf="!submitting"
             >
               Submit
             </button>
-            <button mat-raised-button color="warn" [routerLink]="['/list']">
+            <button mat-raised-button color="warn" [routerLink]="['/tenants']" type="button" *ngIf="!submitting">
               Cancel
             </button>
+            <mat-card *ngIf="submitting" style="display: flex; justify-content: center; align-items: center">
+              <mat-progress-spinner
+                color="primary"
+                mode="indeterminate"
+                diameter="15"
+                >
+              </mat-progress-spinner>
+            </mat-card>
           </div>
         </mat-card-footer>
       </mat-card-content>

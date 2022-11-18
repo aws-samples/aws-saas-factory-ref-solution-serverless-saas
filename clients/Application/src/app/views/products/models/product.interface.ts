@@ -4,6 +4,7 @@
  */
 export interface Product {
   key: string;
+  shardId: string;
   productId: string;
   name: string;
   price: number;

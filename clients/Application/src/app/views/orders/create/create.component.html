@@ -57,14 +57,15 @@
                   mat-raised-button
                   color="primary"
                   type="submit"
-                  [disabled]="!orderForm.valid"
+                  [disabled]="!orderForm.valid || !productQuantity"
                 >
                   Submit
                 </button>
                 <button
                   mat-raised-button
                   color="warn"
-                  [routerLink]="['orders']"
+                  [routerLink]="['/orders']"
+                  type="button"
                 >
                   Cancel
                 </button>

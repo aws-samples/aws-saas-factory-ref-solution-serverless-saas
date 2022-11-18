@@ -54,7 +54,10 @@ Once the above script finishes successfully, go to the CodePipeline page, inside
 
 ## Steps to Clean-up
 
-Run the following helper script to clean up reference solution resources:
+Run the following helper script to clean up reference solution resources.
+Please make sure "jq" JSON processor installed in your environment before invoking below script.
+
+NOTE: Below script before deleting each resource, it will prompt for user confirmation. Please make sure in your AWS account you don't have resources/stacks with names similar to what this workshop has provisioned, otherwise it might cause accidental deletion of your resources. In such cases, you can manually delete the resource/stacks following below listed steps.
 
 ```bash
 ./cleanup.sh

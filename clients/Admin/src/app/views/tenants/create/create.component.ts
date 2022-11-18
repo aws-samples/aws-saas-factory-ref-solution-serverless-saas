@@ -42,10 +42,12 @@ export class CreateComponent implements OnInit {
 
     this.tenantSvc.post(this.tenantForm.value).subscribe({
       next: () => {
+        this.submitting = false;
         this.openErrorMessageSnackBar('Successfully created new tenant!');
         this.router.navigate(['tenants']);
       },
       error: (err) => {
+        this.submitting = false;
         this.openErrorMessageSnackBar('An unexpected error occurred!');
         console.error(err);
       },

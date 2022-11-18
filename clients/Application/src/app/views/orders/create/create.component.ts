@@ -46,6 +46,12 @@ export class CreateComponent implements OnInit {
     return this.orderForm.get('name');
   }
 
+  get productQuantity() {
+    return this.orderProducts
+        .filter((p) => !!p.quantity).length > 0;
+  }
+
+
   add(op: LineItem) {
     const orderProduct = this.orderProducts.find(
       (p) => p?.product.productId === op.product.productId

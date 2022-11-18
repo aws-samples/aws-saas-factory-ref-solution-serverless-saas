@@ -6,6 +6,7 @@ import utils
 import logger
 import metrics_manager
 import order_service_dal
+from decimal import Decimal
 from types import SimpleNamespace
 from aws_lambda_powertools import Tracer
 tracer = Tracer()
@@ -31,7 +32,7 @@ def create_order(event, context):
     tracer.put_annotation(key="TenantId", value=tenantId)
 
     logger.log_with_tenant_context(event, "Request received to create a order")
-    payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d))
+    payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d), parse_float=Decimal)
     order = order_service_dal.create_order(event, payload)
     logger.log_with_tenant_context(event, "Request completed to create a order")
     metrics_manager.record_metric(event, "OrderCreated", "Count", 1)
@@ -43,7 +44,7 @@ def update_order(event, context):
     tracer.put_annotation(key="TenantId", value=tenantId)
     
     logger.log_with_tenant_context(event, "Request received to update a order")
-    payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d))
+    payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d), parse_float=Decimal)
     params = event['pathParameters']
     key = params['id']
     order = order_service_dal.update_order(event, payload, key)

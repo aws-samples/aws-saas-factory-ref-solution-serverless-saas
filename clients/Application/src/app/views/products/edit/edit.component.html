@@ -1,8 +1,16 @@
 <div class="product-form">
-  <form [formGroup]="productForm!">
+  <form [formGroup]="productForm" (submit)="submit()">
     <mat-card class="card">
-      <mat-card-title>Create new Product</mat-card-title>
+      <mat-card-title>Edit Product</mat-card-title>
       <mat-card-content>
+        <mat-form-field>
+          <mat-label>Product ID</mat-label>
+          <input
+            matInput
+            value="{{ productId$ | async }}"
+            [readonly]="true"
+          />
+        </mat-form-field>
         <mat-form-field>
           <mat-label>Enter product name</mat-label>
           <input
@@ -25,17 +33,30 @@
           <mat-error *ngIf="price?.invalid">Price is required</mat-error>
         </mat-form-field>
         <mat-form-field>
-          <mat-label>Description</mat-label>
+          <mat-label>SKU</mat-label>
           <input
             matInput
             type="text"
-            formControlName="description"
-            placeholder="Enter product description"
+            formControlName="sku"
+            placeholder="Enter product sku"
           />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category" required>
+            <mat-option *ngFor="let category of categories" [value]="category">
+              {{ category }}
+            </mat-option>
+          </mat-select>
         </mat-form-field>
         <mat-card-footer>
           <div class="button-panel">
-            <button mat-raised-button color="primary" (click)="(submit)">
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="(submit)"
+              [disabled]="!productForm.valid"
+            >
               Submit
             </button>
             <button mat-raised-button color="warn" (click)="cancel()">

@@ -6,7 +6,11 @@
         <!-- Name Column -->
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef>Name</th>
-          <td mat-cell *matCellDef="let element">{{ element.name }}</td>
+          <td mat-cell *matCellDef="let element">
+            <a class="link" routerLink="/products/edit/{{ element.shardId }}:{{ element.productId }}">
+              {{ element.name }}
+            </a>
+          </td>
         </ng-container>
 
         <!-- Price Column -->
