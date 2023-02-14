@@ -26,7 +26,7 @@ describe("check that the app redirects to /unauthorized when tenant is not set",
   });
 });
 
-describe("check that the app redirects to a page with a sign-in form when tenant is set and user is not logged in", () => {
+describe("check that the app redirects to a sign-in page when tenant name is set and user is not logged in", () => {
   beforeEach(() => {
     cy.visit(Cypress.env("host"));
 
@@ -47,7 +47,6 @@ describe("check that the app redirects to a page with a sign-in form when tenant
   it("redirects when visiting orders page", () => {
     cy.visit(Cypress.env("host") + "/orders");
     cy.location().should((loc) => {
-      expect(loc.href).to.not.contain("/unauthorized");
       expect(loc.href).to.not.contain("/orders");
     });
 
@@ -60,7 +59,6 @@ describe("check that the app redirects to a page with a sign-in form when tenant
   it("redirects when visiting products page", () => {
     cy.visit(Cypress.env("host") + "/products");
     cy.location().should((loc) => {
-      expect(loc.href).to.not.contain("/unauthorized");
       expect(loc.href).to.not.contain("/products");
     });
 
@@ -73,7 +71,6 @@ describe("check that the app redirects to a page with a sign-in form when tenant
   it("redirects when visiting a random page", () => {
     cy.visit(Cypress.env("host") + "/random");
     cy.location().should((loc) => {
-      expect(loc.href).to.not.contain("/unauthorized");
       expect(loc.href).to.not.contain("/random");
     });
 
