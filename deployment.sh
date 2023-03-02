@@ -1,9 +1,8 @@
-#!/bin/bash -x
+#!/bin/bash -e
 
 # Create CodeCommit repo
 REGION=$(aws configure get region)
-aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
-if [[ $? -ne 0 ]]; then
+if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas; then
   echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
   CREATE_REPO=$(aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository")
   echo "$CREATE_REPO"
