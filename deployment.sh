@@ -6,13 +6,14 @@ if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-server
   echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
   CREATE_REPO=$(aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository")
   echo "$CREATE_REPO"
-  REPO_URL="codecommit::${REGION}://aws-saas-factory-ref-serverless-saas"
-  if ! git remote add cc "$REPO_URL"; then
-    echo "Setting url to remote cc"
-    git remote set-url cc "$REPO_URL"
-  fi
-  git push --set-upstream cc main
 fi
+
+REPO_URL="codecommit::${REGION}://aws-saas-factory-ref-serverless-saas"
+if ! git remote add cc "$REPO_URL"; then
+  echo "Setting url to remote cc"
+  git remote set-url cc "$REPO_URL"
+fi
+git push --set-upstream cc main
 
 # enable yarn
 corepack enable || npm install --global yarn
