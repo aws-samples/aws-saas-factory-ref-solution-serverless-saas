@@ -13,7 +13,8 @@ if ! git remote add cc "$REPO_URL"; then
   echo "Setting url to remote cc"
   git remote set-url cc "$REPO_URL"
 fi
-git push --set-upstream cc main
+git push cc "$(git branch --show-current)":main
+# git push --set-upstream cc main
 
 # enable yarn
 corepack enable || npm install --global yarn
