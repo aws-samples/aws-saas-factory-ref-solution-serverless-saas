@@ -167,7 +167,8 @@ while true; do
     if [[ "${next_token}" == "" ]]; then
         response=$( aws cognito-idp list-user-pools --max-results 1)
     else
-        response=$( aws cognito-idp list-user-pools --max-results 1 --starting-token "$next_token")
+        next_token=$( echo $next_token | sed 's/\"//g')
+        response=$( aws cognito-idp list-user-pools --max-results 1 --next-token $next_token)
     fi
 
     pool_ids=$(echo "$response" | jq -r '.UserPools[] | select(.Name | test("^.*-ServerlessSaaSUserPool$")) |.Id')
