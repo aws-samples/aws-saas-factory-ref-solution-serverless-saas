@@ -99,7 +99,7 @@ while true; do
         delete_stack_after_confirming "$i"
     done
 
-    next_token=$(echo "$response" | jq '.NextToken')
+    next_token=$(echo "$response" | jq -r '.NextToken')
     if [[ "${next_token}" == "null" ]]; then
         echo "$(date) no more platinum tenants left."
         # no more results left. Exit loop...
@@ -167,7 +167,6 @@ while true; do
     if [[ "${next_token}" == "" ]]; then
         response=$( aws cognito-idp list-user-pools --max-results 1)
     else
-        next_token=$( echo $next_token | sed 's/\"//g')
         response=$( aws cognito-idp list-user-pools --max-results 1 --next-token $next_token)
     fi
 
