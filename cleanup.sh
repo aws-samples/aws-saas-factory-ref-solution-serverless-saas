@@ -167,7 +167,7 @@ while true; do
     if [[ "${next_token}" == "" ]]; then
         response=$( aws cognito-idp list-user-pools --max-results 1)
     else
-        response=$( aws cognito-idp list-user-pools --max-results 1 --starting-token "$next_token")
+        response=$( aws cognito-idp list-user-pools --max-results 1 --next-token $next_token)
     fi
 
     pool_ids=$(echo "$response" | jq -r '.UserPools[] | select(.Name | test("^.*-ServerlessSaaSUserPool$")) |.Id')
@@ -193,7 +193,7 @@ while true; do
         fi
     done
 
-    next_token=$(echo "$response" | jq '.NextToken')
+    next_token=$(echo "$response" | jq -r '.NextToken')
     if [[ "${next_token}" == "null" ]]; then
         # no more results left. Exit loop...
         break
