@@ -99,7 +99,7 @@ while true; do
         delete_stack_after_confirming "$i"
     done
 
-    next_token=$(echo "$response" | jq -r '.NextToken')
+    next_token=$(echo "$response" | jq '.NextToken')
     if [[ "${next_token}" == "null" ]]; then
         echo "$(date) no more platinum tenants left."
         # no more results left. Exit loop...
@@ -193,7 +193,7 @@ while true; do
         fi
     done
 
-    next_token=$(echo "$response" | jq '.NextToken')
+    next_token=$(echo "$response" | jq -r '.NextToken')
     if [[ "${next_token}" == "null" ]]; then
         # no more results left. Exit loop...
         break
