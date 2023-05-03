@@ -86,12 +86,12 @@ while true; do
         echo "$(date) making api call to search for platinum tenants..."
         # shellcheck disable=SC2086
         # ignore shellcheck error for adding a quote as that causes the api call to fail
-        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER)
+        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER | sed 's/\\n//')
     else
         echo "$(date) making api call to search for platinum tenants..."
         # shellcheck disable=SC2086
         # ignore shellcheck error for adding a quote as that causes the api call to fail
-        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER --starting-token "$next_token")
+        response=$(aws cloudformation list-stacks --stack-status-filter $STACK_STATUS_FILTER --starting-token "$next_token"| sed 's/\\n//')
     fi
 
     tenant_stacks=$(echo "$response" | jq -r '.StackSummaries[].StackName | select(. | test("^stack-*"))')
