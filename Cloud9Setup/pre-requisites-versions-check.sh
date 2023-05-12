@@ -92,7 +92,7 @@ echo ""
 echo "Checking node version"
 node --version
 NODE_VERSION=$(node --version | cut -d'v' -f 2)
-NODE_MIN_VERSION=14.0.0
+NODE_MIN_VERSION=16.0.0
 check_version $NODE_MIN_VERSION $NODE_VERSION 
 if [[ $? -eq 1 ]]; then
     echo "ACTION REQUIRED: Need to have Node version greater than or equal to $NODE_MIN_VERSION"
