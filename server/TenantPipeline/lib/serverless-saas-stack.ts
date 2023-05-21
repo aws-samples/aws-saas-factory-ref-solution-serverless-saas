@@ -31,7 +31,7 @@ export class ServerlessSaaSStack extends cdk.Stack {
 
     const lambdaFunction = new Function(this, "deploy-tenant-stack", {
         handler: "lambda-deploy-tenant-stack.lambda_handler",
-        runtime: Runtime.PYTHON_3_8,
+        runtime: Runtime.PYTHON_3_9,
         code: new AssetCode(`./resources`),
         memorySize: 512,
         timeout: Duration.seconds(10),
