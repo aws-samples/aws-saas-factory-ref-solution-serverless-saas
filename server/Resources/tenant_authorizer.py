@@ -12,17 +12,23 @@ from jose import jwk, jwt
 from jose.utils import base64url_decode
 import auth_manager
 import utils
+import idp_object_factory
+
 
 region = os.environ['AWS_REGION']
 sts_client = boto3.client("sts", region_name=region)
 dynamodb = boto3.resource('dynamodb')
 table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')
-user_pool_operation_user = os.environ['OPERATION_USERS_USER_POOL']
-app_client_operation_user = os.environ['OPERATION_USERS_APP_CLIENT']
+operation_user_idp_details = os.environ['OPERATION_USERS_IDP_DETAILS']
 api_key_operation_user = os.environ['OPERATION_USERS_API_KEY']
+
+idp_name = os.environ['IDP_NAME']
+idp_authorizer_service = idp_object_factory.get_idp_authorizer_object(idp_name)
+
 
 def lambda_handler(event, context):
     
+    user_details={}
     #get JWT token after Bearer from authorization
     token = event['authorizationToken'].split(" ")
     if (token[0] != 'Bearer'):
@@ -33,10 +39,11 @@ def lambda_handler(event, context):
     #only to get tenant id to get user pool info
     unauthorized_claims = jwt.get_unverified_claims(jwt_bearer_token)
     logger.info(unauthorized_claims)
+    
+    user_details['jwtToken']=jwt_bearer_token
 
     if(auth_manager.isSaaSProvider(unauthorized_claims['custom:userRole'])):
-        userpool_id = user_pool_operation_user
-        appclient_id = app_client_operation_user     
+        user_details['idpDetails'] = json.loads(operation_user_idp_details)
         api_key = api_key_operation_user         
     else:
         #get tenant user pool and app client to validate jwt token against
@@ -46,20 +53,12 @@ def lambda_handler(event, context):
             }
         )
         logger.info(tenant_details)
-        userpool_id = tenant_details['Item']['userPoolId']
-        appclient_id = tenant_details['Item']['appClientId']
+        user_details['idpDetails'] = tenant_details['Item']['idpDetails']
         apigateway_url = tenant_details['Item']['apiGatewayUrl']
         api_key = tenant_details['Item']['apiKey']
         
-
-    #get keys for tenant user pool to validate
-    keys_url = 'https://cognito-idp.{}.amazonaws.com/{}/.well-known/jwks.json'.format(region, userpool_id)
-    with urllib.request.urlopen(keys_url) as f:
-        response = f.read()
-    keys = json.loads(response.decode('utf-8'))['keys']
-
-    #authenticate against cognito user pool using the key
-    response = validateJWT(jwt_bearer_token, appclient_id, keys)
+    response = idp_authorizer_service.validateJWT(user_details)
+    
     
     #get authenticated claims
     if (response == False):
@@ -118,7 +117,7 @@ def lambda_handler(event, context):
         'sessiontoken' : credentials["SessionToken"],
         'userName': user_name,
         'tenantId': tenant_id,
-        'userPoolId': userpool_id,
+        'idpDetails': str(user_details['idpDetails']),
         'apiKey': api_key,
         'userRole': user_role
     }
@@ -133,46 +132,6 @@ def isTenantAuthorizedForThisAPI(apigateway_url, current_api_id):
         return False
     else:
         return True
-
-def validateJWT(token, app_client_id, keys):
-    # get the kid from the headers prior to verification
-    headers = jwt.get_unverified_headers(token)
-    kid = headers['kid']
-    # search for the kid in the downloaded public keys
-    key_index = -1
-    for i in range(len(keys)):
-        if kid == keys[i]['kid']:
-            key_index = i
-            break
-    if key_index == -1:
-        logger.info('Public key not found in jwks.json')
-        return False
-    # construct the public key
-    public_key = jwk.construct(keys[key_index])
-    # get the last two sections of the token,
-    # message and signature (encoded in base64)
-    message, encoded_signature = str(token).rsplit('.', 1)
-    # decode the signature
-    decoded_signature = base64url_decode(encoded_signature.encode('utf-8'))
-    # verify the signature
-    if not public_key.verify(message.encode("utf8"), decoded_signature):
-        logger.info('Signature verification failed')
-        return False
-    logger.info('Signature successfully verified')
-    # since we passed the verification, we can now safely
-    # use the unverified claims
-    claims = jwt.get_unverified_claims(token)
-    # additionally we can verify the token expiration
-    if time.time() > claims['exp']:
-        logger.info('Token is expired')
-        return False
-    # and the Audience  (use claims['client_id'] if verifying an access token)
-    if claims['aud'] != app_client_id:
-        logger.info('Token was not issued for this audience')
-        return False
-    # now we can use the claims
-    logger.info(claims)
-    return claims
 
 
 class HttpVerb:

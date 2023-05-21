@@ -42,34 +42,48 @@ Parameters:
     Type: String
     Default: "False"
     Description: "Pass it as True if you want to enable the canary release for Lambda"
+  IdpNameParameter:
+    Type: String
+    Default: "Cognito"
+    Description: "Enter the identity provider name you want to use i.e., Cognito"
 Resources:
   DynamoDBTables:
     Type: AWS::Serverless::Application
     Properties:
       Location: nested_templates/bootstrap/tables.yaml
-
-  Cognito:
+  
+  LambdaLayers:
     Type: AWS::Serverless::Application
-    DependsOn: UserInterface
     Properties:
-      Location: nested_templates/bootstrap/cognito.yaml
+      Location: nested_templates/bootstrap/lambda_layers.yaml
+
+  IdentityProvider:
+    Type: AWS::Serverless::Application
+    DependsOn:
+      - UserInterface
+      - LambdaLayers
+    Properties:
+      Location: nested_templates/bootstrap/identity_provider.yaml
       Parameters:
         AdminEmailParameter: !Ref AdminEmailParameter
         SystemAdminRoleNameParameter: !Ref SystemAdminRoleNameParameter
         ApiKeyOperationUsersParameter: !Ref ApiKeyOperationUsersParameter
-        AdminUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.AdminAppSite
-        TenantUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite 
+        AdminCallbackURLParameter: !GetAtt UserInterface.Outputs.AdminAppSite
+        TenantCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite
+        IdpNameParameter: !Ref IdpNameParameter
+        ServerlessSaaSLayersParameter: !GetAtt LambdaLayers.Outputs.ServerlessSaaSLayersArn
+        IdpLayersParameter: !GetAtt LambdaLayers.Outputs.IdpLayersArn
 
   LambdaFunctions:
     Type: AWS::Serverless::Application
-    DependsOn: UserInterface
+    DependsOn: 
+      - UserInterface
+      - LambdaLayers
     Properties:
       Location: nested_templates/bootstrap/lambdafunctions.yaml
       Parameters:
-        CognitoOperationUsersUserPoolId: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolId
-        CognitoOperationUsersUserPoolClientId: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
-        CognitoUserPoolId: !GetAtt Cognito.Outputs.CognitoUserPoolId
-        CognitoUserPoolClientId: !GetAtt Cognito.Outputs.CognitoUserPoolClientId        
+        OperationUsersIdpDetailsParameter: !GetAtt IdentityProvider.Outputs.OperationUsersIdpDetails
+        PooledIdpDetailsParameter: !GetAtt IdentityProvider.Outputs.PooledIdpDetails
         TenantDetailsTableArn: !GetAtt DynamoDBTables.Outputs.TenantDetailsTableArn
         ServerlessSaaSSettingsTableArn: !GetAtt DynamoDBTables.Outputs.ServerlessSaaSSettingsTableArn
         ApiKeyOperationUsersParameter: !Ref ApiKeyOperationUsersParameter
@@ -80,8 +94,11 @@ Resources:
         TenantStackMappingTableArn: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableArn 
         TenantUserMappingTableArn: !GetAtt DynamoDBTables.Outputs.TenantUserMappingTableArn
         TenantStackMappingTableName: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableName
-        TenantUserPoolCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite 
+        TenantCallbackURLParameter: !GetAtt UserInterface.Outputs.ApplicationSite 
         LambdaCanaryDeploymentPreference: !Ref LambdaCanaryDeploymentPreference
+        ServerlessSaaSLayersParameter: !GetAtt LambdaLayers.Outputs.ServerlessSaaSLayersArn
+        IdpLayersParameter: !GetAtt LambdaLayers.Outputs.IdpLayersArn
+        IdpNameParameter: !Ref IdpNameParameter
 
   APIs:
     Type: AWS::Serverless::Application
@@ -165,8 +182,8 @@ Resources:
         TenantStackMappingTableName: !GetAtt DynamoDBTables.Outputs.TenantStackMappingTableName
         UpdateSettingsTableFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateSettingsTableFunctionArn
         UpdateTenantStackMapTableFunctionArn: !GetAtt LambdaFunctions.Outputs.UpdateTenantStackMapTableFunctionArn
-        CognitoUserPoolId: !GetAtt Cognito.Outputs.CognitoUserPoolId
-        CognitoUserPoolClientId: !GetAtt Cognito.Outputs.CognitoUserPoolClientId        
+        PooledIdpDetailsParameter: !GetAtt IdentityProvider.Outputs.PooledIdpDetails
+
 Outputs:
   AdminApi:
     Description: "API Gateway endpoint URL for Admin API"
@@ -208,16 +225,11 @@ Outputs:
     Value: !GetAtt UserInterface.Outputs.LandingApplicationSite
     Export:
       Name: "Serverless-SaaS-LandingApplicationSite"    
-  CognitoOperationUsersUserPoolClientId:
-    Description: The Admin Management Cognito User Pool client id
-    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolClientId
+  OperationUsersIdpDetails:
+    Description: The Admin Management identity provider details
+    Value: !GetAtt IdentityProvider.Outputs.OperationUsersIdpDetails
     Export:
-      Name: "Serverless-SaaS-AdminUserPoolClientId" 
-  CognitoOperationUsersUserPoolId:
-    Description: The Admin Management Cognito User Pool Id
-    Value: !GetAtt Cognito.Outputs.CognitoOperationUsersUserPoolId
-    Export:
-      Name: "Serverless-SaaS-AdminUserPoolId"
+      Name: "Serverless-SaaS-OperationUsersIdpDetails" 
   UsagePlanBasicTier: 
     Description: The Basic Tier Usage Plan
     Value: !GetAtt APIs.Outputs.UsagePlanBasicTier

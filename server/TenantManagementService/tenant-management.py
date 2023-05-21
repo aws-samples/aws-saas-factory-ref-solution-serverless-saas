@@ -50,8 +50,7 @@ def create_tenant(event, context):
                     'tenantPhone': tenant_details['tenantPhone'],
                     'tenantTier': tenant_details['tenantTier'],
                     'apiKey': tenant_details['apiKey'],
-                    'userPoolId': tenant_details['userPoolId'],                 
-                    'appClientId': tenant_details['appClientId'],
+                    'idpDetails': tenant_details['idpDetials'],
                     'dedicatedTenancy': tenant_details['dedicatedTenancy'],
                     'isActive': True,
                     'apiGatewayUrl': api_gateway_url
@@ -202,7 +201,7 @@ def deactivate_tenant(event, context):
 
         
         update_details = {}
-        update_details['userPoolId'] = response["Attributes"]['userPoolId']
+        update_details['idpDetails'] = response["Attributes"]['idpDetails']
         update_details['tenantId'] = tenant_id
         update_details['requestingTenantId'] = requesting_tenant_id
         update_details['userRole'] = user_role
@@ -256,7 +255,7 @@ def activate_tenant(event, context):
             logger.log_with_tenant_context(event, provision_response)
         
         update_details = {}
-        update_details['userPoolId'] = response["Attributes"]['userPoolId']
+        update_details['idpDetails'] = response["Attributes"]['idpDetails']
         update_details['tenantId'] = tenant_id
         update_details['requestingTenantId'] = requesting_tenant_id
         update_details['userRole'] = user_role
@@ -280,7 +279,7 @@ def load_tenant_config(event, context):
         response = table_tenant_details.query(
             IndexName="ServerlessSaas-TenantConfig",
             KeyConditionExpression=Key('tenantName').eq(tenantName),
-            ProjectionExpression="userPoolId, appClientId, apiGatewayUrl"
+            ProjectionExpression="idpDetails, apiGatewayUrl"
         ) 
     except Exception as e:
         raise Exception('Error getting tenant config', e)

@@ -6,13 +6,9 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Template to deploy lambda functions as part of bootstrap
 Parameters:
-  CognitoOperationUsersUserPoolId:
+  OperationUsersIdpDetailsParameter:
     Type: String
-  CognitoOperationUsersUserPoolClientId:
-    Type: String
-  CognitoUserPoolId: 
-    Type: String
-  CognitoUserPoolClientId: 
+  PooledIdpDetailsParameter: 
     Type: String
   TenantDetailsTableArn:
     Type: String
@@ -34,12 +30,21 @@ Parameters:
     Type: String
   TenantStackMappingTableName:
     Type: String
-  TenantUserPoolCallbackURLParameter:
+  TenantCallbackURLParameter:
     Type: String
-    Description: "Enter Tenant Management userpool call back url"    
+    Description: "Enter Tenant Management call back url"    
   LambdaCanaryDeploymentPreference:
     Type: String    
     Default: "False"
+  ServerlessSaaSLayersParameter:
+    Type: String
+    Description: "ServerlessSaaSLayers arn"
+  IdpLayersParameter: 
+    Type: String
+    Description: "IdpLayers arn" 
+  IdpNameParameter:
+    Type: String
+    Description: "Enter the identity provider name you want to use"  
 Globals:
   Function:
     Timeout: 29
@@ -51,19 +56,6 @@ Globals:
         POWERTOOLS_METRICS_NAMESPACE: "ServerlessSaaS"
         
 Resources:
-  ServerlessSaaSLayers:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: serverless-saas-dependencies
-      Description: Utilities for project
-      ContentUri: ../../layers/
-      CompatibleRuntimes:
-        - python3.8
-      LicenseInfo: "MIT"
-      RetentionPolicy: Retain
-    Metadata:
-      BuildMethod: python3.8
-
   #Tenant Authorizer
   AuthorizerExecutionRole:
     Type: AWS::IAM::Role     
@@ -135,17 +127,18 @@ Resources:
     Properties:
       CodeUri: ../../Resources/
       Handler: shared_service_authorizer.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt AuthorizerExecutionRole.Arn
       MemorySize: 256
       Tracing: Active
       Layers: 
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
-          OPERATION_USERS_USER_POOL: !Ref CognitoOperationUsersUserPoolId
-          OPERATION_USERS_APP_CLIENT: !Ref CognitoOperationUsersUserPoolClientId
+          OPERATION_USERS_IDP_DETAILS: !Ref OperationUsersIdpDetailsParameter
           OPERATION_USERS_API_KEY : !Ref ApiKeyOperationUsersParameter
+          IDP_NAME: !Ref IdpNameParameter    
           
   BusinessServicesAuthorizerFunction:
     Type: AWS::Serverless::Function 
@@ -153,17 +146,18 @@ Resources:
     Properties:
       CodeUri: ../../Resources/
       Handler: tenant_authorizer.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt AuthorizerExecutionRole.Arn
       MemorySize: 256
       Tracing: Active
       Layers: 
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
-          OPERATION_USERS_USER_POOL: !Ref CognitoOperationUsersUserPoolId
-          OPERATION_USERS_APP_CLIENT: !Ref CognitoOperationUsersUserPoolClientId      
+          OPERATION_USERS_IDP_DETAILS: !Ref OperationUsersIdpDetailsParameter
           OPERATION_USERS_API_KEY : !Ref ApiKeyOperationUsersParameter
+          IDP_NAME: !Ref IdpNameParameter
   #Create user pool for the tenant
   TenantUserPoolLambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -246,17 +240,18 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.create_tenant_admin_user
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt CreateUserLambdaExecutionRole.Arn      
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
-          TENANT_USER_POOL_ID: !Ref CognitoUserPoolId
-          TENANT_APP_CLIENT_ID: !Ref CognitoUserPoolClientId
-          TENANT_USER_POOL_CALLBACK_URL: !Join ["",["https://",!Ref TenantUserPoolCallbackURLParameter, "/"]]
+          POOLED_IDP_DETAILS: !Ref PooledIdpDetailsParameter
+          TENANT_CALLBACK_URL: !Join ["",["https://",!Ref TenantCallbackURLParameter, "/"]]
           POWERTOOLS_SERVICE_NAME: "UserManagement.CreateTenantAdmin"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -289,14 +284,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.create_user
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt CreateUserLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
-          POWERTOOLS_SERVICE_NAME: "UserManagement.CreateUser"   
+          POWERTOOLS_SERVICE_NAME: "UserManagement.CreateUser" 
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -328,14 +325,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.update_user
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.UpdateUser"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -367,14 +366,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.disable_user
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter   
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.DisableUser"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -405,14 +406,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.disable_users_by_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.DisableUsersByTenant"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -443,14 +446,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.enable_users_by_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.EnableUsersByTenant"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -481,14 +486,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.get_user
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter 
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.GetUser"
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -519,14 +526,16 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: user-management.get_users
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantUserPoolLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers      
+        - !Ref ServerlessSaaSLayersParameter  
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "UserManagement.GetUsers"  
+          IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -597,11 +606,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.create_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.CreateTenant"
@@ -635,11 +644,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.activate_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.ActivateTenant"
@@ -675,11 +684,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.get_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.GetTenant"    
@@ -713,11 +722,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.deactivate_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.DeactivateTenant"
@@ -753,11 +762,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.update_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.UpdateTenant"
@@ -795,11 +804,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.get_tenants
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers 
+        - !Ref ServerlessSaaSLayersParameter 
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -832,11 +841,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-management.load_tenant_config
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -887,11 +896,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-registration.register_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt RegisterTenantLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables: # Need to find a better way than hard coding resource paths
           CREATE_TENANT_ADMIN_USER_RESOURCE_PATH: "/user/tenant-admin"
@@ -972,11 +981,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-provisioning.provision_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt ProvisionTenantLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables: 
           TENANT_STACK_MAPPING_TABLE_NAME: !Ref TenantStackMappingTableName
@@ -1038,11 +1047,11 @@ Resources:
     Properties:
       CodeUri: ../../TenantManagementService/
       Handler: tenant-provisioning.deprovision_tenant
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt DeProvisionTenantLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayers
+        - !Ref ServerlessSaaSLayersParameter
       Environment:
         Variables: 
           TENANT_STACK_MAPPING_TABLE_NAME: !Ref TenantStackMappingTableName
@@ -1103,10 +1112,10 @@ Resources:
     Properties:
       CodeUri: ../../custom_resources/
       Handler: update_settings_table.handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt UpdateSettingsTableLambdaExecutionRole.Arn
       Layers: 
-          - !Ref ServerlessSaaSLayers
+          - !Ref ServerlessSaaSLayersParameter
   UpdateTenantStackMapTableLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -1140,10 +1149,10 @@ Resources:
     Properties:
       CodeUri: ../../custom_resources/
       Handler: update_tenantstackmap_table.handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt UpdateTenantStackMapTableLambdaExecutionRole.Arn
       Layers: 
-          - !Ref ServerlessSaaSLayers        
+          - !Ref ServerlessSaaSLayersParameter        
 Outputs:
   RegisterTenantLambdaExecutionRoleArn: 
     Value: !GetAtt RegisterTenantLambdaExecutionRole.Arn          

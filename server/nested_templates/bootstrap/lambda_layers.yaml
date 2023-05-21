@@ -1,0 +1,39 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to deploy lambda functions as part of bootstrap
+
+Resources:
+  ServerlessSaaSLayers:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: serverless-saas-dependencies
+      Description: Utilities for project
+      ContentUri: ../../layers/
+      CompatibleRuntimes:
+        - python3.9
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+    Metadata:
+      BuildMethod: python3.9
+  
+  IdpLayers:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: idp-serverless-saas-layer
+      Description: Utilities for project
+      ContentUri: ../../identity_provider/layers/
+      CompatibleRuntimes:
+        - python3.9
+      LicenseInfo: "MIT"
+      RetentionPolicy: Retain
+    Metadata:
+      BuildMethod: python3.9
+Outputs:
+  ServerlessSaaSLayersArn: 
+    Value: !Ref ServerlessSaaSLayers          
+  IdpLayersArn: 
+    Value: !Ref IdpLayers        

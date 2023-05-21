@@ -46,15 +46,14 @@ def register_tenant(event, context):
 
         logger.info(tenant_details)
 
-        stage_name = event['requestContext']['stage']
+        stage_name = "prod"
         host = event['headers']['Host']
         auth = utils.get_auth(host, region)
         headers = utils.get_headers(event)
         create_user_response = __create_tenant_admin_user(tenant_details, headers, auth, host, stage_name)
         
         logger.info (create_user_response)
-        tenant_details['userPoolId'] = create_user_response['message']['userPoolId']
-        tenant_details['appClientId'] = create_user_response['message']['appClientId']
+        tenant_details['idpDetials'] = create_user_response['message']['idpDetials']
         tenant_details['tenantAdminUserName'] = create_user_response['message']['tenantAdminUserName']
 
         create_tenant_response = __create_tenant(tenant_details, headers, auth, host, stage_name)

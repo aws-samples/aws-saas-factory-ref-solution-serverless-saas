@@ -18,20 +18,17 @@ Parameters:
     Type: String
   UpdateTenantStackMapTableFunctionArn:
     Type: String
-  CognitoUserPoolId:
-    Type: String
-  CognitoUserPoolClientId:
+  PooledIdpDetailsParameter:
     Type: String
 Resources:
   #Custom resources
   
-  UpdateSettingsTable:
-    Type: Custom::UpdateSettingsTable
-    Properties:
-      ServiceToken: !Ref UpdateSettingsTableFunctionArn
-      SettingsTableName: !Ref ServerlessSaaSSettingsTableName
-      cognitoUserPoolId: !Ref CognitoUserPoolId
-      cognitoUserPoolClientId: !Ref CognitoUserPoolClientId
+  # UpdateSettingsTable:
+  #   Type: Custom::UpdateSettingsTable
+  #   Properties:
+  #     ServiceToken: !Ref UpdateSettingsTableFunctionArn
+  #     SettingsTableName: !Ref ServerlessSaaSSettingsTableName
+  #     PooledIdpDetails: !Ref PooledIdpDetailsParameter
   
   
   UpdateTenantStackMap:

@@ -1,9 +1,9 @@
-#!/bin/bash -x
-
+#!/bin/bash -e
+IDP_NAME="Cognito"
 # Create CodeCommit repo
 REGION=$(aws configure get region)
-aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
-if [[ $? -ne 0 ]]; then
+# aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
+if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas; then
   echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
   CREATE_REPO=$(aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository")
   echo "$CREATE_REPO"
@@ -51,7 +51,7 @@ if ! aws s3 ls "s3://${DEFAULT_SAM_S3_BUCKET}"; then
 fi
 
 sam build -t bootstrap-template.yaml --use-container --region="$REGION"
-sam deploy --config-file samconfig-bootstrap.toml --region="$REGION" --parameter-overrides AdminEmailParameter="$1"
+sam deploy --config-file samconfig-bootstrap.toml --region="$REGION" --parameter-overrides AdminEmailParameter="$1" IdpNameParameter="$IDP_NAME"
 
 if [[ $? -ne 0 ]]; then
   exit 1
@@ -105,8 +105,8 @@ cat <<EoF >./src/aws-exports.ts
 const awsmobile = {
     "aws_project_region": "$REGION",
     "aws_cognito_region": "$REGION",
-    "aws_user_pools_id": "$ADMIN_USERPOOLID",
-    "aws_user_pools_web_client_id": "$ADMIN_APPCLIENTID",
+    "aws_user_pools_id": "us-west-2_vEop2XUQn",
+    "aws_user_pools_web_client_id": "5fl0aq0e092e30g1mbcuq8o3up",
 };
 
 export default awsmobile;

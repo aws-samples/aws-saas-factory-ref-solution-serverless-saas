@@ -1,0 +1,115 @@
+# Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: MIT-0
+
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Template to setup cognito as part of bootstrap
+Parameters:
+  AdminEmailParameter:
+    Type: String
+    Description: "Enter system admin email address"
+  SystemAdminRoleNameParameter:
+    Type: String
+    Description: "Enter the role name for system admin"
+  ApiKeyOperationUsersParameter:
+    Type: String
+    Default: "9a7743fa-3ae7-11eb-adc1-0242ac120002"
+    Description: "Enter default api key value to be used by api gateway for system admins"
+  AdminCallbackURLParameter: 
+    Type: String
+    Description: "Enter Admin Management call back url"
+  TenantCallbackURLParameter:
+    Type: String
+    Description: "Enter Tenant Management call back url" 
+  IdpNameParameter:
+    Type: String
+    Description: "Enter the identity provider name you want to use"
+  ServerlessSaaSLayersParameter:
+    Type: String
+    Description: "ServerlessSaaSLayers arn"
+  IdpLayersParameter:
+    Type: String
+    Description: "IdpLayers arn"    
+  
+Resources:
+  CreateIdpLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub create-idp-lambda-execution-role-${AWS::Region}
+      Path: "/"
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole          
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy    
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+      Policies:
+        - PolicyName: !Sub create-idp-lambda-execution-policy-${AWS::Region}
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:*
+                Resource: "*"
+                  
+  CreateOperationUsersIdpFunction:
+    Type: AWS::Serverless::Function
+    DependsOn: CreateIdpLambdaExecutionRole
+    Properties:
+      CodeUri: ../../identity_provider/custom_resources/
+      Handler: create_operation_users_idp.handler
+      Runtime: python3.9
+      Role: !GetAtt CreateIdpLambdaExecutionRole.Arn
+      Layers:
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
+      Environment:
+        Variables:
+          IDP_NAME: !Ref IdpNameParameter
+      Timeout: 60    
+ 
+  CreateOperationUsersIdpCustomResource:
+    Type: Custom::CreateOperationUsersIdpCustomResource
+    Properties:
+      ServiceToken: !GetAtt CreateOperationUsersIdpFunction.Arn
+      AdminCallbackURL: !Join ["",["https://",!Ref AdminCallbackURLParameter, "/"]]
+      SystemAdminRoleName: !Ref SystemAdminRoleNameParameter 
+      AdminEmail: !Ref AdminEmailParameter  
+
+  CreatePooledIdpFunction:
+    Type: AWS::Serverless::Function
+    DependsOn: CreateIdpLambdaExecutionRole 
+    Properties:
+      CodeUri: ../../identity_provider/custom_resources/
+      Handler: create_pooled_idp.handler
+      Runtime: python3.9
+      Role: !GetAtt CreateIdpLambdaExecutionRole.Arn
+      Layers:
+        - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
+      Environment:
+        Variables:
+          IDP_NAME: !Ref IdpNameParameter
+      Timeout: 60    
+ 
+  CreatePooledIdpCustomResource:
+    Type: Custom::CreatePooledIdpCustomResource
+    Properties:
+      ServiceToken: !GetAtt CreatePooledIdpFunction.Arn
+      TenantCallbackURL: !Join ["",["https://",!Ref TenantCallbackURLParameter, "/"]]
+  
+Outputs:
+  PooledIdpDetails:
+    Value: !GetAtt CreatePooledIdpCustomResource.IdpDetails
+  OperationUsersIdpDetails:
+    Value: !GetAtt CreateOperationUsersIdpCustomResource.IdpDetails
+    

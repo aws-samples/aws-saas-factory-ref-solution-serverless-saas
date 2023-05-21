@@ -1,3 +1,3 @@
 requests
-aws_requests_auth
+crhelper
 urllib3==1.25.11
