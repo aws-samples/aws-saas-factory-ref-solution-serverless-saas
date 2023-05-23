@@ -65,3 +65,8 @@ amplifytools.xcconfig
 # ignore yarn.lock and package-lock.json files for now
 yarn.lock
 package-lock.json
+
+#cypress
+cypress/videos/*
+cypress/screenshots/*
+cypress.env.json
