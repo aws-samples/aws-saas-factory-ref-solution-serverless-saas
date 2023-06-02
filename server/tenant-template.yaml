@@ -21,12 +21,6 @@ Parameters:
     Type: String
     Default: pooled
     Description: Tenant ID for the stack
-  CognitoUserPoolIdParameter:
-    Type: String    
-    Description: 'User Pool Id For Tenant'
-  CognitoAppClientIdParameter:
-    Type: String
-    Description: 'App Client Id for Tenant'
   StageName:
     Type: String
     Default: "prod"

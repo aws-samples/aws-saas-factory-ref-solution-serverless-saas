@@ -342,31 +342,13 @@ def get_tenant_params(tenantId):
     Returns:
         params from tenant management table
     """
-    if (tenantId != "pooled"):
-        tenant_details = table_tenant_details.get_item(Key={'tenantId': tenantId})   
-        userPoolId = tenant_details['Item']['userPoolId']                     
-        appClientId = tenant_details['Item']['appClientId']
-    else:
-        tenant_details = table_tenant_settings.get_item(Key={'settingName': 'userPoolId-pooled'})                        
-        userPoolId = tenant_details['Item']['settingValue']
-        tenant_details = table_tenant_settings.get_item(Key={'settingName': 'appClientId-pooled'})                        
-        appClientId = tenant_details['Item']['settingValue']
+    
 
     params = []
     param_tenantid = {}
     param_tenantid['ParameterKey'] = 'TenantIdParameter'
     param_tenantid['ParameterValue'] = tenantId
     params.append(param_tenantid)
-
-    param_userpoolid = {}
-    param_userpoolid['ParameterKey'] = 'CognitoUserPoolIdParameter'
-    param_userpoolid['ParameterValue'] = userPoolId
-    params.append(param_userpoolid)
-
-    param_appclientid = {}
-    param_appclientid['ParameterKey'] = 'CognitoAppClientIdParameter'
-    param_appclientid['ParameterValue'] = appClientId
-    params.append(param_appclientid)
 
     return params
 
