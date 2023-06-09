@@ -90,76 +90,14 @@ echo "Configuring environment for Admin Client"
 cat <<EoF >./src/environments/environment.prod.ts
 export const environment = {
   production: true,
-  apiUrl: '$ADMIN_APIGATEWAYURL',
-  auth: [{
-    provider: "Cognito",
-    useIdTokenForAuthorization: true,
-    claimsMap: [{
-      claim: "UserName",
-      name: "username"
-    },
-    {
-      claim: "Email",
-      name: "email"
-    },
-    {
-      claim: "CompanyName",
-      name: "custom:company-name"
-    }]
-  },
-  {
-    provider: "Auth0",
-    claimsMap: [{
-      claim: "UserName",
-      name: "name"
-    },
-    {
-      claim: "Email",
-      name: "name"
-    },
-    {
-      claim: "CompanyName",
-      name: "https://companyName"
-    }]
-  }]
+  apiUrl: '$ADMIN_APIGATEWAYURL'  
 };
 
 EoF
 cat <<EoF >./src/environments/environment.ts
 export const environment = {
   production: false,
-  apiUrl: '$ADMIN_APIGATEWAYURL',
-  auth: [{
-    provider: "Cognito",
-    useIdTokenForAuthorization: true,
-    claimsMap: [{
-      claim: "UserName",
-      name: "username"
-    },
-    {
-      claim: "Email",
-      name: "email"
-    },
-    {
-      claim: "CompanyName",
-      name: "custom:company-name"
-    }]
-  },
-  {
-    provider: "Auth0",
-    claimsMap: [{
-      claim: "UserName",
-      name: "name"
-    },
-    {
-      claim: "Email",
-      name: "name"
-    },
-    {
-      claim: "CompanyName",
-      name: "https://companyName"
-    }]
-  }]
+  apiUrl: '$ADMIN_APIGATEWAYURL'  
 };
 EoF
 
@@ -206,6 +144,37 @@ cat <<EoF >./src/environments/environment.prod.ts
 export const environment = {
   production: true,
   regApiGatewayUrl: '$ADMIN_APIGATEWAYURL',
+  auth: [{
+    provider: "Cognito",
+    useIdTokenForAuthorization: true,
+    claimsMap: [{
+      claim: "UserName",
+      name: "username"
+    },
+    {
+      claim: "Email",
+      name: "email"
+    },
+    {
+      claim: "CompanyName",
+      name: "custom:company-name"
+    }]
+  },
+  {
+    provider: "Auth0",
+    claimsMap: [{
+      claim: "UserName",
+      name: "name"
+    },
+    {
+      claim: "Email",
+      name: "name"
+    },
+    {
+      claim: "CompanyName",
+      name: "https://companyName"
+    }]
+  }]
 };
 EoF
 
@@ -213,6 +182,37 @@ cat <<EoF >./src/environments/environment.ts
 export const environment = {
   production: true,
   regApiGatewayUrl: '$ADMIN_APIGATEWAYURL',
+  auth: [{
+    provider: "Cognito",
+    useIdTokenForAuthorization: true,
+    claimsMap: [{
+      claim: "UserName",
+      name: "username"
+    },
+    {
+      claim: "Email",
+      name: "email"
+    },
+    {
+      claim: "CompanyName",
+      name: "custom:company-name"
+    }]
+  },
+  {
+    provider: "Auth0",
+    claimsMap: [{
+      claim: "UserName",
+      name: "name"
+    },
+    {
+      claim: "Email",
+      name: "name"
+    },
+    {
+      claim: "CompanyName",
+      name: "https://companyName"
+    }]
+  }]
 };
 EoF
 
