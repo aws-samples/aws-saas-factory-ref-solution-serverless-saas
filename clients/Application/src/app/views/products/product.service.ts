@@ -4,15 +4,20 @@
  */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Product } from './models/product.interface';
+import { AuthConfigurationService } from '../../auth/auth-configuration.service'
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
-  constructor(private http: HttpClient) {}
-  baseUrl = `${localStorage.getItem('apiGatewayUrl')}`;
+  baseUrl: string
+  constructor(
+    private http: HttpClient,
+    private config: AuthConfigurationService) {
+      this.baseUrl = this.config.getTenantApi()
+    }
 
   fetch(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.baseUrl}/products`);

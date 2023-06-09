@@ -16,10 +16,10 @@
  */
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthConfigurationService } from './../auth/auth-configuration.service';
+import { AuthConfigurationService, AuthState } from '../../auth/auth-configuration.service';
 import { Observable } from 'rxjs';
-import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-unauthorized',
@@ -36,17 +36,16 @@ export class UnauthorizedComponent implements OnInit {
     private fb: FormBuilder,
     private authConfigService: AuthConfigurationService,
     private _snackBar: MatSnackBar,
-    private router: Router
-  ) {}
+    private authService: AuthService
+  ) {
+    if (this.authConfigService.getAuthState() == AuthState.LoggingIn)
+      this.authService.login();
+  }
 
   ngOnInit(): void {
     this.tenantForm = this.fb.group({
       tenantName: [null, [Validators.required]],
     });
-
-    if (localStorage.getItem('tenantName')) {
-      this.router.navigate(['/dashboard']);
-    }
   }
 
   isFieldInvalid(field: string) {
@@ -80,19 +79,20 @@ export class UnauthorizedComponent implements OnInit {
       this.openErrorMessageSnackBar(this.errorMessage);
       return false;
     }
-
-    this.authConfigService
-      .setTenantConfig(tenantName)
-      .then((val) => {
-        this.router.navigate(['/dashboard']);
-      })
-      .catch((errorResponse) => {
+    this.authConfigService.setTenantConfig(tenantName).subscribe({
+      next: () => {
+        this.authConfigService.setAuthState(AuthState.LoggingIn)
+        window.location.reload()
+      },
+      error: (errorResponse) => {
         this.error = true;
-        this.errorMessage =
-          errorResponse.error.message || 'An unexpected error occurred!';
+        if (errorResponse.status || errorResponse.status == 404)
+          this.errorMessage = 'Tenant not found!';
+        else
+          this.errorMessage = errorResponse.message || 'An unexpected error occurred!';
         this.openErrorMessageSnackBar(this.errorMessage);
-      });
-
+      }
+    })
     return false;
   }
 }

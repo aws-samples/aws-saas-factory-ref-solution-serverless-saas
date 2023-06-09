@@ -1,4 +1,4 @@
-<div *ngIf="isAuthenticated$ | async as isAuthenticated">
+<div *ngIf="this.isAuthenticated">
   <div class="animated fadeIn">
     <div class="row">
       <div class="col-md-6">
@@ -14,7 +14,7 @@
           <div class="card-body">
             <pre>
               <code spellcheck="false">
-                {{accessToken$ | async}}
+                {{ this.accessToken }}
               </code>
             </pre>
           </div>
@@ -26,7 +26,7 @@
           <div class="card-body">
             <pre>
               <code spellcheck="false">
-                {{idToken$ | async}}
+                {{ this.idToken }}
               </code>
             </pre>
           </div>
@@ -34,15 +34,13 @@
       </div>
     </div>
   </div>
-
   <hr />
-
   <br />
   <br />
   <mat-card class="card">
     <mat-card-header><h2>User Data</h2></mat-card-header>
-    Is Authenticated: {{ isAuthenticated$ | async }}
-    <pre>{{ session$ | async | json }}</pre>
+    Is Authenticated: {{ this.isAuthenticated }}
+    <pre>{{ this.userData | json }}</pre>
   </mat-card>
   <br />
 </div>

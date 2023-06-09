@@ -2,7 +2,7 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { INavData } from './models';
+import { INavData } from '../models';
 
 export const navItems: INavData[] = [
   {

@@ -10,29 +10,23 @@ import {
   HttpInterceptor,
 } from '@angular/common/http';
 import { from, Observable } from 'rxjs';
-import { Auth } from 'aws-amplify';
 import { filter, map, switchMap } from 'rxjs/operators';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor() {}
-  idToken = '';
-
+  constructor(
+    private authService: AuthService
+  ) {}
   intercept(
     req: HttpRequest<any>,
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
-    if (req.url.includes('tenant/init')) {
+    if (req.url.includes('tenant/init') || req.url.includes('/oauth2/')) {
       return next.handle(req);
     }
 
-    const s = Auth.currentSession().catch((err) => console.log(err));
-    const session$ = from(s);
-
-    return session$.pipe(
-      filter((sesh) => !!sesh),
-      map((sesh) => (!!sesh ? sesh.getIdToken().getJwtToken() : '')),
-      switchMap((tok) => {
+    return this.authService.token$.pipe(switchMap((tok) => {
         req = req.clone({
           headers: req.headers.set('Authorization', 'Bearer ' + tok),
         });
