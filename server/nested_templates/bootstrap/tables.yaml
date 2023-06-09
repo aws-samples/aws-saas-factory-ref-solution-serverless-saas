@@ -53,8 +53,7 @@ Resources:
               KeyType: HASH
           Projection:
             NonKeyAttributes: 
-              - userPoolId
-              - appClientId
+              - idpDetails              
               - apiGatewayUrl
             ProjectionType: INCLUDE    
           ProvisionedThroughput:
