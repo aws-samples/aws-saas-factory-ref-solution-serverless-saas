@@ -1,9 +1,15 @@
+/*
+ * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * SPDX-License-Identifier: MIT-0
+ */
+import { Injectable } from '@angular/core';
 import { Observable, pipe, map, catchError } from 'rxjs';
 import { withLatestFrom } from "rxjs/operators";
-import { Injectable } from '@angular/core';
 import { OidcSecurityService } from 'angular-auth-oidc-client';
-import { AuthConfigurationService, AuthProviders, AuthState } from './auth-configuration.service';
-import { environment } from '../../environments/environment';
+import { AuthConfigurationService } from './auth-configuration.service';
+import { AuthState } from './models/auth-state.enum'
+import { AuthProviders } from './models/auth-providers.enum'
+import { providerConfig } from '@auth-plugin/provider-config'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -31,8 +37,7 @@ export class AuthService {
   }
 
   private __getProviderTokenOverride() : boolean {
-    const config = this.authConfigService.getTenantConfig();
-    return environment.auth.find(el => el.provider == config.provider)?.useIdTokenForAuthorization || false;
+    return providerConfig.useIdTokenForAuthorization || false;
   }
 
   get userData$(): Observable<any> {
@@ -50,8 +55,7 @@ export class AuthService {
   }
 
   logout() {
-    const config = this.authConfigService.getTenantConfig();
-    if (config.provider == AuthProviders.Cognito) {
+    if (providerConfig.provider == AuthProviders.Cognito) {
       this.__cognito_logout();
     }
     else {
@@ -91,8 +95,7 @@ export class AuthService {
       catchError((err) => ("Error getting user name")))
   }
 
-  private __getClaimName(claim: string) : string {
-    const config = this.authConfigService.getTenantConfig();
-    return environment.auth.find(el => el.provider == config.provider)?.claimsMap.find(el => el.claim == claim)?.name || ""
+  private __getClaimName(attributeName: string) : string {
+    return providerConfig.claimsMap.find(el => el.attribute == attributeName)?.claim || "";
   }
 }

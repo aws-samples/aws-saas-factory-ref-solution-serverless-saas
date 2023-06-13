@@ -19,7 +19,10 @@
     "target": "es2020",
     "module": "es2020",
     "strictPropertyInitialization": false,
-    "lib": ["es2020", "dom"]
+    "lib": ["es2020", "dom"],
+    "paths": {
+      "@auth-plugin/*": ["src/app/auth/plugins/cognito-plugin/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

@@ -1,36 +1,35 @@
 /*
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
- * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * SPDX-License-Identifier: MIT-0
  */
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { Observable, throwError, of } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { AuthState } from './models/auth-state.enum';
+import { PlugInConfigFactory } from '@auth-plugin/config-factory'
+import { TenantConfig } from './models/tenant-config'
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthConfigurationService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private plugInConfig: PlugInConfigFactory) {}
 
   public setTenantConfig(tenantName: string): Observable<any> {
     const url = `${environment.regApiGatewayUrl}/tenant/init/` + tenantName;
     return this.http.get(url).pipe(
       tap((config) => {
-        localStorage.setItem('SaaS-Serverless-Config.Tenant', JSON.stringify(config));
+        if (this.plugInConfig.validateConfig(config)) {
+          localStorage.setItem('SaaS-Serverless-Config.Tenant', JSON.stringify(config))
+        }
+        else {
+          console.log(config)
+          throw({ message: "Invalid tenant config!" })
+        }
       }),
       catchError((error) => {
         this.setAuthState(AuthState.NotInitialized)
@@ -75,31 +74,4 @@ export class AuthConfigurationService {
   public getTenantApi(): string {
     return this.getTenantConfig().apiGatewayUrl;
   }
-}
-
-export enum AuthState {
-  LoggedIn = "LoggedIn",            //user is authenticated
-  LoggedOut = "LoggedOut",          //user is logged out and tenant config is removed
-  LoggingIn = "LoggingIn",          //user is logging in (callback)
-  NotInitialized = "NotInitialized" //auth has not yet been initialized
-}
-
-export class TenantConfig {
-  constructor(config: any) {
-    if(!Object.keys(config).length) return;
-    this.provider = config["idpDetails"]["idp"]["provider"];
-    this.authority = config["idpDetails"]["idp"]["authority"];
-    this.clientId = config["idpDetails"]["idp"]["clientId"];
-    this.apiGatewayUrl = config["apiGatewayUrl"].replace(/\/$/, ''); // remove trailing slash (/) if present
-  }
-  provider: string;
-  authority: string;
-  clientId: string;
-  apiGatewayUrl: string;
-  orgId: string
-}
-
-export enum AuthProviders {
-  Auth0 = "Auth0",
-  Cognito = "Cognito"
 }

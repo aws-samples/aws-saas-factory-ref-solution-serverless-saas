@@ -5,7 +5,6 @@ import { filter, map, shareReplay } from 'rxjs/operators';
 import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { navItems } from './_nav';
 import { AuthService } from '../auth/auth.service';
-import { AuthConfigurationService, AuthState } from '../auth/auth-configuration.service';
 
 @Component({
   selector: 'app-nav',
@@ -29,8 +28,7 @@ export class NavComponent implements OnInit {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private router: Router,
-    private authService: AuthService,
-    private configService: AuthConfigurationService
+    private authService: AuthService
   ) {
     this.loading$ = this.router.events.pipe(
       filter(
