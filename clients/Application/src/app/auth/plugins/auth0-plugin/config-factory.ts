@@ -4,27 +4,30 @@
  */
 import { StsConfigStaticLoader } from "angular-auth-oidc-client";
 
-/* Cognito PlugInConfigFactory */
+/* Auth0 PlugInConfigFactory */
 export class PlugInConfigFactory {
   public authFactory = (config: any) => {
-    const authority = __getCognitoAuthority(config.idpDetails.idp.userPoolId)
-    const client = config.idpDetails.idp.appClientId
+    const authority = __getAuth0Authority(config)
     return new StsConfigStaticLoader({
       authority: authority,
-      clientId: client,
+      clientId: config.idpDetails.idp.clientId,
       redirectUrl: window.location.origin,
       scope: 'openid profile',
       responseType: 'code',
       useRefreshToken: true,
       postLogoutRedirectUri: window.location.origin,
-      postLoginRoute: "/dashboard"
+      postLoginRoute: "/dashboard",
+      customParamsAuthRequest: {
+        organization: config.idpDetails.idp.orgId
+      }
     });
   };
 
   public validateConfig = (config: any) => {
     try {
-      return config.idpDetails.idp.userPoolId
-        && config.idpDetails.idp.appClientId
+      return config.idpDetails.idp.domain
+        && config.idpDetails.idp.clientId
+        && config.idpDetails.idp.orgId;
     }
     catch (error) {
       return false;
@@ -32,7 +35,6 @@ export class PlugInConfigFactory {
   }
 }
 
-const __getCognitoAuthority = (UserPoolId: string) => {
-  const region = UserPoolId.substring(0, UserPoolId.indexOf("_"));
-  return `https://cognito-idp.${region}.amazonaws.com/${UserPoolId}`;
+const __getAuth0Authority = (config: any) => {
+  return `https://${config.idpDetails.idp.domain}`;
 }

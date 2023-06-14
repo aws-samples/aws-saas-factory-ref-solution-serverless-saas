@@ -15,12 +15,12 @@ export const authFactory = (pluginFactory: PlugInConfigFactory, configService: A
     const config = configService.getTenantConfig()
     if (configService.getAuthState() != AuthState.NotInitialized)
       return pluginFactory.authFactory(config)
-    return EMPTY
+    return EMPTY //does not initialize config
   }
   catch (error) {
     console.log("Error building config: ", error)
     configService.setAuthState(AuthState.NotInitialized)
-    return EMPTY
+    return EMPTY //does not initialize config
   }
 };
 
