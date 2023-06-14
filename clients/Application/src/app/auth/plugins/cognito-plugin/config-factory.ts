@@ -12,11 +12,11 @@ export class PlugInConfigFactory {
     return new StsConfigStaticLoader({
       authority: authority,
       clientId: client,
-      redirectUrl: window.location.origin,
+      redirectUrl: `${window.location.origin}/`,
       scope: 'openid profile',
       responseType: 'code',
       useRefreshToken: true,
-      postLogoutRedirectUri: window.location.origin,
+      postLogoutRedirectUri: `${window.location.origin}/`,
       postLoginRoute: "/dashboard"
     });
   };
