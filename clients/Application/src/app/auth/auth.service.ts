@@ -2,20 +2,21 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { Injectable } from '@angular/core';
-import { Observable, pipe, map, catchError } from 'rxjs';
+import { Injectable, Inject } from '@angular/core';
+import { Observable, map, catchError } from 'rxjs';
 import { withLatestFrom } from "rxjs/operators";
 import { OidcSecurityService } from 'angular-auth-oidc-client';
 import { AuthConfigurationService } from './auth-configuration.service';
 import { AuthState } from './models/auth-state.enum'
 import { AuthProviders } from './models/auth-providers.enum'
-import { providerConfig } from '@auth-plugin/provider-config'
+import { IdentityProviderPlugin, IDENTITY_PLUGIN } from './interface/provider-plugin.interface'
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   constructor(
     private oidcSecurityService: OidcSecurityService,
-    private authConfigService: AuthConfigurationService
+    private authConfigService: AuthConfigurationService,
+    @Inject(IDENTITY_PLUGIN) private plugInService: IdentityProviderPlugin
     ) {}
 
   get isAuthenticated$(): Observable<boolean> {
@@ -37,9 +38,10 @@ export class AuthService {
   }
 
   private __getProviderTokenOverride() : boolean {
+    const config = this.plugInService.getConfig()
     var prop = 'useIdTokenForAuthorization';
-    if(providerConfig.hasOwnProperty(prop)) {
-      return Object.getOwnPropertyDescriptor(providerConfig, prop)?.value || false;
+    if(config.hasOwnProperty(prop)) {
+      return Object.getOwnPropertyDescriptor(config, prop)?.value || false;
     }
     return false;
   }
@@ -59,7 +61,8 @@ export class AuthService {
   }
 
   logout() {
-    if (providerConfig.provider == AuthProviders.Cognito) {
+    const config = this.plugInService.getConfig()
+    if (config.provider == AuthProviders.Cognito) {
       this.__cognito_logout();
     }
     else {
@@ -100,6 +103,7 @@ export class AuthService {
   }
 
   private __getClaimName(attributeName: string) : string {
-    return providerConfig.claimsMap.find(el => el.attribute == attributeName)?.claim || "";
+    const config = this.plugInService.getConfig()
+    return config.claimsMap.find(el => el.attribute == attributeName)?.claim || "";
   }
 }

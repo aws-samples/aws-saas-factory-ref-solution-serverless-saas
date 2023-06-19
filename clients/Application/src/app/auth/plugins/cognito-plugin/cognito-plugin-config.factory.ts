@@ -2,14 +2,18 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { StsConfigStaticLoader } from "angular-auth-oidc-client";
+import { Injectable } from '@angular/core';
+import { IdentityProviderPlugin } from '../../interface/provider-plugin.interface'
+import { cognitoProviderConfig } from '../cognito-plugin/cognito-provider.config'
 
-/* Cognito PlugInConfigFactory */
-export class PlugInConfigFactory {
+@Injectable({
+  providedIn: 'root'
+})
+export class CognitoPlugInService implements IdentityProviderPlugin {
   public authFactory = (config: any) => {
     const authority = __getCognitoAuthority(config.idpDetails.idp.userPoolId)
     const client = config.idpDetails.idp.appClientId
-    return new StsConfigStaticLoader({
+    return {
       authority: authority,
       clientId: client,
       redirectUrl: `${window.location.origin}/`,
@@ -18,7 +22,7 @@ export class PlugInConfigFactory {
       useRefreshToken: true,
       postLogoutRedirectUri: `${window.location.origin}/`,
       postLoginRoute: "/dashboard"
-    });
+    };
   };
 
   public validateConfig = (config: any) => {
@@ -29,6 +33,10 @@ export class PlugInConfigFactory {
     catch (error) {
       return false;
     }
+  }
+
+  public getConfig = () => {
+    return cognitoProviderConfig
   }
 }
 

@@ -2,13 +2,17 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { StsConfigStaticLoader } from "angular-auth-oidc-client";
+import { Injectable } from '@angular/core';
+import { IdentityProviderPlugin } from '../../interface/provider-plugin.interface'
+import { auth0ProviderConfig } from '../auth0-plugin/auth0-provider.config'
 
-/* Auth0 PlugInConfigFactory */
-export class PlugInConfigFactory {
+@Injectable({
+  providedIn: 'root'
+})
+export class Auth0PlugInService implements IdentityProviderPlugin {
   public authFactory = (config: any) => {
     const authority = __getAuth0Authority(config)
-    return new StsConfigStaticLoader({
+    return {
       authority: authority,
       clientId: config.idpDetails.idp.clientId,
       redirectUrl: window.location.origin,
@@ -20,7 +24,7 @@ export class PlugInConfigFactory {
       customParamsAuthRequest: {
         organization: config.idpDetails.idp.orgId
       }
-    });
+    };
   };
 
   public validateConfig = (config: any) => {
@@ -32,6 +36,10 @@ export class PlugInConfigFactory {
     catch (error) {
       return false;
     }
+  }
+
+  public getConfig = () => {
+    return auth0ProviderConfig;
   }
 }
 

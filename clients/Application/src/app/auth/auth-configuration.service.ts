@@ -2,14 +2,14 @@
  * Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: MIT-0
  */
-import { Injectable } from '@angular/core';
+import { Injectable, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, throwError, of } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { tap, catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 import { AuthState } from './models/auth-state.enum';
-import { PlugInConfigFactory } from '@auth-plugin/config-factory'
 import { TenantConfig } from './models/tenant-config'
+import { IdentityProviderPlugin, IDENTITY_PLUGIN } from './interface/provider-plugin.interface'
 
 @Injectable({
   providedIn: 'root',
@@ -17,13 +17,14 @@ import { TenantConfig } from './models/tenant-config'
 export class AuthConfigurationService {
   constructor(
     private http: HttpClient,
-    private plugInConfig: PlugInConfigFactory) {}
+    @Inject(IDENTITY_PLUGIN) private plugInService: IdentityProviderPlugin
+    ) {}
 
   public setTenantConfig(tenantName: string): Observable<any> {
     const url = `${environment.regApiGatewayUrl}/tenant/init/` + tenantName;
     return this.http.get(url).pipe(
       tap((config) => {
-        if (this.plugInConfig.validateConfig(config)) {
+        if (this.plugInService.validateConfig(config)) {
           localStorage.setItem('SaaS-Serverless-Config.Tenant', JSON.stringify(config))
         }
         else {

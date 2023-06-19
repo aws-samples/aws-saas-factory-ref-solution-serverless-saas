@@ -3,20 +3,20 @@
  * SPDX-License-Identifier: MIT-0
  */
 import { AuthProviders } from "../../models/auth-providers.enum";
+import { AuthPluginConfig } from '../../interface/provider-plugin.interface';
 
-export const providerConfig = {
-  provider: AuthProviders.Cognito,
-  useIdTokenForAuthorization: true,
+export const sampleProviderConfig: AuthPluginConfig = {
+  provider: AuthProviders.Auth0,
   claimsMap: [{
     attribute: "UserName",
-    claim: "username"
+    claim: "name"
   },
   {
     attribute: "Email",
-    claim: "email"
+    claim: "name"
   },
   {
     attribute: "CompanyName",
-    claim: "custom:company-name"
+    claim: "https://companyName"
   }]
 }
