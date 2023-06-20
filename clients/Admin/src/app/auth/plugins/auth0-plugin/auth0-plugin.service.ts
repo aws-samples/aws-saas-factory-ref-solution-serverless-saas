@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { IdentityProviderPlugin } from '../../provider-plugin.interface'
 import { auth0ProviderConfig } from './auth0-plugin.config'
 import { StsConfigStaticLoader } from 'angular-auth-oidc-client';
+import config from '../../../../environments/auth-config.js'
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +32,15 @@ export default class Auth0PluginService implements IdentityProviderPlugin {
 }
 
 const __getPluginConfig = () => {
-  return {
-    authority: '',
-    clientId: ''
+  const domain = Object.getOwnPropertyDescriptor(config, 'domain')?.value || undefined;
+  const clientId = Object.getOwnPropertyDescriptor(config, 'clientId')?.value || undefined;
+  if (domain && clientId) {
+    return {
+      authority: `https://${domain}`,
+      clientId: clientId
+    }
+  }
+  else {
+    throw "Auth config is invalid!"
   }
 }
