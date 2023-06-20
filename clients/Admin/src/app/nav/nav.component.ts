@@ -1,18 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { from, Observable, of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { filter, map, shareReplay } from 'rxjs/operators';
-import {
-  NavigationCancel,
-  NavigationEnd,
-  NavigationError,
-  NavigationStart,
-  Router,
-} from '@angular/router';
-
-import { AuthenticatorService } from '@aws-amplify/ui-angular';
-import { Auth } from 'aws-amplify';
+import { NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router } from '@angular/router';
 import { navItems } from '../_nav';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-nav',
@@ -20,11 +12,10 @@ import { navItems } from '../_nav';
   styleUrls: ['./nav.component.css'],
 })
 export class NavComponent implements OnInit {
-  tenantName = '';
   loading$: Observable<boolean> = of(false);
-  isAuthenticated$: Observable<Boolean> | undefined;
-  username$: Observable<string> | undefined;
-  companyName$: Observable<string> | undefined;
+  username: string = "";
+  companyName: string = "";
+  isAuthenticated = false;
   public navItems = navItems;
   isHandset$: Observable<boolean> = this.breakpointObserver
     .observe(Breakpoints.Handset)
@@ -35,7 +26,8 @@ export class NavComponent implements OnInit {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.loading$ = this.router.events.pipe(
       filter(
@@ -49,23 +41,21 @@ export class NavComponent implements OnInit {
     );
   }
 
-  ngOnInit(): void {
-    try {
-      const s = Auth.currentSession().catch((err) => err);
-      const session$ = from(s);
-      this.isAuthenticated$ = session$.pipe(
-        filter((sesh) => !!sesh),
-        map((sesh) => sesh && sesh.isValid())
-      );
-      const token$ = session$.pipe(map((sesh) => sesh && sesh.getIdToken()));
-      this.username$ = token$.pipe(
-        map((t) => t && t.payload['cognito:username'])
-      );
-      this.companyName$ = token$.pipe(
-        map((t) => t.payload['custom:company-name'])
-      );
-    } catch (err) {
-      console.error('Unable to get current session.');
-    }
+  ngOnInit() {
+    this.authService.isAuthenticated$.subscribe((isAuthenticated) => {
+      this.isAuthenticated = isAuthenticated;
+      if (isAuthenticated) {
+        this.authService.companyName$.subscribe((companyName) => {
+          this.companyName = companyName;
+        })
+        this.authService.userName$.subscribe((username) => {
+          this.username = username;
+        })
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }

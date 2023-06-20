@@ -45,7 +45,7 @@
           <span>Login</span>
         </button>
       </ng-template>
-      <span style="margin: 8px">{{ username$ | async }}</span>
+      <span style="margin: 8px">{{ username }}</span>
       <mat-divider></mat-divider>
       <button mat-menu-item>
         <mat-icon class="material-symbols-outlined">face</mat-icon>
@@ -54,6 +54,10 @@
       <button routerLink="/auth/info" mat-menu-item>
         <mat-icon class="material-symbols-outlined">construction</mat-icon>
         <span>Auth Debug</span>
+      </button>
+      <button (click)="logout()" mat-menu-item>
+        <mat-icon class="material-symbols-outlined">logout</mat-icon>
+        <span>Sign Out</span>
       </button>
     </mat-menu>
     <div class="spinner-container" *ngIf="loading$ | async">
