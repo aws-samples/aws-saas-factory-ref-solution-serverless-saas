@@ -5,7 +5,7 @@
 import { AuthProviders } from "../../models/auth-providers.enum";
 import { AuthPluginConfig } from '../../interface/provider-plugin.interface'
 
-export const auth0ProviderConfig: AuthPluginConfig = {
+export const auth0PluginConfig: AuthPluginConfig = {
   provider: AuthProviders.Auth0,
   claimsMap: [{
     attribute: "UserName",

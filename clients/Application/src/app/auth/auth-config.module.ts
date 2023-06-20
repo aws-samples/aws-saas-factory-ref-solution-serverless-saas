@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT-0
  */
 import { NgModule, APP_INITIALIZER } from '@angular/core';
-import { AuthModule, StsConfigLoader  } from 'angular-auth-oidc-client';
+import { AuthModule, StsConfigLoader } from 'angular-auth-oidc-client';
 import { AuthConfigurationService } from './auth-configuration.service';
 import { EMPTY } from 'rxjs';
 import { AuthState } from './models/auth-state.enum';

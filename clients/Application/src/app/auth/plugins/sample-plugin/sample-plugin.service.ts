@@ -4,16 +4,17 @@
  */
 import { Injectable } from '@angular/core';
 import { IdentityProviderPlugin } from '../../interface/provider-plugin.interface'
-import { sampleProviderConfig } from './sample-provider.config'
+import { sampleProviderConfig } from './sample-plugin.config'
+import { StsConfigStaticLoader } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
 export default class SamplePluginService implements IdentityProviderPlugin {
   public authFactory = (config: any) => {
-    return {
-      authority: `https://dev-xeabezht.eu.auth0.com`,
-      clientId: "AJXfzhbf5sP8TVQZdXMeCWQSKutpJ7hl",
+    return new StsConfigStaticLoader ({
+      authority: '',
+      clientId: '',
       redirectUrl: window.location.origin,
       scope: 'openid profile',
       responseType: 'code',
@@ -21,9 +22,9 @@ export default class SamplePluginService implements IdentityProviderPlugin {
       postLogoutRedirectUri: window.location.origin,
       postLoginRoute: "/dashboard",
       customParamsAuthRequest: {
-        organization: "org_alzAMyrFVk0MsWaD"
+        organization: ''
       }
-    }
+    })
   }
 
   public validateConfig = (config: any) => {

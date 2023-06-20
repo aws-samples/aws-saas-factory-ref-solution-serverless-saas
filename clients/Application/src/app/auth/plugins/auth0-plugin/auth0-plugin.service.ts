@@ -4,15 +4,16 @@
  */
 import { Injectable } from '@angular/core';
 import { IdentityProviderPlugin } from '../../interface/provider-plugin.interface'
-import { auth0ProviderConfig } from '../auth0-plugin/auth0-provider.config'
+import { auth0PluginConfig } from './auth0-plugin.config'
+import { StsConfigStaticLoader } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
-export class Auth0PlugInService implements IdentityProviderPlugin {
+export default class Auth0PlugInService implements IdentityProviderPlugin {
   public authFactory = (config: any) => {
     const authority = __getAuth0Authority(config)
-    return {
+    return new StsConfigStaticLoader ({
       authority: authority,
       clientId: config.idpDetails.idp.clientId,
       redirectUrl: window.location.origin,
@@ -24,7 +25,7 @@ export class Auth0PlugInService implements IdentityProviderPlugin {
       customParamsAuthRequest: {
         organization: config.idpDetails.idp.orgId
       }
-    };
+    });
   };
 
   public validateConfig = (config: any) => {
@@ -39,7 +40,7 @@ export class Auth0PlugInService implements IdentityProviderPlugin {
   }
 
   public getConfig = () => {
-    return auth0ProviderConfig;
+    return auth0PluginConfig;
   }
 }
 

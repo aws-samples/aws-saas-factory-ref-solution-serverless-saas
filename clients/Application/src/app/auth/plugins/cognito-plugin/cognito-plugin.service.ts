@@ -4,16 +4,17 @@
  */
 import { Injectable } from '@angular/core';
 import { IdentityProviderPlugin } from '../../interface/provider-plugin.interface'
-import { cognitoProviderConfig } from '../cognito-plugin/cognito-provider.config'
+import { cognitoPluginConfig } from './cognito-plugin.config'
+import { StsConfigStaticLoader } from 'angular-auth-oidc-client';
 
 @Injectable({
   providedIn: 'root'
 })
-export class CognitoPlugInService implements IdentityProviderPlugin {
+export default class CognitoPlugInService implements IdentityProviderPlugin {
   public authFactory = (config: any) => {
     const authority = __getCognitoAuthority(config.idpDetails.idp.userPoolId)
     const client = config.idpDetails.idp.appClientId
-    return {
+    return new StsConfigStaticLoader ({
       authority: authority,
       clientId: client,
       redirectUrl: `${window.location.origin}/`,
@@ -22,7 +23,7 @@ export class CognitoPlugInService implements IdentityProviderPlugin {
       useRefreshToken: true,
       postLogoutRedirectUri: `${window.location.origin}/`,
       postLoginRoute: "/dashboard"
-    };
+    });
   };
 
   public validateConfig = (config: any) => {
@@ -36,7 +37,7 @@ export class CognitoPlugInService implements IdentityProviderPlugin {
   }
 
   public getConfig = () => {
-    return cognitoProviderConfig
+    return cognitoPluginConfig
   }
 }
 
