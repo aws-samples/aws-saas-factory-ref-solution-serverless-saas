@@ -1,7 +1,10 @@
 #!/bin/bash -e
 IDP_NAME="Cognito"
+TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
+#REGION=$(aws configure get region)
+
 # Create CodeCommit repo
-REGION=$(aws configure get region)
 # aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
 if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas; then
   echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
@@ -68,9 +71,12 @@ ADMIN_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Server
 APP_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-ApplicationSite'].Value" --output text)
 LANDING_APP_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-LandingApplicationSite'].Value" --output text)
 
-ADMIN_APPCLIENTID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolClientId'].Value" --output text)
-ADMIN_USERPOOLID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolId'].Value" --output text)
+#ADMIN_APPCLIENTID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolClientId'].Value" --output text)
+#ADMIN_USERPOOLID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolId'].Value" --output text)
 ADMIN_APIGATEWAYURL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminApiGatewayUrl'].Value" --output text)
+ADMIN_IDPDETAILS=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-OperationUsersIdpDetails'].Value" --output text)
+ADMIN_USERPOOLID=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.userPoolId')
+ADMIN_APPCLIENTID=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.appClientId')
 
 # Configuring admin UI
 echo "aws s3 ls s3://${ADMIN_SITE_BUCKET}"
@@ -90,26 +96,29 @@ echo "Configuring environment for Admin Client"
 cat <<EoF >./src/environments/environment.prod.ts
 export const environment = {
   production: true,
-  apiUrl: '$ADMIN_APIGATEWAYURL'  
+  apiUrl: '$ADMIN_APIGATEWAYURL',
+  auth: {
+    provider: '$IDP_NAME'
+  }  
 };
 
 EoF
 cat <<EoF >./src/environments/environment.ts
 export const environment = {
   production: false,
-  apiUrl: '$ADMIN_APIGATEWAYURL'  
+  apiUrl: '$ADMIN_APIGATEWAYURL',
+  auth: {
+    provider: '$IDP_NAME'
+  }
 };
 EoF
 
-cat <<EoF >./src/aws-exports.ts
-const awsmobile = {
-    "aws_project_region": "$REGION",
-    "aws_cognito_region": "$REGION",
-    "aws_user_pools_id": "us-west-2_vEop2XUQn",
-    "aws_user_pools_web_client_id": "5fl0aq0e092e30g1mbcuq8o3up",
-};
-
-export default awsmobile;
+cat <<EoF >./src/environments/auth-config.js
+const auth_config = {
+  userPoolId: '$ADMIN_USERPOOLID',
+  appClientId: '$ADMIN_APPCLIENTID'
+}
+export default auth_config;
 EoF
 
 yarn install && yarn build
@@ -143,14 +152,20 @@ echo "Configuring environment for App Client"
 cat <<EoF >./src/environments/environment.prod.ts
 export const environment = {
   production: true,
-  regApiGatewayUrl: '$ADMIN_APIGATEWAYURL'
+  regApiGatewayUrl: '$ADMIN_APIGATEWAYURL',
+  auth: {
+    provider: '$IDP_NAME'
+  }
 };
 EoF
 
 cat <<EoF >./src/environments/environment.ts
 export const environment = {
   production: false,
-  regApiGatewayUrl: '$ADMIN_APIGATEWAYURL'
+  regApiGatewayUrl: '$ADMIN_APIGATEWAYURL',
+  auth: {
+    provider: '$IDP_NAME'
+  }
 };
 EoF
 

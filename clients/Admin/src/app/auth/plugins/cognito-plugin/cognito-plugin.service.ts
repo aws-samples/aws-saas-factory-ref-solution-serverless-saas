@@ -17,7 +17,7 @@ export default class CognitoPluginService implements IdentityProviderPlugin {
     return new StsConfigStaticLoader ({
       authority: config.authority,
       clientId: config.clientId,
-      redirectUrl: window.location.origin,
+      redirectUrl: `${window.location.origin}/`,
       scope: 'openid profile',
       responseType: 'code',
       useRefreshToken: true,
