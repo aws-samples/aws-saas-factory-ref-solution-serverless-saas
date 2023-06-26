@@ -6,7 +6,7 @@ import { AuthProviders } from "../../auth-providers.enum";
 import { AuthPluginConfig } from '../../provider-plugin.interface';
 
 export const auth0ProviderConfig: AuthPluginConfig = {
-  provider: AuthProviders.Sample,
+  provider: AuthProviders.Auth0,
   claimsMap: [{
     attribute: "UserName",
     claim: "name"

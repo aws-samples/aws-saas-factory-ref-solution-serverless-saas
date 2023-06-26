@@ -6,7 +6,8 @@ import { AuthProviders } from "../../auth-providers.enum";
 import { AuthPluginConfig } from '../../provider-plugin.interface';
 
 export const cognitoProviderConfig: AuthPluginConfig = {
-  provider: AuthProviders.Sample,
+  provider: AuthProviders.Cognito,
+  useIdTokenForAuthorization: true,
   claimsMap: [{
     attribute: "UserName",
     claim: "username"
