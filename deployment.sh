@@ -14,8 +14,8 @@ if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-server
   if ! git remote add cc "$REPO_URL"; then
     echo "Setting url to remote cc"
     git remote set-url cc "$REPO_URL"
-  fi
-  git push --set-upstream cc main
+  fi  
+  git push cc "$(git branch --show-current)":main
 fi
 
 # enable yarn
