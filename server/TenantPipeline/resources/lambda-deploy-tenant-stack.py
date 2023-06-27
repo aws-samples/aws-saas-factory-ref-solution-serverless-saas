@@ -417,7 +417,7 @@ def lambda_handler(event, context):
         print (mappings)
 
         #test empty mappings and exit
-        if not mappings:
+        if not mappings['Items']:
             put_job_success(job_id, "No deployments to make on tenant stack mapping")
 
         #Update/Create stacks for all tenants
