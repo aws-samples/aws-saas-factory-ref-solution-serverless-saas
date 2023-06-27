@@ -49,11 +49,11 @@ Resources:
       Description: Utilities for project
       ContentUri: layers/
       CompatibleRuntimes:
-        - python3.8          
+        - python3.9          
       LicenseInfo: 'MIT'
       RetentionPolicy: Retain      
     Metadata:
-      BuildMethod: python3.8   
+      BuildMethod: python3.9
   
   ProductTable:
     Type: AWS::DynamoDB::Table
@@ -141,7 +141,7 @@ Resources:
     Properties:
       CodeUri: ProductService/
       Handler: product_service.get_product
-      Runtime: python3.8  
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt ProductFunctionExecutionRole.Arn
       ReservedConcurrentExecutions: !If [IsPooledDeploy, !Ref "AWS::NoValue" , !Ref LambdaReserveConcurrency]
@@ -185,7 +185,7 @@ Resources:
     Properties:
       CodeUri: ProductService/
       Handler: product_service.get_products
-      Runtime: python3.8  
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt ProductFunctionExecutionRole.Arn
       ReservedConcurrentExecutions: !If [IsPooledDeploy, !Ref "AWS::NoValue" , !Ref LambdaReserveConcurrency]
@@ -229,7 +229,7 @@ Resources:
     Properties:
       CodeUri: ProductService/
       Handler: product_service.create_product
-      Runtime: python3.8  
+      Runtime: python3.9 
       Tracing: Active 
       Role: !GetAtt ProductFunctionExecutionRole.Arn 
       Layers: 
@@ -272,7 +272,7 @@ Resources:
     Properties:
       CodeUri: ProductService/
       Handler: product_service.update_product
-      Runtime: python3.8 
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt ProductFunctionExecutionRole.Arn 
       Layers: 
@@ -315,7 +315,7 @@ Resources:
     Properties:
       CodeUri: ProductService/
       Handler: product_service.delete_product
-      Runtime: python3.8 
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt ProductFunctionExecutionRole.Arn 
       Layers: 
@@ -396,7 +396,7 @@ Resources:
     Properties:
       CodeUri: OrderService/
       Handler: order_service.get_orders
-      Runtime: python3.8  
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt OrderFunctionExecutionRole.Arn
       ReservedConcurrentExecutions: !If [IsPooledDeploy, !Ref "AWS::NoValue" , !Ref LambdaReserveConcurrency]
@@ -440,7 +440,7 @@ Resources:
     Properties:
       CodeUri: OrderService/
       Handler: order_service.get_order
-      Runtime: python3.8  
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt OrderFunctionExecutionRole.Arn
       ReservedConcurrentExecutions: !If [IsPooledDeploy, !Ref "AWS::NoValue" , !Ref LambdaReserveConcurrency]
@@ -484,7 +484,7 @@ Resources:
     Properties:
       CodeUri: OrderService/
       Handler: order_service.create_order
-      Runtime: python3.8  
+      Runtime: python3.9
       Tracing: Active 
       Role: !GetAtt OrderFunctionExecutionRole.Arn 
       Layers: 
@@ -527,7 +527,7 @@ Resources:
     Properties:
       CodeUri: OrderService/
       Handler: order_service.update_order
-      Runtime: python3.8 
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt OrderFunctionExecutionRole.Arn 
       Layers: 
@@ -570,7 +570,7 @@ Resources:
     Properties:
       CodeUri: OrderService/
       Handler: order_service.delete_order
-      Runtime: python3.8 
+      Runtime: python3.9
       Tracing: Active
       Role: !GetAtt OrderFunctionExecutionRole.Arn 
       Layers: 
@@ -1248,7 +1248,7 @@ Resources:
     Properties:
       CodeUri: custom_resources/
       Handler: update_usage_plan.handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt UpdateUsagePlanLambdaExecutionRole.Arn
       Layers: 
           - !Ref ServerlessSaaSLayers
@@ -1303,7 +1303,7 @@ Resources:
     Properties:
       CodeUri: custom_resources/
       Handler: update_tenant_apigatewayurl.handler
-      Runtime: python3.8
+      Runtime: python3.9
       Role: !GetAtt UpdateTenantApiGatewayUrlLambdaExecutionRole.Arn
       Layers: 
           - !Ref ServerlessSaaSLayers
