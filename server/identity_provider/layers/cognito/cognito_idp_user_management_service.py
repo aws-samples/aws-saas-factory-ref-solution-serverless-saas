@@ -59,7 +59,7 @@ class CognitoIdpUserManagementService(IdpUserManagementInterface):
         
         add_tenant_admin_to_group_response = user_management_layer.add_user_to_group(user_pool_id, tenant_admin_user_name, tenant_user_group_response['Group']['GroupName'])
         
-        response = {"idpDetials":{"idp":{"name":"Cognito","userPoolId": user_pool_id, "appClientId": app_client_id }} , "tenantAdminUserName": tenant_admin_user_name}
+        response = {"idpDetails":{"idp":{"name":"Cognito","userPoolId": user_pool_id, "appClientId": app_client_id }} , "tenantAdminUserName": tenant_admin_user_name}
         return response
     
     def create_user(self, event):

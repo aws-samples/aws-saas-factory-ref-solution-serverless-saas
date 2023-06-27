@@ -50,7 +50,7 @@ def create_tenant(event, context):
                     'tenantPhone': tenant_details['tenantPhone'],
                     'tenantTier': tenant_details['tenantTier'],
                     'apiKey': tenant_details['apiKey'],
-                    'idpDetails': tenant_details['idpDetials'],
+                    'idpDetails': tenant_details['idpDetails'],
                     'dedicatedTenancy': tenant_details['dedicatedTenancy'],
                     'isActive': True,
                     'apiGatewayUrl': api_gateway_url
