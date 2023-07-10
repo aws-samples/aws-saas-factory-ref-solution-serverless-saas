@@ -37,7 +37,7 @@ def create_tenant_admin_user(event, context):
     tenant_id = tenant_details['tenantId']
 
     if (tenant_details['dedicatedTenancy'] == 'true'):
-        tenant_details['application_site_url'] = os.environ['TENANT_CALLBACK_URL']
+        tenant_details['CallbackURL'] = os.environ['TENANT_CALLBACK_URL']
     else:
         tenant_details['idpDetails'] = json.loads(os.environ['POOLED_IDP_DETAILS'])
 

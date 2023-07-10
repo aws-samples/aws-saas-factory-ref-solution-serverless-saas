@@ -1,4 +1,4 @@
-from idp_authorizer_interface import IdpAuthorizerInterface
+from abstract_classes.idp_authorizer_abstract_class import IdpAuthorizerAbstractClass
 import logger
 import boto3
 import json
@@ -8,7 +8,7 @@ from jose import jwk, jwt
 from jose.utils import base64url_decode
 
 region = boto3.session.Session().region_name
-class CognitoIdpAuthorizer(IdpAuthorizerInterface):
+class CognitoIdpAuthorizer(IdpAuthorizerAbstractClass):
     
     def validateJWT(self,event):
         
@@ -28,6 +28,14 @@ class CognitoIdpAuthorizer(IdpAuthorizerInterface):
         response = self.__validateJWT(token, tenant_app_client_id, keys)
         
         return response
+    
+    def getClaims(self,event):
+        claims = {}
+        claims['username'] = event['cognito:username']
+        claims['tenantId'] = event['custom:tenantId']
+        claims['userRole'] = event['custom:userRole']
+        return claims
+
         
     
     def __validateJWT(self, token, app_client_id, keys):

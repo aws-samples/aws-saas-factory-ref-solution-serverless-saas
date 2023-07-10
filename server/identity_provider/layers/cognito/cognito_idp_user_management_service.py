@@ -11,9 +11,9 @@ import metrics_manager
 import auth_manager
 from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools import Tracer
-import cognito.user_management_layer as user_management_layer
+import cognito.user_management_util as user_management_util
 import requests
-from idp_user_management_interface import IdpUserManagementInterface
+from abstract_classes.idp_user_management_abstract_class import IdpUserManagementAbstractClass
 from cognito.cognito_identity_provider_management import CognitoIdentityProviderManagement
 
 tracer = Tracer()
@@ -29,37 +29,32 @@ table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')
 idp_mgmt = CognitoIdentityProviderManagement()
 
 # Try out dependency injection
-class CognitoIdpUserManagementService(IdpUserManagementInterface):
+class CognitoIdpUserManagementService(IdpUserManagementAbstractClass):
     def create_tenant_admin_user(self, event):
 
-        print(event)
-        print(type(event))
         tenant_details = event
+        response = {}
         
         tenant_id = tenant_details['tenantId']
         logger.info(tenant_details)
 
 
-        if (tenant_details['dedicatedTenancy'] == 'true'):
-            user_pool_response = idp_mgmt.create_siloed_idp(tenant_details)
-            user_pool_id = user_pool_response['idp']['userPoolId']
-            logger.info (user_pool_id)
-            app_client_id = user_pool_response['idp']['appClientId']
-            logger.info ("New Tenant Created")
-        else:
-            user_pool_id = tenant_details['idpDetails']['idp']['userPoolId']
-            app_client_id = tenant_details['idpDetails']['idp']['appClientId']
+        user_pool_id = tenant_details['idpDetails']['idp']['userPoolId']
+        app_client_id = tenant_details['idpDetails']['idp']['appClientId']
 
-        #Add tenant admin now based upon user pool
-        tenant_user_group_response = user_management_layer.create_user_group(user_pool_id,tenant_id,"User group for tenant {0}".format(tenant_id))
+        tenant_user_group_response = user_management_util.create_user_group(user_pool_id,tenant_id,"User group for tenant {0}".format(tenant_id))
 
         tenant_admin_user_name = 'tenant-admin-{0}'.format(tenant_details['tenantId'])
 
-        create_tenant_admin_response = user_management_layer.create_tenant_admin(user_pool_id, tenant_admin_user_name, tenant_details)
+        create_tenant_admin_response = user_management_util.create_tenant_admin(user_pool_id, tenant_admin_user_name, tenant_details)
         
-        add_tenant_admin_to_group_response = user_management_layer.add_user_to_group(user_pool_id, tenant_admin_user_name, tenant_user_group_response['Group']['GroupName'])
+        add_tenant_admin_to_group_response = user_management_util.add_user_to_group(user_pool_id, tenant_admin_user_name, tenant_user_group_response['Group']['GroupName'])
         
-        response = {"idpDetails":{"idp":{"name":"Cognito","userPoolId": user_pool_id, "appClientId": app_client_id }} , "tenantAdminUserName": tenant_admin_user_name}
+        response['idpDetails']['idp']['name'] = "Cognito"
+        response['idpDetails']['idp']['userPoolId'] = user_pool_id
+        response['idpDetails']['idp']['appClientId'] = app_client_id
+        response['tenantAdminUserName'] = tenant_admin_user_name
+
         return response
     
     def create_user(self, event):
@@ -90,7 +85,7 @@ class CognitoIdpUserManagementService(IdpUserManagementInterface):
                 ]
             )
             
-        user_management_layer.add_user_to_group(user_pool_id, user_details['userName'], user_details['userTenantId'])
+        user_management_util.add_user_to_group(user_pool_id, user_details['userName'], user_details['userTenantId'])
         return response
 
     def get_users(self, event):

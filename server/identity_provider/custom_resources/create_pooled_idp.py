@@ -30,19 +30,12 @@ def do_action(event, _):
     
     idp_input = {}
     tenant_callback_url = event['ResourceProperties']['TenantCallbackURL']
-    # idp_name = event['ResourceProperties']['IDPNAME']
-    idp_input['TenantCallbackURL'] = tenant_callback_url
+    idp_input['CallbackURL'] = tenant_callback_url
+    idp_input['dedicatedTenancy'] = 'false'
     
-    response = json.dumps(idp_mgmt_service.create_pooled_idp(idp_input))
+    response = json.dumps(idp_mgmt_service.create_idp(idp_input))
     helper.Data['IdpDetails'] = response
-    # helper.Data['IdpDetails'] = "{\"idp\":{\"name\":\"Cognito\",\"userPoolId\": \"user_pool_id\", \"appClientId\": \"app_client_id\" }"
-    # helper.Data['IdpName'] = ""
-    # helper.Data['userPoolId'] = "userPoolId"
-    # helper.Data['appClientId'] = "appClientId"
-    # helper.Data['IdpDetails']['idp']['userPoolId'] = "userPoolId"
-    # helper.Data['IdpDetails']['idp']['appClientId'] = "appClientId"
-    # helper.Data.update({"IdpName":"IdpName"})
-    # helper.Data.update({"userPoolId":"userPoolId"})
+    
 
 @helper.delete
 def do_nothing(_, __):

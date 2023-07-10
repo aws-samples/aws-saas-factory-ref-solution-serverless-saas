@@ -38,17 +38,18 @@ def lambda_handler(event, context):
     #only to get tenant id to get user pool info
     unauthorized_claims = jwt.get_unverified_claims(jwt_bearer_token)
     logger.info(unauthorized_claims)
+    unauthorized_claims = idp_authorizer_service.getClaims(unauthorized_claims)
     
     user_details['jwtToken']=jwt_bearer_token
 
-    if(auth_manager.isSaaSProvider(unauthorized_claims['custom:userRole'])):
+    if(auth_manager.isSaaSProvider(unauthorized_claims['userRole'])):
         user_details['idpDetails'] = operation_user_idp_details 
         api_key = api_key_operation_user      
     else:
         #get tenant user pool and app client to validate jwt token against
         tenant_details = table_tenant_details.get_item( 
             Key ={
-                'tenantId': unauthorized_claims['custom:tenantId']
+                'tenantId': unauthorized_claims['tenantId']
             }
         )
         logger.info(tenant_details)
@@ -65,10 +66,11 @@ def lambda_handler(event, context):
         raise Exception('Unauthorized')
     else:
         logger.info(response)
-        principal_id = response["sub"]
-        user_name = response["cognito:username"]
-        tenant_id = response["custom:tenantId"]
-        user_role = response["custom:userRole"]
+        principal_id = response['sub']
+        claims = idp_authorizer_service.getClaims(response)
+        user_name = claims['username']
+        tenant_id = claims['tenantId']
+        user_role = claims['userRole']
     
     
     tmp = event['methodArn'].split(':')

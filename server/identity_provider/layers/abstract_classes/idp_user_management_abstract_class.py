@@ -1,7 +1,5 @@
 import abc
-#https://www.educba.com/interface-in-python/
-#https://realpython.com/python-interface/#formal-interfaces
-class IdpUserManagementInterface (abc.ABC):
+class IdpUserManagementAbstractClass (abc.ABC):
     @abc.abstractmethod
     def create_tenant_admin_user(self, event):
         pass
