@@ -5,9 +5,5 @@ class IdentityProviderAbstractClass (abc.ABC):
         pass
     
     @abc.abstractmethod
-    def create_idp_tenant_config(self,event):
-        pass
-    
-    @abc.abstractmethod
     def create_operational_idp(self,event):
         pass
