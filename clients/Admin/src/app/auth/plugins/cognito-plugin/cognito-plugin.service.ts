@@ -21,7 +21,7 @@ export default class CognitoPluginService implements IdentityProviderPlugin {
       scope: 'openid profile',
       responseType: 'code',
       useRefreshToken: true,
-      postLogoutRedirectUri: window.location.origin,
+      postLogoutRedirectUri: `${window.location.origin}/`,
       postLoginRoute: "/dashboard"
     })
   }
@@ -32,8 +32,8 @@ export default class CognitoPluginService implements IdentityProviderPlugin {
 }
 
 const __getPluginConfig = () => {
-  const userPoolId = Object.getOwnPropertyDescriptor(config, 'userPoolId')?.value || undefined;
-  const appClientIed = Object.getOwnPropertyDescriptor(config, 'appClientId')?.value || undefined;
+  const userPoolId = Object.getOwnPropertyDescriptor(config.idp, 'userPoolId')?.value || undefined;
+  const appClientIed = Object.getOwnPropertyDescriptor(config.idp, 'appClientId')?.value || undefined;
   if (userPoolId && appClientIed) {
     const region = userPoolId.substring(0, userPoolId.indexOf("_"));
     return {

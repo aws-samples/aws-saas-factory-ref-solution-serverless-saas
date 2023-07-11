@@ -36,11 +36,7 @@ export class AuthService {
 
   private __getProviderTokenOverride() : boolean {
     const config = this.plugInService.getConfig()
-    var prop = 'useIdTokenForAuthorization';
-    if(config.hasOwnProperty(prop)) {
-      return Object.getOwnPropertyDescriptor(config, prop)?.value || false;
-    }
-    return false;
+    return config.useIdTokenForAuthorization === true;
   }
 
   get userData$(): Observable<any> {

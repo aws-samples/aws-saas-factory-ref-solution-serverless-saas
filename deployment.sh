@@ -1,12 +1,44 @@
 #!/bin/bash -e
-IDP_NAME="Cognito"
-TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
-REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/\(.*\)[a-z]/\1/')
-#REGION=$(aws configure get region)
+
+echo "Select your identity provider:"
+select yn in "Cognito" "Auth0"; do
+    IDP_NAME=$yn
+    case $yn in
+        Cognito)
+            [ -f "./plugins/Cognito/deploy.sh" ] && source "./plugins/Cognito/deploy.sh"
+            break
+            ;;
+        Auth0)
+            [ -f "./plugins/Auth0/deploy.sh" ] && source "./plugins/Auth0/deploy.sh"
+            break
+            ;;
+        *)
+            echo "Invalid option. Please select a valid option."
+            ;;
+    esac
+done
+
+echo "Enter an email address for your SaaS admin user:"
+read -r SAAS_ADMIN_EMAIL
+echo "Confirm your SaaS Admin email: $SAAS_ADMIN_EMAIL"
+select yc in "Confirm" "Cancel"; do
+    case $yc in
+        Confirm)
+            break
+            ;;
+        Cancel)
+            exit
+            ;;
+        *)
+            echo "Invalid option. Please select a valid option."
+            ;;
+    esac
+done
+
+REGION=$(aws configure get region)
 
 # Create CodeCommit repo
-# aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas
-if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas; then
+if ! aws codecommit get-repository --repository-name aws-saas-factory-ref-serverless-saas 2> /dev/null; then
   echo "aws-saas-factory-ref-serverless-saas codecommit repo is not present, will create one now"
   CREATE_REPO=$(aws codecommit create-repository --repository-name aws-saas-factory-ref-serverless-saas --repository-description "Serverless saas reference architecture repository")
   echo "$CREATE_REPO"
@@ -24,7 +56,6 @@ corepack enable || npm install --global yarn
 # Deploying CI/CD pipeline
 cd server/TenantPipeline/ || exit # stop execution if cd fails
 yarn install && yarn build
-# npm install && npm run build
 cdk bootstrap
 
 if ! cdk deploy; then
@@ -54,7 +85,7 @@ if ! aws s3 ls "s3://${DEFAULT_SAM_S3_BUCKET}"; then
 fi
 
 sam build -t bootstrap-template.yaml --use-container --region="$REGION"
-sam deploy --config-file samconfig-bootstrap.toml --region="$REGION" --parameter-overrides AdminEmailParameter="$1" IdpNameParameter="$IDP_NAME"
+sam deploy --config-file samconfig-bootstrap.toml --region="$REGION" --parameter-overrides AdminEmailParameter="$SAAS_ADMIN_EMAIL" IdpNameParameter="$IDP_NAME"
 
 if [[ $? -ne 0 ]]; then
   exit 1
@@ -66,17 +97,11 @@ aws codepipeline start-pipeline-execution --name serverless-saas-pipeline
 ADMIN_SITE_BUCKET=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminAppBucket'].Value" --output text)
 APP_SITE_BUCKET=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AppBucket'].Value" --output text)
 LANDING_APP_SITE_BUCKET=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-LandingAppBucket'].Value" --output text)
-
 ADMIN_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminAppSite'].Value" --output text)
 APP_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-ApplicationSite'].Value" --output text)
 LANDING_APP_SITE_URL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-LandingApplicationSite'].Value" --output text)
-
-#ADMIN_APPCLIENTID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolClientId'].Value" --output text)
-#ADMIN_USERPOOLID=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminUserPoolId'].Value" --output text)
 ADMIN_APIGATEWAYURL=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-AdminApiGatewayUrl'].Value" --output text)
 ADMIN_IDPDETAILS=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-OperationUsersIdpDetails'].Value" --output text)
-ADMIN_USERPOOLID=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.userPoolId')
-ADMIN_APPCLIENTID=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.appClientId')
 
 # Configuring admin UI
 echo "aws s3 ls s3://${ADMIN_SITE_BUCKET}"
@@ -101,8 +126,8 @@ export const environment = {
     provider: '$IDP_NAME'
   }  
 };
-
 EoF
+
 cat <<EoF >./src/environments/environment.ts
 export const environment = {
   production: false,
@@ -113,16 +138,12 @@ export const environment = {
 };
 EoF
 
-cat <<EoF >./src/environments/auth-config.js
-const auth_config = {
-  userPoolId: '$ADMIN_USERPOOLID',
-  appClientId: '$ADMIN_APPCLIENTID'
-}
+cat <<EoF >./clients/Admin/src/environments/auth-config.js
+const auth_config = $(echo "$ADMIN_IDPDETAILS" | jq -r '.');
 export default auth_config;
 EoF
 
 yarn install && yarn build
-# npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://${ADMIN_SITE_BUCKET}"
 aws s3 sync --delete --cache-control no-store dist "s3://${ADMIN_SITE_BUCKET}"
@@ -182,7 +203,6 @@ fi
 echo "Completed configuring environment for App Client"
 
 # Configuring landing UI
-
 echo "aws s3 ls s3://${LANDING_APP_SITE_BUCKET}"
 if ! aws s3 ls "s3://${LANDING_APP_SITE_BUCKET}"; then
   echo "Error! S3 Bucket: $LANDING_APP_SITE_BUCKET not readable"
@@ -213,7 +233,6 @@ export const environment = {
 EoF
 
 yarn install && yarn build
-# npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://${LANDING_APP_SITE_BUCKET}"
 aws s3 sync --delete --cache-control no-store dist "s3://${LANDING_APP_SITE_BUCKET}"

@@ -1,3 +1,5 @@
-//add here config for your provider (see sample-config.js)
-const auth_config = {}
+const auth_config = {
+  "idp": {
+  }
+};
 export default auth_config;

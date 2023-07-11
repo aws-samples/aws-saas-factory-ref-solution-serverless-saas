@@ -32,8 +32,8 @@ export default class Auth0PluginService implements IdentityProviderPlugin {
 }
 
 const __getPluginConfig = () => {
-  const domain = Object.getOwnPropertyDescriptor(config, 'domain')?.value || undefined;
-  const clientId = Object.getOwnPropertyDescriptor(config, 'clientId')?.value || undefined;
+  const domain = Object.getOwnPropertyDescriptor(config.idp, 'domain')?.value || undefined;
+  const clientId = Object.getOwnPropertyDescriptor(config.idp, 'clientId')?.value || undefined;
   if (domain && clientId) {
     return {
       authority: `https://${domain}`,
