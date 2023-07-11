@@ -32,6 +32,7 @@ class CognitoIdentityProviderManagement(IdentityProviderAbstractClass):
     def create_operational_idp(self, event):
         user_details = {}
         idp_details = {}
+        idp_details["idp"] = {}
         admin_callback_url = event['AdminCallbackURL']
         admin_email = event['AdminEmail']
         role_name = event['SystemAdminRoleName']
