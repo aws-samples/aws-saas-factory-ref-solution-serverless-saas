@@ -49,7 +49,7 @@ class CognitoIdpUserManagementService(IdpUserManagementAbstractClass):
         create_tenant_admin_response = user_management_util.create_tenant_admin(user_pool_id, tenant_admin_user_name, tenant_details)
         
         add_tenant_admin_to_group_response = user_management_util.add_user_to_group(user_pool_id, tenant_admin_user_name, tenant_user_group_response['Group']['GroupName'])
-        
+        response['idpDetails']['idp'] = {}
         response['idpDetails']['idp']['name'] = "Cognito"
         response['idpDetails']['idp']['userPoolId'] = user_pool_id
         response['idpDetails']['idp']['appClientId'] = app_client_id
