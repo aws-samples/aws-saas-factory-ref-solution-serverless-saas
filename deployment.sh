@@ -138,7 +138,7 @@ export const environment = {
 };
 EoF
 
-cat <<EoF >./clients/Admin/src/environments/auth-config.js
+cat <<EoF >./src/environments/auth-config.js
 const auth_config = $(echo "$ADMIN_IDPDETAILS" | jq -r '.');
 export default auth_config;
 EoF

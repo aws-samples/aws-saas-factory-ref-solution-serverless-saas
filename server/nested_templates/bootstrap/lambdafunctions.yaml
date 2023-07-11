@@ -901,6 +901,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables: # Need to find a better way than hard coding resource paths
           CREATE_TENANT_ADMIN_USER_RESOURCE_PATH: "/user/tenant-admin"
