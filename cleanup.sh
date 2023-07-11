@@ -60,12 +60,16 @@ delete_codecommit_repo_after_confirming() {
     fi
 }
 
+# Get which IDP is being used before deleting the stacks
+ADMIN_IDPDETAILS=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-OperationUsersIdpDetails'].Value" --output text)
+IDP=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.name')
+
 skip_flag=''
 while getopts 's' flag; do
-  case "${flag}" in
-    s) skip_flag='true' ;;
-    *) error "Unexpected option ${flag}!" && exit 1 ;;
-  esac
+    case "${flag}" in
+        s) skip_flag='true' ;;
+        *) error "Unexpected option ${flag}!" && exit 1 ;;
+    esac
 done
 
 echo "$(date) Cleaning up resources..."
@@ -109,9 +113,7 @@ done
 
 delete_stack_after_confirming "serverless-saas"
 delete_stack_after_confirming "serverless-saas-pipeline"
-
 delete_codecommit_repo_after_confirming "aws-saas-factory-ref-serverless-saas"
-# delete_codecommit_repo_after_confirming "aws-serverless-saas-workshop"
 
 echo "$(date) cleaning up buckets..."
 for i in $(aws s3 ls | awk '{print $3}' | grep -E "^serverless-saas-*|^sam-bootstrap-*"); do
@@ -160,9 +162,6 @@ while true; do
         break
     fi
 done
-
-ADMIN_IDPDETAILS=$(aws cloudformation list-exports --query "Exports[?Name=='Serverless-SaaS-OperationUsersIdpDetails'].Value" --output text)
-IDP=$(echo $ADMIN_IDPDETAILS | jq -r '.idp.name')
 
 case $IDP in
     Cognito)    
