@@ -48,6 +48,7 @@ def register_tenant(event, context):
 
         tenant_details['tenantId'] = tenant_id
         tenant_details['apiKey'] = api_key
+        tenant_details['CallbackURL'] = os.environ['TENANT_CALLBACK_URL']
 
         logger.info(tenant_details)
 
@@ -71,7 +72,6 @@ def register_tenant(event, context):
         if (tenant_details['dedicatedTenancy'].upper() == 'TRUE'):
             provision_tenant_response = __provision_tenant(tenant_details, headers, auth, host, stage_name)
             logger.info(provision_tenant_response)
-
         
     except Exception as e:
         logger.error('Error registering a new tenant')

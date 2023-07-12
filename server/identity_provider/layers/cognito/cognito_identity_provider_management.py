@@ -7,57 +7,54 @@ cognito = boto3.client('cognito-idp')
 
 class CognitoIdentityProviderManagement(IdentityProviderAbstractClass):
     def create_idp(self, event):
+        logger.info (event)
         callback_url = event['CallbackURL']
         domain_name = 'PooledTenant'
-        idp_details = {}
-        idp_details["idp"] = {}
-
         if (event['dedicatedTenancy']== 'true'):
-            domain_name = event['tenantId']
-
+            domain_name = event['tenantId']            
         user_pool_response = self.__create_user_pool(domain_name, callback_url, 'tenant')
-        user_pool_id = user_pool_response['UserPool']['Id']
-        logger.info (user_pool_id)
-        
+        logger.info(user_pool_response)
+        user_pool_id = user_pool_response['UserPool']['Id']        
         app_client_response = self.__create_user_pool_client(user_pool_id, callback_url)
         logger.info(app_client_response)
         app_client_id = app_client_response['UserPoolClient']['ClientId']
-        self.__create_user_pool_domain(user_pool_id, domain_name+uuid.uuid1().hex)
-
-        idp_details["idp"]["name"] = "Cognito"
-        idp_details["idp"]["userPoolId"] = user_pool_id
-        idp_details["idp"]["appClientId"] = app_client_id
-        return idp_details
+        create_user_pool_domain_response = self.__create_user_pool_domain(user_pool_id, domain_name+uuid.uuid1().hex)
+        logger.info(create_user_pool_domain_response)
+        return {
+            'idp': {
+                'name': 'Cognito',
+                'userPoolId': user_pool_id,
+                'appClientId': app_client_id
+            }
+        }
 
     def create_operational_idp(self, event):
+        logger.info (event)
         user_details = {}
-        idp_details = {}
-        idp_details["idp"] = {}
         admin_callback_url = event['AdminCallbackURL']
         admin_email = event['AdminEmail']
         role_name = event['SystemAdminRoleName']
-        admin_user_name = 'admin'
-    
+        admin_user_name = 'admin'    
         user_details['email'] = admin_email
         user_details['tenantId'] = 'SystemAdmins'
-
-        user_pool_response = self.__create_user_pool('OperationUsers',admin_callback_url, 'admin')
+        user_pool_response = self.__create_user_pool('OperationUsers', admin_callback_url, 'admin')
+        logger.info (user_pool_response)
         user_pool_id = user_pool_response['UserPool']['Id']
-        logger.info (user_pool_id)
-        
         app_client_response = self.__create_user_pool_client(user_pool_id, admin_callback_url)
         logger.info(app_client_response)
         app_client_id = app_client_response['UserPoolClient']['ClientId']
-        self.__create_user_pool_domain(user_pool_id, 'operationsusers'+uuid.uuid1().hex)
+        user_pool_domain_response = self.__create_user_pool_domain(user_pool_id, 'operationsusers'+uuid.uuid1().hex)
+        logger.info(user_pool_domain_response)
         tenant_user_group_response = user_management_util.create_user_group(user_pool_id,'SystemAdmins',"User group for system admins {0}".format('SystemAdmins'))
         user_management_util.create_operational_admin(user_pool_id, admin_user_name, user_details, role_name)
         user_management_util.add_user_to_group(user_pool_id, admin_user_name, tenant_user_group_response['Group']['GroupName'])
-    
-        idp_details["idp"]["name"] = "Cognito"
-        idp_details["idp"]["userPoolId"] = user_pool_id
-        idp_details["idp"]["appClientId"] = app_client_id
-
-        return idp_details
+        return {
+            'idp': {
+                'name': 'Cognito',
+                'userPoolId': user_pool_id,
+                'appClientId': app_client_id
+            }
+        }
 
     def __create_user_pool(self, tenant_id, application_site_url, application_type):
         email_message = ''.join(["Login into ", application_type," UI application at ", 
@@ -96,6 +93,7 @@ class CognitoIdentityProviderManagement(IdentityProviderAbstractClass):
                     }
                 ],
                 AdminCreateUserConfig={
+                    'AllowAdminCreateUserOnly': True, #no self-signup
                     'InviteMessageTemplate': {
                         'EmailMessage': email_message,
                         'EmailSubject': email_subject

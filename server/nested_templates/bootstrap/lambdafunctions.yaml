@@ -913,6 +913,8 @@ Resources:
           BASIC_TIER_API_KEY: !Ref ApiKeyBasicTierParameter
           POWERTOOLS_SERVICE_NAME: "TenantRegistration.RegisterTenant"
           IDP_NAME: !Ref IdpNameParameter
+          TENANT_CALLBACK_URL:
+            !Join ["", ["https://", !Ref TenantCallbackURLParameter, "/"]]
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
