@@ -45,13 +45,11 @@ def register_tenant(event, context):
             api_key = standard_tier_api_key
         elif (tenant_details['tenantTier'].upper() == utils.TenantTier.BASIC.value.upper()):
             api_key = basic_tier_api_key
-
         tenant_details['tenantId'] = tenant_id
-        tenant_details['apiKey'] = api_key
-        tenant_details['CallbackURL'] = os.environ['TENANT_CALLBACK_URL']
-
+        tenant_details['apiKey'] = api_key        
+        
         logger.info(tenant_details)
-
+        
         stage_name = "prod"
         host = event['headers']['Host']
         auth = utils.get_auth(host, region)

@@ -1,14 +1,15 @@
+import os
 import boto3
 import logger
 import uuid
 import cognito.user_management_util as user_management_util
 from abstract_classes.identity_provider_abstract_class import IdentityProviderAbstractClass 
 cognito = boto3.client('cognito-idp')
+callback_url = os.environ['TENANT_CALLBACK_URL']
 
 class CognitoIdentityProviderManagement(IdentityProviderAbstractClass):
     def create_idp(self, event):
-        logger.info (event)
-        callback_url = event['CallbackURL']
+        logger.info (event)        
         domain_name = 'PooledTenant'
         if (event['dedicatedTenancy']== 'true'):
             domain_name = event['tenantId']            
