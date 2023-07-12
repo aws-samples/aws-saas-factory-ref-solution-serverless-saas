@@ -889,7 +889,16 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
-        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess
+        - arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess      
+      Policies:
+        - PolicyName: !Sub tenant-registration-lambda-execution-policy-${AWS::Region}
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cognito-idp:*
+                Resource: "*"
   RegisterTenantFunction:
     Type: AWS::Serverless::Function
     DependsOn: RegisterTenantLambdaExecutionRole

@@ -22,7 +22,7 @@ region = os.environ['AWS_REGION']
 
 #This method has been locked down to be only
 def create_tenant(event, context):
-    
+    logger.info(event)
     api_gateway_url = ''       
     tenant_details = json.loads(event['body'])
 
