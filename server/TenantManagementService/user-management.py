@@ -4,47 +4,33 @@
 import json
 import boto3
 import os
-import sys
-import importlib
 import logger 
 import utils
 import metrics_manager
 import auth_manager
 from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools import Tracer
-import requests
-import re
 import idp_object_factory
-
 tracer = Tracer()
-
 region = os.environ['AWS_REGION']
-client = boto3.client('cognito-idp')
+idp_name = os.environ['IDP_NAME']
 dynamodb = boto3.resource('dynamodb')
 table_tenant_user_map = dynamodb.Table('ServerlessSaaS-TenantUserMapping')
 table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')
-
-
-idp_name = os.environ['IDP_NAME']
-
 idp_user_mgmt_service = idp_object_factory.get_idp_user_mgmt_object(idp_name)
 
-
 def create_tenant_admin_user(event, context):
-    
-    tenant_details = event['body']
-    tenant_details = json.loads(tenant_details)
+    logger.info(event)
+    tenant_details = json.loads(event['body'])
     tenant_id = tenant_details['tenantId']
 
-    if (tenant_details['dedicatedTenancy'] == 'true'):
-        tenant_details['CallbackURL'] = os.environ['TENANT_CALLBACK_URL']
-    else:
-        tenant_details['idpDetails'] = json.loads(os.environ['POOLED_IDP_DETAILS'])
-
     create_admin_user_response = idp_user_mgmt_service.create_tenant_admin_user(tenant_details)
+    logger.info(create_admin_user_response)
+
+    tenantAdminUserName = create_admin_user_response['tenantAdminUserName']
+    tenant_user_mapping_response = __create_user_tenant_mapping(tenantAdminUserName, tenant_id)
+    logger.info(tenant_user_mapping_response)
     
-    tenant_user_mapping_response = __create_user_tenant_mapping(create_admin_user_response['tenantAdminUserName'],tenant_id)
-        
     return utils.create_success_response(create_admin_user_response)
 
 
@@ -311,8 +297,6 @@ def enable_users_by_tenant(event, context):
         logger.info("Request completed as unauthorized. Only tenant admin or system admin can update!")        
         return utils.create_unauthorized_response()
 
-
-
 def __create_user_tenant_mapping(user_name, tenant_id):    
         response = table_tenant_user_map.put_item(
                 Item={
@@ -320,5 +304,4 @@ def __create_user_tenant_mapping(user_name, tenant_id):
                         'userName': user_name
                     }
                 )                    
-
         return response        

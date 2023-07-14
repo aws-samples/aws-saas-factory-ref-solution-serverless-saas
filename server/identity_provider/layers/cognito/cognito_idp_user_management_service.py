@@ -17,25 +17,15 @@ idp_mgmt = CognitoIdentityProviderManagement()
 
 class CognitoIdpUserManagementService(IdpUserManagementAbstractClass):
     def create_tenant_admin_user(self, event):
+        logger.info(event)
         tenant_details = event
         tenant_id = tenant_details['tenantId']
-        logger.info(tenant_details)
-        user_pool_id = tenant_details['idpDetails']['idp']['userPoolId']
-        app_client_id = tenant_details['idpDetails']['idp']['appClientId']
-        tenant_user_group_response = user_management_util.create_user_group(user_pool_id,tenant_id,"User group for tenant {0}".format(tenant_id))
+        user_pool_id = tenant_details['idpDetails']['idp']['userPoolId']        
+        tenant_user_group_response = user_management_util.create_user_group(user_pool_id, tenant_id, "User group for tenant {0}".format(tenant_id))
         tenant_admin_user_name = 'tenant-admin-{0}'.format(tenant_details['tenantId'])
         user_management_util.create_tenant_admin(user_pool_id, tenant_admin_user_name, tenant_details)
         user_management_util.add_user_to_group(user_pool_id, tenant_admin_user_name, tenant_user_group_response['Group']['GroupName'])
-        return {
-            'idpDetails': {
-                'idp': {
-                    'name': 'Cognito',
-                    'userPoolId': user_pool_id,
-                    'appClientId': app_client_id
-                }
-            },
-            'tenantAdminUserName': tenant_admin_user_name
-        }
+        return { 'tenantAdminUserName': tenant_admin_user_name }
 
     def create_user(self, event):
         user_details = event

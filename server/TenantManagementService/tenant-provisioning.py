@@ -20,9 +20,8 @@ table_tenant_stack_mapping = dynamodb.Table(tenant_stack_mapping_table_name)
 stack_name = 'stack-{0}'
 @tracer.capture_lambda_handler
 def provision_tenant(event, context):
-    
-    tenant_details = json.loads(event['body'])
-    
+    logger.info(event)
+    tenant_details = json.loads(event['body'])    
     try:          
         response_ddb = table_tenant_stack_mapping.put_item(
             Item={
@@ -32,15 +31,10 @@ def provision_tenant(event, context):
                     'codeCommitId': ''
                 }
             )    
-        
         logger.info(response_ddb)
-
-        response_codepipeline = codepipeline.start_pipeline_execution(
+        codepipeline.start_pipeline_execution(
             name='serverless-saas-pipeline'
-        )
-
-        logger.info(response_ddb)
-
+        )        
     except Exception as e:
         raise
     else:

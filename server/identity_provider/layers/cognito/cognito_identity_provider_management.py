@@ -5,14 +5,35 @@ import uuid
 import cognito.user_management_util as user_management_util
 from abstract_classes.identity_provider_abstract_class import IdentityProviderAbstractClass 
 cognito = boto3.client('cognito-idp')
-callback_url = os.environ['TENANT_CALLBACK_URL']
 
 class CognitoIdentityProviderManagement(IdentityProviderAbstractClass):
-    def create_idp(self, event):
+    def create_tenant(self, event):
+        logger.info (event)                
+        if (event['dedicatedTenancy'] == 'true'):
+            tenant_id = event['tenantId']
+            callback_url = event['callbackURL']
+            user_pool_response = self.__create_user_pool(tenant_id, callback_url, 'tenant')
+            logger.info(user_pool_response)
+            user_pool_id = user_pool_response['UserPool']['Id']        
+            app_client_response = self.__create_user_pool_client(user_pool_id, callback_url)
+            logger.info(app_client_response)
+            app_client_id = app_client_response['UserPoolClient']['ClientId']
+            create_user_pool_domain_response = self.__create_user_pool_domain(user_pool_id, tenant_id)
+            logger.info(create_user_pool_domain_response)
+            return {
+                'idp': {
+                    'name': 'Cognito',
+                    'userPoolId': user_pool_id,
+                    'appClientId': app_client_id
+                }
+            }
+        else:
+            return event['pooledIdpDetails']            
+    
+    def create_pooled_idp(self, event):
         logger.info (event)        
         domain_name = 'PooledTenant'
-        if (event['dedicatedTenancy']== 'true'):
-            domain_name = event['tenantId']            
+        callback_url = event['callbackURL']
         user_pool_response = self.__create_user_pool(domain_name, callback_url, 'tenant')
         logger.info(user_pool_response)
         user_pool_id = user_pool_response['UserPool']['Id']        

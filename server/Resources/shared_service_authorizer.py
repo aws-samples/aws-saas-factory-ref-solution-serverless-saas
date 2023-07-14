@@ -43,7 +43,7 @@ def lambda_handler(event, context):
     user_details['jwtToken']=jwt_bearer_token
 
     if(auth_manager.isSaaSProvider(unauthorized_claims['userRole'])):
-        user_details['idpDetails'] = operation_user_idp_details 
+        user_details['idpDetails'] = json.loads(operation_user_idp_details)
         api_key = api_key_operation_user      
     else:
         #get tenant user pool and app client to validate jwt token against
@@ -56,9 +56,7 @@ def lambda_handler(event, context):
         user_details['idpDetails'] = tenant_details['Item']['idpDetails']        
         api_key = tenant_details['Item']['apiKey']
         
-    
     response = idp_authorizer_service.validateJWT(user_details)
-    
     
     #get authenticated claims
     if (response == False):
@@ -71,7 +69,6 @@ def lambda_handler(event, context):
         user_name = claims['username']
         tenant_id = claims['tenantId']
         user_role = claims['userRole']
-    
     
     tmp = event['methodArn'].split(':')
     api_gateway_arn_tmp = tmp[5].split('/')

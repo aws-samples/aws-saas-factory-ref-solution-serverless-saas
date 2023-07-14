@@ -249,8 +249,6 @@ Resources:
       Environment:
         Variables:
           POOLED_IDP_DETAILS: !Ref PooledIdpDetailsParameter
-          TENANT_CALLBACK_URL:
-            !Join ["", ["https://", !Ref TenantCallbackURLParameter, "/"]]
           POWERTOOLS_SERVICE_NAME: "UserManagement.CreateTenantAdmin"
           IDP_NAME: !Ref IdpNameParameter
       AutoPublishAlias: live
@@ -588,6 +586,10 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
+                  - cognito-idp:*
+                Resource: "*"
+              - Effect: Allow
+                Action:
                   - dynamodb:PutItem
                   - dynamodb:GetItem
                   - dynamodb:UpdateItem
@@ -611,10 +613,15 @@ Resources:
       Role: !GetAtt TenantManagementLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayersParameter
+        - !Ref ServerlessSaaSLayersParameter        
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
+          POOLED_IDP_DETAILS: !Ref PooledIdpDetailsParameter
+          IDP_NAME: !Ref IdpNameParameter
           POWERTOOLS_SERVICE_NAME: "TenantManagement.CreateTenant"
+          TENANT_CALLBACK_URL:
+            !Join ["", ["https://", !Ref TenantCallbackURLParameter, "/"]]
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -650,6 +657,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.ActivateTenant"
@@ -690,6 +698,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.GetTenant"
@@ -728,6 +737,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.DeactivateTenant"
@@ -768,6 +778,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       Environment:
         Variables:
           POWERTOOLS_SERVICE_NAME: "TenantManagement.UpdateTenant"
@@ -810,6 +821,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -846,6 +858,7 @@ Resources:
       Tracing: Active
       Layers:
         - !Ref ServerlessSaaSLayersParameter
+        - !Ref IdpLayersParameter
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference
@@ -909,8 +922,7 @@ Resources:
       Role: !GetAtt RegisterTenantLambdaExecutionRole.Arn
       Tracing: Active
       Layers:
-        - !Ref ServerlessSaaSLayersParameter
-        - !Ref IdpLayersParameter
+        - !Ref ServerlessSaaSLayersParameter        
       Environment:
         Variables: # Need to find a better way than hard coding resource paths
           CREATE_TENANT_ADMIN_USER_RESOURCE_PATH: "/user/tenant-admin"
@@ -921,9 +933,7 @@ Resources:
           STANDARD_TIER_API_KEY: !Ref ApiKeyStandardTierParameter
           BASIC_TIER_API_KEY: !Ref ApiKeyBasicTierParameter
           POWERTOOLS_SERVICE_NAME: "TenantRegistration.RegisterTenant"
-          IDP_NAME: !Ref IdpNameParameter
-          TENANT_CALLBACK_URL:
-            !Join ["", ["https://", !Ref TenantCallbackURLParameter, "/"]]
+          IDP_NAME: !Ref IdpNameParameter          
       AutoPublishAlias: live
       DeploymentPreference:
         Enabled: !Ref LambdaCanaryDeploymentPreference

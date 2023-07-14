@@ -4,34 +4,29 @@
 import os
 import json
 import boto3
-from boto3.dynamodb.conditions import Key
 import urllib.parse
 import utils
-from botocore.exceptions import ClientError
 import logger
-import metrics_manager
 import auth_manager
 import requests
-from aws_requests_auth.aws_auth import AWSRequestsAuth
-
+import idp_object_factory
+from boto3.dynamodb.conditions import Key
 from aws_lambda_powertools import Tracer
 tracer = Tracer()
 
-
+dynamodb = boto3.resource('dynamodb')
 region = os.environ['AWS_REGION']
+
 
 #This method has been locked down to be only
 def create_tenant(event, context):
     logger.info(event)
-    api_gateway_url = ''       
-    tenant_details = json.loads(event['body'])
-
-    dynamodb = boto3.resource('dynamodb')
-    table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')#TODO: read table names from env vars
+    api_gateway_url = ''
+    tenant_details = json.loads(event['body'])    
+    table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')
     table_system_settings = dynamodb.Table('ServerlessSaaS-Settings')
-
     try:          
-        # for pooled tenants the apigateway url is saving in settings during stack creation
+        # for pooled tenants the apigateway url is saved in settings during stack creation
         # update from there during tenant creation
         if(tenant_details['dedicatedTenancy'].lower()!= 'true'):
             settings_response = table_system_settings.get_item(
@@ -41,7 +36,14 @@ def create_tenant(event, context):
             )
             api_gateway_url = settings_response['Item']['settingValue']
 
-        response = table_tenant_details.put_item(
+        # creates the identity provider for the tenant
+        idp_mgmt_service = idp_object_factory.get_idp_mgmt_object(os.environ['IDP_NAME'])
+        tenant_details['pooledIdpDetails'] = json.loads(os.environ['POOLED_IDP_DETAILS'])
+        tenant_details['callbackURL'] = os.environ['TENANT_CALLBACK_URL']
+        tenant_details['idpDetails'] = idp_mgmt_service.create_tenant(tenant_details)
+
+        # record tenant details on DynamoDB
+        table_tenant_details.put_item(
             Item={
                     'tenantId': tenant_details['tenantId'],
                     'tenantName' : tenant_details['tenantName'],
@@ -60,7 +62,7 @@ def create_tenant(event, context):
     except Exception as e:
         raise Exception('Error creating a new tenant', e)
     else:
-        return utils.create_success_response("Tenant Created")
+        return utils.create_success_response(tenant_details)
 
 def get_tenants(event, context):
     

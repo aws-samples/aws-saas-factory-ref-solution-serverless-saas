@@ -9,25 +9,18 @@ from jose.utils import base64url_decode
 
 region = boto3.session.Session().region_name
 class CognitoIdpAuthorizer(IdpAuthorizerAbstractClass):
-    
     def validateJWT(self,event):
-        
+        logger.info(event)
         tenant_details = event
-        
         token = tenant_details['jwtToken']
-        idp_details = json.loads(tenant_details['idpDetails'])
+        idp_details = tenant_details['idpDetails']
         tenant_user_pool_id = idp_details['idp']['userPoolId']
         tenant_app_client_id = idp_details['idp']['appClientId']
-        logger.info(tenant_details)
-        
         keys_url = 'https://cognito-idp.{}.amazonaws.com/{}/.well-known/jwks.json'.format(region, tenant_user_pool_id)
         with urllib.request.urlopen(keys_url) as f:
             response = f.read()
         keys = json.loads(response.decode('utf-8'))['keys']
-        
-        response = self.__validateJWT(token, tenant_app_client_id, keys)
-        
-        return response
+        return self.__validateJWT(token, tenant_app_client_id, keys)
     
     def getClaims(self,event):
         claims = {}
@@ -35,8 +28,6 @@ class CognitoIdpAuthorizer(IdpAuthorizerAbstractClass):
         claims['tenantId'] = event['custom:tenantId']
         claims['userRole'] = event['custom:userRole']
         return claims
-
-        
     
     def __validateJWT(self, token, app_client_id, keys):
         # get the kid from the headers prior to verification
