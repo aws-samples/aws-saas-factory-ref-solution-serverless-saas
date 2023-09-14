@@ -221,19 +221,23 @@ The following is a breakdown of the steps that are part of this authentication a
 
 ## Tenant provisioning with CodePipeline
 
-The tenant CodePipeline is responsible for the deployment of application services (product and order service in our case). It provisions the tenant specific infrastructure as part of the tenant registration process (for Platinum tier tenants). 
+The tenant CodePipeline handles the deployment of application services (product and order service in our case). It provisions the tenant specific infrastructure as part of the tenant registration process (for Platinum tier tenants). 
 
-Moving forward, this pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform all the necessary unit tests, and deploy the services for all your tenants in an automated fashion.
+This pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform unit tests, and deploy the services for all your tenants in an automated fashion.
 
-<p align="center"><img src="images/TenantPipeline.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
+<p align="center"><img src="images/TenantPipeline_v2.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 
 Figure 6 provides a clearer picture of the moving parts of the deployment experience. You'll see that we've used CodeCommit to host our code repository. CodeBuild is used to build the SAM Application using the [tenant-buildspec.yml](server/tenant-buildspec.yml) file. The first two steps of the CodePipeline process are focused on acquiring the latest source and building it.
 
-Once the build completes, a Lambda function is used to deploy the tenant infrastructure (more detail on how to invoke lambda inside CodeDeploy can be found [here](https://docs.aws.amazon.com/codepipeline/latest/userguide/actions-invoke-lambda-function.html)).
+Once the build completes, an AWS Step Function will deploy the latest build across all tenant environments.
 
 The TenantStackMapping Table is at the heart of this deploy step. This table is seeded with an entry for pooled stack (Basic, Standard, Premium tier tenants) as part of baseline infrastructure deployment. We then use this pipeline to provision pooled application services during baseline infrastructure creation. The registration process further creates an entry inside this table for any new Platinum tier tenant created. The CodePipeline uses this table to create and update stacks, as needed.
 
-You will also notice the "applyLatestRelease" flag in the table. The intent here is to build a canary deployment across tenants. In some cases, you might want to delay the release for your Platinum tier tenants. In that case you can turn this flag off and the Pipeline will not roll out the release to those tenants. The table also, in this case, keeps track of the latest commit id from CodeCommit. This helps to identify the current deployed release number for that tenant.
+You will also notice the "waveNumber" flag in the table. The intent here is to build a [staggered deployment](https://aws.amazon.com/builders-library/automating-safe-hands-off-deployments/#Production_deployments) across tenants. In some cases, you might want to delay the release for your Platinum tier tenants. In that case, you can set the wave number of that tenant to 2 and the Pipeline will not roll out the release to those tenants in the first wave. Instead, your step function will wait for you to approve the next wave, to move to the next wave of tenants.
+
+As of now, all tenants will be deployed in wave 1. What that means that we automatically assign any new tenant being provisioned to wave 1 and you won't need to perform any approvals. To experiment with this feature, you can manually change the wave number of the tenant inside the TenantStackMapping table.
+
+The table also keeps track of the latest commit id from CodeCommit. This helps to identify the current deployed release number for that tenant.
 
 # API Authorization and Tenant Isolation
 
