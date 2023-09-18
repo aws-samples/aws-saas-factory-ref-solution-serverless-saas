@@ -28,7 +28,8 @@ def provision_tenant(event, context):
             Item={
                     'tenantId': tenant_details['tenantId'],
                     'stackName': stack_name.format(tenant_details['tenantId']),
-                    'applyLatestRelease': True,
+                    'waveNumber': '1', # for now default to 1. All tenants get deployed together
+                    #'waveNumber': '2' if tenant_details['dedicatedTenancy'].upper() == 'TRUE' else '1',
                     'codeCommitId': ''
                 }
             )    

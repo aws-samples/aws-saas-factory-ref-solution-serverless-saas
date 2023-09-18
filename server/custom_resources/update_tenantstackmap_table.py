@@ -32,7 +32,7 @@ def do_action(event, _):
             Item={
                     'tenantId': 'pooled',
                     'stackName' : 'stack-pooled',
-                    'applyLatestRelease': True,
+                    'waveNumber': '1',
                     'codeCommitId': ''
                 }
             )                  
