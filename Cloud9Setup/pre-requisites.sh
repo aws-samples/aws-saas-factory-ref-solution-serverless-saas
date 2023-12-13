@@ -41,13 +41,13 @@ rm get-pip.py
 
 python3 -m pip install git-remote-codecommit==1.15.1
 
-# Install node v16.20.0
-echo "Installing node v16.20.0"
+# Install node v18.19.0
+echo "Installing node v18.19.0"
 nvm deactivate
 nvm uninstall node
-nvm install v16.20.0
-nvm use v16.20.0
-nvm alias default v16.20.0
+nvm install v18.19.0
+nvm use v18.19.0
+nvm alias default v18.19.0
 
 # Install cdk cli version ^2.0.0
 echo "Installing cdk cli version ^2.0.0"
