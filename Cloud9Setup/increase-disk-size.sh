@@ -34,9 +34,9 @@ if [[ -e "/dev/xvda" && $(readlink -f /dev/xvda) = "/dev/xvda" ]]; then
   sudo growpart /dev/xvda 1
   # Expand the size of the file system.
   # Check if we're on AL2
-  STR=$(cat /etc/os-release)
-  SUB="VERSION_ID=\"2\""
-  if [[ "$STR" == *"$SUB"* ]]; then
+  SUB_AL2="VERSION_ID=\"2\""
+  SUB_AL2023="VERSION_ID=\"2023\""
+  if [[ "$STR" == *"$SUB_AL2"* || "$STR" == *"$SUB_AL2023"* ]]; then
     sudo xfs_growfs -d /
   else
     sudo resize2fs /dev/xvda1
@@ -47,10 +47,11 @@ else
   sudo growpart /dev/nvme0n1 1
 
   # Expand the size of the file system.
-  # Check if we're on AL2
+  # Check if we're on AL2 or AL2023
   STR=$(cat /etc/os-release)
-  SUB="VERSION_ID=\"2\""
-  if [[ "$STR" == *"$SUB"* ]]; then
+  SUB_AL2="VERSION_ID=\"2\""
+  SUB_AL2023="VERSION_ID=\"2023\""
+  if [[ "$STR" == *"$SUB_AL2"* || "$STR" == *"$SUB_AL2023"* ]]; then
     sudo xfs_growfs -d /
   else
     sudo resize2fs /dev/nvme0n1p1
