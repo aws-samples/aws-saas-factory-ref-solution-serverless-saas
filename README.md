@@ -2,7 +2,7 @@
 
 **[Feedback & Feature request](https://www.pulse.aws/survey/EHE3TICQ)** | **[Documentation](DOCUMENTATION.md)**
 
-**[UPDATE - 12/01/2021]** We have now also created a workshop that you can use as a reference to understand this reference solution in a step-by-step fashion. Workshop is available [here](https://github.com/aws-samples/aws-serverless-saas-workshop).
+We have now also created a workshop that you can use as a reference to understand this reference solution in a step-by-step fashion. Workshop is available [here](https://github.com/aws-samples/aws-serverless-saas-workshop).
 
 ## Introduction
 
@@ -26,12 +26,12 @@ Figure 1 provides a high-level representation of the baseline architecture that 
 
     You can also use the scripts under "Cloud9Setup" folder to increase disk size and install pre-requisites inside your Cloud9 environment.
 
-- This reference architecture uses Python. Make sure you have Python 3.8 Installed.
+- This reference architecture uses Python. Make sure you have Python 3.9 Installed.
 - Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) Installed.
 - Make sure you have the latest version of [AWS SAM](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) installed. Not having the release version of SAM can cause deployment issues.
 - Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed. Not having the release version of CDK can cause deployment issues.
 - Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
-- Make sure that you have Node 14 or above.
+- Make sure that you have Node 18 or above.
 
 ## Setting up the environment
 
