@@ -14,7 +14,6 @@ if ! git remote add cc "$REPO_URL"; then
   git remote set-url cc "$REPO_URL"
 fi
 git push cc "$(git branch --show-current)":main
-# git push --set-upstream cc main
 
 # enable yarn
 corepack enable || npm install --global yarn
@@ -22,7 +21,6 @@ corepack enable || npm install --global yarn
 # Deploying CI/CD pipeline
 cd server/TenantPipeline/ || exit # stop execution if cd fails
 yarn install && yarn build
-# npm install && npm run build
 cdk bootstrap
 
 if ! cdk deploy; then
@@ -114,7 +112,6 @@ export default awsmobile;
 EoF
 
 yarn install && yarn build
-# npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://${ADMIN_SITE_BUCKET}"
 aws s3 sync --delete --cache-control no-store dist "s3://${ADMIN_SITE_BUCKET}"
@@ -156,7 +153,6 @@ export const environment = {
 EoF
 
 yarn install && yarn build
-# npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://${APP_SITE_BUCKET}"
 aws s3 sync --delete --cache-control no-store dist "s3://${APP_SITE_BUCKET}"
@@ -199,7 +195,6 @@ export const environment = {
 EoF
 
 yarn install && yarn build
-# npm install --legacy-peer-deps && npm run build
 
 echo "aws s3 sync --delete --cache-control no-store dist s3://${LANDING_APP_SITE_BUCKET}"
 aws s3 sync --delete --cache-control no-store dist "s3://${LANDING_APP_SITE_BUCKET}"
