@@ -1,12 +1,10 @@
 #!/bin/bash -x
 . /home/ec2-user/.nvm/nvm.sh
 
-#Install python3.8
-sudo yum install -y amazon-linux-extras
-sudo amazon-linux-extras enable python3.8
-sudo yum install -y python3.8
-sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
-sudo alternatives --set python3 /usr/bin/python3.8
+# Install Python 3.11, available as a package on AL2023
+sudo yum install -y python3.11
+sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
+sudo alternatives --set python3 /usr/bin/python3.11
 
 # Uninstall aws cli v1 and Install aws cli version-2.3.0
 sudo pip2 uninstall awscli -y
@@ -41,13 +39,13 @@ rm get-pip.py
 
 python3 -m pip install git-remote-codecommit==1.15.1
 
-# Install node v16.20.0
-echo "Installing node v16.20.0"
+# Install node v20.12.2
+echo "Installing node v20.12.2"
 nvm deactivate
 nvm uninstall node
-nvm install v16.20.0
-nvm use v16.20.0
-nvm alias default v16.20.0
+nvm install v20.12.2
+nvm use v20.12.2
+nvm alias default v20.12.2
 
 # Install cdk cli version ^2.0.0
 echo "Installing cdk cli version ^2.0.0"

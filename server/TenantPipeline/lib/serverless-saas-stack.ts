@@ -46,7 +46,7 @@ export class ServerlessSaaSStack extends cdk.Stack {
 
     const lambdaFunctionPrep = new Function(this, "prep-deploy", {
         handler: "lambda-prepare-deploy.lambda_handler",
-        runtime: Runtime.PYTHON_3_9,
+        runtime: Runtime.PYTHON_3_12,
         code: new AssetCode(`./resources`),
         memorySize: 512,
         timeout: Duration.seconds(10),
@@ -131,7 +131,7 @@ export class ServerlessSaaSStack extends cdk.Stack {
     //Declare a new CodeBuild project
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
       buildSpec : codebuild.BuildSpec.fromSourceFilename("server/tenant-buildspec.yml"),
-      environment: { buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4 },
+      environment: { buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_5 },
       environmentVariables: {
         'PACKAGE_BUCKET': {
           value: artifactsBucket.bucketName
@@ -174,7 +174,7 @@ export class ServerlessSaaSStack extends cdk.Stack {
     
     const lambdaFunctionIterator = new Function(this, "WaveIterator", {
       handler: "iterator.lambda_handler",
-      runtime: Runtime.PYTHON_3_9,
+      runtime: Runtime.PYTHON_3_12,
       code: lambda.Code.fromAsset("resources", {exclude: ['*.json']}),
       memorySize: 512,
       timeout: Duration.seconds(10),
