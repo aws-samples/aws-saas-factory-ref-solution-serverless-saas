@@ -5,16 +5,32 @@
 PYTHON_VERSION=python3.11
 sudo yum install -y "$PYTHON_VERSION"
 
-# Backwards compatible with AL2
+# Backward compatibility with AL2
 if [ $? -ne 0 ]; then
-    PYTHON_VERSION=python3.8
-    sudo yum install -y amazon-linux-extras
-    sudo amazon-linux-extras enable "$PYTHON_VERSION"
-    sudo yum install -y "$PYTHON_VERSION"
+	PYTHON_VERSION=python3.8
+	sudo yum install -y amazon-linux-extras
+	sudo amazon-linux-extras enable "$PYTHON_VERSION"
+	sudo yum install -y "$PYTHON_VERSION"
 fi
 
 sudo alternatives --install /usr/bin/python3 python3 /usr/bin/"$PYTHON_VERSION" 1
 sudo alternatives --set python3 /usr/bin/"$PYTHON_VERSION"
+
+# Setting python3 breaks dnf and yum, check if we are using dnf
+if [[ $(dnf --version) ]]; then
+	YUM_HEADER=$(head -1 /usr/bin/yum)
+	DNF_HEADER=$(head -1 /usr/bin/dnf)
+	PYTH3_HEADER=$'#!/usr/bin/python3'
+	if [[ "$YUM_HEADER" == "$PYTH3_HEADER" ]]; then
+		echo "Changing python interpreter for yum to system Python3.9"
+		sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/yum
+	fi
+
+	if [[ "$DNF_HEADER" == "$PYTH3_HEADER" ]]; then
+		echo "Changing python interpreter for dnf to system Python3.9"
+		sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/dnf
+	fi
+fi
 
 # Uninstall aws cli v1 and Install aws cli version-2.3.0
 sudo pip2 uninstall awscli -y
@@ -24,19 +40,19 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.3.0.zip" -o "awscli
 unzip awscliv2.zip
 sudo ./aws/install
 rm awscliv2.zip
-rm -rf aws 
+rm -rf aws
 
-# Install sam cli version 1.33.0
-echo "Installing sam cli version 1.33.0"
-wget https://github.com/aws/aws-sam-cli/releases/download/v1.33.0/aws-sam-cli-linux-x86_64.zip
+# Install sam cli version 1.115.0
+echo "Installing sam cli version 1.115.0"
+wget https://github.com/aws/aws-sam-cli/releases/download/v1.115.0/aws-sam-cli-linux-x86_64.zip
 unzip aws-sam-cli-linux-x86_64.zip -d sam-installation
 sudo ./sam-installation/install
 if [ $? -ne 0 ]; then
 	echo "Sam cli is already present, so deleting existing version"
 	sudo rm /usr/local/bin/sam
 	sudo rm -rf /usr/local/aws-sam-cli
-	echo "Now installing sam cli version 1.33.0"
-	sudo ./sam-installation/install    
+	echo "Now installing sam cli version 1.115.0"
+	sudo ./sam-installation/install
 fi
 rm aws-sam-cli-linux-x86_64.zip
 rm -rf sam-installation
