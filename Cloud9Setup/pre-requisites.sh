@@ -2,9 +2,19 @@
 . /home/ec2-user/.nvm/nvm.sh
 
 # Install Python 3.11, available as a package on AL2023
-sudo yum install -y python3.11
-sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-sudo alternatives --set python3 /usr/bin/python3.11
+PYTHON_VERSION=python3.11
+sudo yum install -y "$PYTHON_VERSION"
+
+# Backwards compatible with AL2
+if [ $? -ne 0 ]; then
+    PYTHON_VERSION=python3.8
+    sudo yum install -y amazon-linux-extras
+    sudo amazon-linux-extras enable "$PYTHON_VERSION"
+    sudo yum install -y "$PYTHON_VERSION"
+fi
+
+sudo alternatives --install /usr/bin/python3 python3 /usr/bin/"$PYTHON_VERSION" 1
+sudo alternatives --set python3 /usr/bin/"$PYTHON_VERSION"
 
 # Uninstall aws cli v1 and Install aws cli version-2.3.0
 sudo pip2 uninstall awscli -y
