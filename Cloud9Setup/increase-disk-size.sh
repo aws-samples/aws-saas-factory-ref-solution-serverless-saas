@@ -37,10 +37,11 @@ then
   sudo growpart /dev/xvda 1
 
   # Expand the size of the file system.
-  # Check if we're on AL2
-  STR=$(cat /etc/os-release)
-  SUB="VERSION_ID=\"2\""
-  if [[ "$STR" == *"$SUB"* ]]
+  # Check if we're on AL2 or AL2023
+  STR=$(cat /etc/os-release)  
+  AL2="VERSION_ID=\"2\""
+  AL2023="VERSION_ID=\"2023\""
+  if [[ "$STR" =~ "$AL2"|"$AL2023" ]]
   then
     sudo xfs_growfs -d /
   else
@@ -54,8 +55,9 @@ else
   # Expand the size of the file system.
   # Check if we're on AL2
   STR=$(cat /etc/os-release)
-  SUB="VERSION_ID=\"2\""
-  if [[ "$STR" == *"$SUB"* ]]
+  AL2="VERSION_ID=\"2\""
+  AL2023="VERSION_ID=\"2023\""
+  if [[ "$STR" =~ "$AL2"|"$AL2023" ]]
   then
     sudo xfs_growfs -d /
   else
