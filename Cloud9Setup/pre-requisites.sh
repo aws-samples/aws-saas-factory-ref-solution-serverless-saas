@@ -1,6 +1,15 @@
 #!/bin/bash -x
 . /home/ec2-user/.nvm/nvm.sh
 
+STR=$(cat /etc/os-release)
+AL2023="VERSION_ID=\"2023\""
+IS_AL2023=false
+
+if [[ $STR == *"$AL2023"* ]]; then
+	echo "AL2023 detected"
+	IS_AL2023=true
+fi
+
 # Install Python 3.11, available as a package on AL2023
 PYTHON_VERSION=python3.11
 sudo yum install -y "$PYTHON_VERSION"
@@ -16,8 +25,8 @@ fi
 sudo alternatives --install /usr/bin/python3 python3 /usr/bin/"$PYTHON_VERSION" 1
 sudo alternatives --set python3 /usr/bin/"$PYTHON_VERSION"
 
-# Setting python3 breaks dnf and yum, check if we are using dnf
-if [[ $(dnf --version) ]]; then
+# Check if we are using AL2023, setting python3 breaks dnf and yum
+if [[ $IS_AL2023 == true ]]; then
 	YUM_HEADER=$(head -1 /usr/bin/yum)
 	DNF_HEADER=$(head -1 /usr/bin/dnf)
 	PYTH3_HEADER=$'#!/usr/bin/python3'
@@ -65,13 +74,15 @@ rm get-pip.py
 
 python3 -m pip install git-remote-codecommit==1.15.1
 
-# Install node v20.12.2
-echo "Installing node v20.12.2"
-nvm deactivate
-nvm uninstall node
-nvm install v20.12.2
-nvm use v20.12.2
-nvm alias default v20.12.2
+if [[ $IS_AL2023 == true ]]; then
+	# Install node v20.12.2
+	echo "Installing node v20.12.2"
+	nvm deactivate
+	nvm uninstall node
+	nvm install v20.12.2
+	nvm use v20.12.2
+	nvm alias default v20.12.2
+fi
 
 # Install cdk cli version ^2.0.0
 echo "Installing cdk cli version ^2.0.0"
