@@ -92,7 +92,7 @@ npm install -g aws-cdk@"^2.0.0"
 #Install jq version 1.5
 sudo yum -y install jq-1.5
 
-#Install pylint version 2.11.1
-python3 -m pip install pylint==2.11.1
+#Install pylint version 2.17.7
+python3 -m pip install pylint==2.17.7
 
 python3 -m pip install boto3

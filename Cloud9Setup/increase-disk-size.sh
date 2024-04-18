@@ -53,7 +53,7 @@ else
   sudo growpart /dev/nvme0n1 1
 
   # Expand the size of the file system.
-  # Check if we're on AL2
+  # Check if we're on AL2 or AL2023
   STR=$(cat /etc/os-release)
   AL2="VERSION_ID=\"2\""
   AL2023="VERSION_ID=\"2023\""
