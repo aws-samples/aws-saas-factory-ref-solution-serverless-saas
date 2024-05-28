@@ -1,0 +1,53 @@
+<div class="tenant-list">
+  <mat-card class="card">
+    <mat-card-content>
+      <mat-card-title>
+        Tenant List
+      </mat-card-title>
+      <div>
+        <table mat-table [dataSource]="tenantData" class="mat-elevation-z1">
+          <ng-container matColumnDef="tenantId">
+            <th mat-header-cell *matHeaderCellDef>Id</th>
+            <td mat-cell *matCellDef="let element">{{ element.tenantId }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tenantName">
+            <th mat-header-cell *matHeaderCellDef>Tenant Name</th>
+            <td mat-cell *matCellDef="let element">{{ element.tenantName }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tenantEmail">
+            <th mat-header-cell *matHeaderCellDef>E-Mail</th>
+            <td mat-cell *matCellDef="let element">{{ element.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="tenantTier">
+            <th mat-header-cell *matHeaderCellDef>Plan</th>
+            <td mat-cell *matCellDef="let element">{{ element.tier }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="isActive">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let element">{{ element.tenantStatus }}</td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+        <mat-card *ngIf="isLoading" style="display: flex; justify-content: center; align-items: center">
+          <mat-progress-spinner
+            color="primary"
+            mode="indeterminate"
+            diameter="15"
+          >
+          </mat-progress-spinner>
+        </mat-card>
+      </div>
+      <mat-card-actions>
+        <div class="button-panel">
+          <button routerLink="/tenants/create" mat-raised-button color="primary">Add Tenant</button>
+        </div>
+      </mat-card-actions>
+    </mat-card-content>
+  </mat-card>
+</div>

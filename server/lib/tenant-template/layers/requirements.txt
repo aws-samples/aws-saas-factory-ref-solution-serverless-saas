@@ -1,0 +1,6 @@
+aws-lambda-powertools[all]==2.16.2
+simplejson
+jsonpickle
+aws_requests_auth
+python-jose[cryptography]
+aws_requests_auth
