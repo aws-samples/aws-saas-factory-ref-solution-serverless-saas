@@ -9,20 +9,6 @@ export CDK_PARAM_OFFBOARDING_DETAIL_TYPE='Offboarding'
 export CDK_PARAM_DEPROVISIONING_DETAIL_TYPE=$CDK_PARAM_OFFBOARDING_DETAIL_TYPE
 export CDK_PARAM_PROVISIONING_EVENT_SOURCE="sbt-application-plane-api"
 
-# todo: consider setting these env-vars in CDK
-REPO_NAME="sbt-repository"
-DOMAIN_NAME="sbt-domain"
-NAMESPACE="sbt"
-AWS_ACCOUNT_ID="196307545247"
-REGION="us-west-2"
-
-aws codeartifact login --tool npm \
-  --repository "$REPO_NAME" \
-  --domain "$DOMAIN_NAME" \
-  --domain-owner "$AWS_ACCOUNT_ID" \
-  --namespace "$NAMESPACE" \
-  --region "$REGION"
-
 cd server/
 npm install
 
