@@ -12,10 +12,10 @@ def lambda_handler(event, context):
     iterator["total_waves"] = total_waves
     iterator["indexString"] = str(index)
 
-    if index < total_waves:
-        iterator["continue"] = True
-    else:
+    if index > total_waves:
         iterator["continue"] = False
+    else:
+        iterator["continue"] = True
         
     
     return({

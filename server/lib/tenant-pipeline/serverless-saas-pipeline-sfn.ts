@@ -97,7 +97,9 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
     });
 
-    const stepfunctionLogGroup = new logs.LogGroup(this, 'stepFunctionLG');
+    const stepfunctionLogGroup = new logs.LogGroup(this, 'stepFunctionLG', {
+      logGroupName: '/aws/vendedlogs/states/StepFunctionLogging'
+    });
 
     //Step function needs permissions to create resources
     const stepfunction_deploymentpolicy = new iam.PolicyDocument({

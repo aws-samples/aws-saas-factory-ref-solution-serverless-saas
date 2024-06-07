@@ -6,7 +6,7 @@
       "Type": "Pass",
       "Next": "Iterator",
       "Result": {
-        "total_waves": "1",
+        "total_waves": "2",
         "index": 0,
         "step": 1
       },
@@ -33,7 +33,18 @@
           "BackoffRate": 2
         }
       ],
-      "Next": "RetrieveData"
+      "Next": "All Waves Deployed?"
+    },
+    "All Waves Deployed?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.iterator.continue",
+          "BooleanEquals": true,
+          "Next": "RetrieveData"
+        }
+      ],
+      "Default": "Deployment Complete"
     },
     "RetrieveData": {
       "Type": "Task",
@@ -70,11 +81,26 @@
                 }
               ]
             },
+            "ResultPath": "$.codeBuildResult",
             "End": true
           }
         }
       },
-      "Next": "Deployment Complete"
+      "ResultPath": "$.processItemsResult",
+      "OutputPath": "$.iterator",
+      "Next": "FormatOutput"
+    },
+    "FormatOutput": {
+      "Type": "Pass",
+      "Parameters": {
+        "iterator": {
+          "index.$": "$.index",
+          "step.$": "$.step",
+          "total_waves.$": "$.total_waves"
+        }
+      },
+      "OutputPath": "$",
+      "Next": "Iterator"
     },
     "Deployment Complete": {
       "Type": "Pass",
