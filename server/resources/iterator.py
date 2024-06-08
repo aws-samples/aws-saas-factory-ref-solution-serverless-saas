@@ -10,14 +10,14 @@ def lambda_handler(event, context):
     iterator["index"] = index
     iterator["step"] = index
     iterator["total_waves"] = total_waves
-    iterator["indexString"] = str(index)
-
-    if index > total_waves:
-        iterator["continue"] = False
-    else:
+    
+    if index < total_waves:
         iterator["continue"] = True
+    else:
+        iterator["continue"] = False
         
     
     return({
         "iterator": iterator,
+        "stacks": event["stacks"],
     })

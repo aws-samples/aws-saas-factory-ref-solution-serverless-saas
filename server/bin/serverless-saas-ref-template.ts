@@ -3,7 +3,7 @@ import * as cdk from 'aws-cdk-lib';
 import { TenantTemplateStack } from '../lib/tenant-template/tenant-template-stack';
 import { DestroyPolicySetter } from '../lib/cdk-aspect/destroy-policy-setter';
 import { BootstrapTemplateStack } from '../lib/bootstrap-template/bootstrap-template-stack';
-import { ServerlessSaaSPipeline } from '../lib/tenant-pipeline/serverless-saas-pipeline';
+import { ServerlessSaaSPipeline } from '../lib/tenant-pipeline/serverless-saas-pipeline-sfn';
 import { getEnv } from '../lib/helper-functions';
 import { ControlPlaneStack } from '../lib/control-plane-stack';
 
