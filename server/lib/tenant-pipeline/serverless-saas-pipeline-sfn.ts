@@ -191,6 +191,9 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       environmentVariables: {
         'PACKAGE_BUCKET': {
           value: artifactsBucket.bucketName
+        },
+        'CODE_COMMIT_ID': {
+          value: '#{SourceVariables.CommitId}'
         }
       }
     });
@@ -316,7 +319,8 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
         ITERATOR_LAMBDA_ARN: lambdaFunctionIterator.functionArn,
         APPROVAL_QUEUE_URL: approvalQueue.queueUrl,
         TENANT_MAPPING_TABLE: props.tenantMappingTable.tableName,
-        CODE_BUILD_PROJECT_NAME: codeBuildProject.projectName
+        CODE_BUILD_PROJECT_NAME: codeBuildProject.projectName,
+        CODE_COMMIT_ID: '#{SourceVariables.CommitId}'
       },
       stateMachineName: 'serverless-saas-deployment-machine',
       stateMachineType: 'STANDARD',

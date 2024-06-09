@@ -105,6 +105,10 @@
                 {
                   "Name": "STACK_NAME",
                   "Value.$": "$.stack.stackName"
+                },
+                {
+                  "Name": "CODE_COMMIT_ID",
+                  "Value": "${CODE_COMMIT_ID}"
                 }
               ]
             },
