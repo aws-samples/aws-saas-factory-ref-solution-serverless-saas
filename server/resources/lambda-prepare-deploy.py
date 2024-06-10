@@ -11,10 +11,12 @@ print('Loading function')
 s3 = boto3.client('s3')
 code_pipeline = boto3.client('codepipeline')
 dynamodb = boto3.resource('dynamodb')
-table_tenant_stack_mapping = dynamodb.Table('serverless-saas-ref-arch-bootstrap-stack-TenantMappingTable8521321C-7HCOSY97LIIT')
-table_tenant_details = dynamodb.Table('ControlPlaneStack-ControlPlanetablesstackTenantDetails78527218-BM6AT5PG1RQC')
-table_tenant_settings = dynamodb.Table('ServerlessSaaS-Settings')
 
+# TODO: Update CDK stack to pass in table references.
+table_tenant_stack_mapping = dynamodb.Table('ServerlessSaaS-TenantStackMapping')
+# TODO: TenantDetails is now part of SBT, update CDK project to get reference from SBT control plane.
+table_tenant_details = dynamodb.Table('ServerlessSaaS-TenantDetails')
+table_tenant_settings = dynamodb.Table('ServerlessSaaS-Settings')
 
 def find_artifact(artifacts, name):
     """Finds the artifact 'name' among the 'artifacts'
@@ -142,14 +144,11 @@ def get_tenant_params(tenantId):
     Returns:
         params from tenant management table
     """
+    # TODO: Check if Cognito user poole/appClientId still required.
     if (tenantId != "pooled"):
-        print("TEST 5: get pooled tenant...")
         tenant_details = table_tenant_details.get_item(Key={'tenantId': tenantId})
-        print("TEST 6: tenant_details: ", tenant_details)
         userPoolId = tenant_details['Item']['userPoolId']
-        print("TEST 7: userPoolId: ", userPoolId)
         appClientId = tenant_details['Item']['appClientId']
-        print("TEST 8: appClientId: ", appClientId)
     else:
         tenant_details = table_tenant_settings.get_item(Key={'settingName': 'userPoolId-pooled'})
         userPoolId = tenant_details['Item']['settingValue']
@@ -206,32 +205,24 @@ def lambda_handler(event, context):
         # Get the list of artifacts passed to the function
         input_artifacts = job_data['inputArtifacts']
         output_artifact = job_data['outputArtifacts'][0]
-        print("TEST 1: output_artifact", output_artifact)
 
 
         # Get all the stacks for each tenant to be updated/created from tenant stack mapping table
         mappings = table_tenant_stack_mapping.scan()
-        print ("TEST 2 mappings:", mappings)
-        print ("TEST 2: ", input_artifacts)
 
         output_bucket = output_artifact['location']['s3Location']['bucketName']
         output_key = output_artifact['location']['s3Location']['objectKey']
-        print ("TEST 3: ", output_key)
-        print ("TEST 4: ", output_bucket)
         stacks = []
 
         #Create array to pass to step function
         for mapping in mappings['Items']:
-            print ("TEST 5: ", mapping)
             stack = mapping['stackName']
             tenantId = mapping['tenantId']
             waveNumber = mapping['waveNumber']
 
-            print ("TEST 6: ", stack,tenantId,waveNumber)
-
+            # TODO: Check if parameters are still required for the new deployment.
             # Get the parameters to be passed to the Cloudformation from tenant table
             #params = get_tenant_params(tenantId)
-            print ("TEST 7: ", params)
             # Passing parameter to enable canary deployment for lambda's
             #add_parameter(params, 'LambdaCanaryDeploymentPreference', "True")
 

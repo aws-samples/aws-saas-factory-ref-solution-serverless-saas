@@ -80,6 +80,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       })
     );
 
+    // TODO: Pass TenantDetails table name with props, investigate ServerlessSaaS-Settings still necessary with SBT implementation.
     lambdaFunctionPrep.addToRolePolicy(
       new iam.PolicyStatement({
         actions: [
