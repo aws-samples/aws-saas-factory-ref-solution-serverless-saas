@@ -108,7 +108,7 @@
                 },
                 {
                   "Name": "CODE_COMMIT_ID",
-                  "Value": "${CODE_COMMIT_ID}"
+                  "Value.$": "$.stack.commitId"
                 }
               ]
             },

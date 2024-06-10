@@ -55,6 +55,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       timeout: cdk.Duration.seconds(10),
       environment: {
         BUCKET: artifactsBucket.bucketName,
+        TENANT_MAPPING_TABLE: props.tenantMappingTable.tableName
       },
       initialPolicy: [lambdaPolicy],
     })
@@ -80,7 +81,6 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       })
     );
 
-    // TODO: Pass TenantDetails table name with props, investigate ServerlessSaaS-Settings still necessary with SBT implementation.
     lambdaFunctionPrep.addToRolePolicy(
       new iam.PolicyStatement({
         actions: [
@@ -90,9 +90,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
           "dynamodb:GetItem",
         ],
         resources: [
-          `arn:aws:dynamodb:${this.region}:${this.account}:table/ServerlessSaaS-Settings`,
           `arn:aws:dynamodb:${this.region}:${this.account}:table/${props.tenantMappingTable.tableName}`,
-          `arn:aws:dynamodb:${this.region}:${this.account}:table/ServerlessSaaS-TenantDetails`
         ]
       })
     );
@@ -160,6 +158,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     // Declare build output as artifacts
     const buildOutput = new codepipeline.Artifact();
 
+    // TODO: Remove Build phase, not necessary.
     //Declare a new CodeBuild project
     const buildProject = new codebuild.PipelineProject(this, 'Build', {
       buildSpec: codebuild.BuildSpec.fromObject({
@@ -168,7 +167,6 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
           install: {
             commands: [
               'echo Installing dependencies',
-              'npm install -g aws-cdk'
             ]
           },
           pre_build: {
@@ -249,7 +247,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     });
 
     //Step function needs permissions to create resources
-    const stepfunction_deploymentpolicy = new iam.PolicyDocument({
+    const sfnPolicy = new iam.PolicyDocument({
       statements: [
         new iam.PolicyStatement({
           actions: [
@@ -306,13 +304,13 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
       description: 'Role assumed by deployment state machine',
       inlinePolicies: {
-        deployment_policy: stepfunction_deploymentpolicy,
+        deployment_policy: sfnPolicy,
       },
     });
 
     const file = fs.readFileSync("./resources/deployemntstatemachine.asl.json");
 
-    const deploymentstateMachine = new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
+    const deploymentStateMachine = new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
       roleArn: stepfunction_deploymentrole.roleArn,
       // the properties below are optional
       definitionString: file.toString(),
@@ -321,7 +319,6 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
         APPROVAL_QUEUE_URL: approvalQueue.queueUrl,
         TENANT_MAPPING_TABLE: props.tenantMappingTable.tableName,
         CODE_BUILD_PROJECT_NAME: codeBuildProject.projectName,
-        CODE_COMMIT_ID: '#{SourceVariables.CommitId}'
       },
       stateMachineName: 'serverless-saas-deployment-machine',
       stateMachineType: 'STANDARD',
@@ -346,6 +343,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       stateMachineInput: codepipeline_actions.StateMachineInput.filePath(deployOutput.atPath('output.json'))
     });
 
+    //  stateMachineInput: codepipeline_actions.StateMachineInput.filePath(deployOutput.atPath('output.json'))
     pipeline.addStage({
       stageName: 'InvokeStepFunctions',
       actions: [stepFunctionAction],
