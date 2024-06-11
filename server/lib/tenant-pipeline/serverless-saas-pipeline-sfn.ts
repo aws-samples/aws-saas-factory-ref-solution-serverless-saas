@@ -84,7 +84,6 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     lambdaFunctionPrep.addToRolePolicy(
       new iam.PolicyStatement({
         actions: [
-          //dynamodb read items
           "dynamodb:Query",
           "dynamodb:Scan",
           "dynamodb:GetItem",
@@ -142,6 +141,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     // Source
     const sourceOutput = new codepipeline.Artifact();
 
+    // Add the Source stage.
     pipeline.addStage({
       stageName: 'Source',
       actions: [
@@ -155,71 +155,15 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       ],
     });
 
-    // Declare build output as artifacts
-    const buildOutput = new codepipeline.Artifact();
-
-    // TODO: Remove Build phase, not necessary.
-    //Declare a new CodeBuild project
-    const buildProject = new codebuild.PipelineProject(this, 'Build', {
-      buildSpec: codebuild.BuildSpec.fromObject({
-        version: '0.2',
-        phases: {
-          install: {
-            commands: [
-              'echo Installing dependencies',
-            ]
-          },
-          pre_build: {
-            commands: [
-              'echo Running pre-build commands'
-            ]
-          },
-          build: {
-            commands: [
-              'echo Building the project',
-            ]
-          },
-          post_build: {
-            commands: [
-              'echo Running post-build commands',
-            ]
-          }
-        }
-      }),
-      environment: {buildImage: codebuild.LinuxBuildImage.AMAZON_LINUX_2_4},
-      environmentVariables: {
-        'PACKAGE_BUCKET': {
-          value: artifactsBucket.bucketName
-        },
-        'CODE_COMMIT_ID': {
-          value: '#{SourceVariables.CommitId}'
-        }
-      }
-    });
-
-    // Add the build stage to our pipeline
-    pipeline.addStage({
-      stageName: 'Build',
-      actions: [
-        new codepipeline_actions.CodeBuildAction({
-          actionName: 'Build-Serverless-SaaS',
-          project: buildProject,
-          input: sourceOutput,
-          outputs: [buildOutput],
-        }),
-      ],
-    });
-
     const deployOutput = new codepipeline.Artifact();
 
-    //Add the Lambda function that will deploy the tenant stack in a multitenant way
+    // Add PrepDeploy stage to retrieve tenant data from dynamoDB.
     pipeline.addStage({
       stageName: 'PrepDeploy',
       actions: [
         new codepipeline_actions.LambdaInvokeAction({
           actionName: 'PrepareDeployment',
           lambda: lambdaFunctionPrep,
-          inputs: [buildOutput],
           outputs: [deployOutput],
           userParameters: {
             'artifact': 'Artifact_Build_Build-Serverless-SaaS',
@@ -230,6 +174,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       ],
     });
 
+    // Create Lambda iterator to cycle through waved deployments.
     const lambdaFunctionIterator = new lambda.Function(this, "WaveIterator", {
       handler: "iterator.lambda_handler",
       runtime: lambda.Runtime.PYTHON_3_9,
@@ -246,7 +191,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       enforceSSL: true
     });
 
-    //Step function needs permissions to create resources
+    // Step function needs permissions to create resources
     const sfnPolicy = new iam.PolicyDocument({
       statements: [
         new iam.PolicyStatement({
@@ -300,7 +245,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       ],
     });
 
-    const stepfunction_deploymentrole = new iam.Role(this, 'StepFunctionRole', {
+    const stepfunctionDeploymentRole = new iam.Role(this, 'StepFunctionRole', {
       assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
       description: 'Role assumed by deployment state machine',
       inlinePolicies: {
@@ -310,8 +255,8 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
 
     const file = fs.readFileSync("./resources/deployemntstatemachine.asl.json");
 
-    const deploymentStateMachine = new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
-      roleArn: stepfunction_deploymentrole.roleArn,
+    new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
+      roleArn: stepfunctionDeploymentRole.roleArn,
       // the properties below are optional
       definitionString: file.toString(),
       definitionSubstitutions: {
@@ -343,7 +288,6 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       stateMachineInput: codepipeline_actions.StateMachineInput.filePath(deployOutput.atPath('output.json'))
     });
 
-    //  stateMachineInput: codepipeline_actions.StateMachineInput.filePath(deployOutput.atPath('output.json'))
     pipeline.addStage({
       stageName: 'InvokeStepFunctions',
       actions: [stepFunctionAction],
