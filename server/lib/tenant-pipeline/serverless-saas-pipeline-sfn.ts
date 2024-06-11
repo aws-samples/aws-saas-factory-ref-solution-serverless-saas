@@ -239,7 +239,8 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
             "iam:PutRolePolicy",
             "iam:GetRolePolicy",
             "codedeploy:*",
-            "codebuild:StartBuild"
+            "codebuild:StartBuild",
+            "sqs:sendmessage"
           ],
         }),
       ],
