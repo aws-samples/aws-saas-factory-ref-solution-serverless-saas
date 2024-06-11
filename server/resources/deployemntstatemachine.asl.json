@@ -107,6 +107,10 @@
                   "Value.$": "$.stack.stackName"
                 },
                 {
+                  "Name": "TENANT_ID",
+                  "Value.$": "$.stack.tenantId"
+                },
+                {
                   "Name": "CODE_COMMIT_ID",
                   "Value.$": "$.stack.commitId"
                 }
