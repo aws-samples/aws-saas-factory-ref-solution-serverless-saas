@@ -1,6 +1,5 @@
 #!/bin/bash -xe
 
-# TODO: Verify all env vars are being set according to tenantTemplateStack.
 export CDK_PARAM_CONTROL_PLANE_SOURCE='sbt-control-plane-api'
 export CDK_PARAM_ONBOARDING_DETAIL_TYPE='Onboarding'
 export CDK_PARAM_PROVISIONING_DETAIL_TYPE=$CDK_PARAM_ONBOARDING_DETAIL_TYPE
@@ -17,4 +16,4 @@ export CDK_PARAM_SYSTEM_ADMIN_EMAIL="EMAIL"
 cd server/
 npm install
 
-npx cdk deploy $STACK_NAME --require-approval never
+npx cdk deploy --stacks $STACK_NAME --require-approval never
