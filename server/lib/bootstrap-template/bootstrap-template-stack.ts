@@ -1,10 +1,11 @@
-import { Stack, StackProps,  } from 'aws-cdk-lib';
+import { Stack, StackProps, } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { ApiKeySSMParameterNames } from '../interfaces/api-key-ssm-parameter-names';
+import { EventBus } from "aws-cdk-lib/aws-events";
 import { TenantApiKey } from './tenant-api-key';
 import { Table, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
-import { CoreApplicationPlane, DetailType } from '@cdklabs/sbt-aws';
+import { CoreApplicationPlane, DetailType, EventManager } from '@cdklabs/sbt-aws';
 import * as fs from 'fs';
 
 interface BootstrapTemplateStackProps extends StackProps {
@@ -33,6 +34,10 @@ export class BootstrapTemplateStack extends Stack {
     const systemAdminEmail = props.systemAdminEmail;
     const eventBusArn = props.eventBusArn;
 
+    const eventBus = EventBus.fromEventBusArn(this, 'EventBus', eventBusArn);
+    const eventManager = new EventManager(this, 'EventManager', {
+      eventBus: eventBus,
+    });
     this.tenantMappingTable = new Table(this, 'TenantMappingTable', {
       partitionKey: {name: 'tenantId', type: AttributeType.STRING},
     });
@@ -57,8 +62,14 @@ export class BootstrapTemplateStack extends Stack {
       ),
       script: fs.readFileSync('../scripts/provision-tenant.sh', 'utf8'),
       postScript: '',
-      environmentStringVariablesFromIncomingEvent: ['tenantId', 'tier', 'tenantName', 'email', 'tenantStatus'],
-      environmentVariablesToOutgoingEvent: ['tenantConfig', 'tenantStatus'],
+      environmentStringVariablesFromIncomingEvent: ['tenantId', 'tier', 'tenantName', 'email'],
+      environmentVariablesToOutgoingEvent: [
+        'tenantConfig',
+        'tenantStatus',
+        'prices', // added so we don't lose it for targets beyond provisioning (ex. billing)
+        'tenantName', // added so we don't lose it for targets beyond provisioning (ex. billing)
+        'email', // added so we don't lose it for targets beyond provisioning (ex. billing)
+      ],
       scriptEnvironmentVariables: {
         // CDK_PARAM_SYSTEM_ADMIN_EMAIL is required because as part of deploying the bootstrap-template
         // the control plane is also deployed. To ensure the operation does not error out, this value
@@ -88,10 +99,10 @@ export class BootstrapTemplateStack extends Stack {
 `)
       ),
       script: fs.readFileSync('../scripts/deprovision-tenant.sh', 'utf8'),
-      importedVariables: ['tenantId', 'tier'],
-      exportedVariables: ['tenantStatus'],
+      environmentStringVariablesFromIncomingEvent: ['tenantId'],
+      environmentVariablesToOutgoingEvent: ['tenantStatus'],
       outgoingEvent: DetailType.DEPROVISION_SUCCESS,
-      incomingEvent: DetailType.DEACTIVATE_REQUEST,
+      incomingEvent: DetailType.OFFBOARDING_REQUEST,
       scriptEnvironmentVariables: {
         TENANT_STACK_MAPPING_TABLE: this.tenantMappingTable.tableName,
         // CDK_PARAM_SYSTEM_ADMIN_EMAIL is required because as part of deploying the bootstrap-template
@@ -102,6 +113,7 @@ export class BootstrapTemplateStack extends Stack {
     };
 
     new CoreApplicationPlane(this, 'CoreApplicationPlane', {
+      eventManager: eventManager,
       jobRunnerPropsList: [provisioningJobRunnerProps, deprovisioningJobRunnerProps],
     });
 

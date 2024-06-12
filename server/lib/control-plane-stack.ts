@@ -1,8 +1,10 @@
-import { Stack, StackProps } from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CognitoAuth, ControlPlane } from '@cdklabs/sbt-aws';
+import { CognitoAuth, ControlPlane, EventManager } from '@cdklabs/sbt-aws';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Rule } from 'aws-cdk-lib/aws-events';
 
-interface ControlPlaneStackProps extends StackProps {
+interface ControlPlaneStackProps extends cdk.StackProps {
   controlPlaneSource: string;
   onboardingDetailType: string;
   provisioningDetailType: string;
@@ -13,7 +15,7 @@ interface ControlPlaneStackProps extends StackProps {
   systemAdminEmail: string;
 }
 
-export class ControlPlaneStack extends Stack {
+export class ControlPlaneStack extends cdk.Stack {
   public readonly regApiGatewayUrl: string;
   public readonly eventBusArn: string;
 
@@ -25,12 +27,31 @@ export class ControlPlaneStack extends Stack {
       systemAdminEmail: props.systemAdminEmail,
     });
 
-    // NOTE: To explicitly disable cloudwatch logging (and potentially save costs on CloudWatch),
-    // pass the disableAPILogging flag as true
+    const eventManager = new EventManager(this, 'EventManager');
+
     const controlPlane = new ControlPlane(this, 'ControlPlane', {
       auth: cognitoAuth,
-      //disableAPILogging: true
+      eventManager: eventManager,
     });
+    // for monitoring purposes
+    new Rule(this, 'EventBusWatcherRule', {
+      eventBus: eventManager.eventBus,
+      enabled: true,
+      eventPattern: {
+        source: [
+          controlPlane.eventManager.controlPlaneEventSource,
+          controlPlane.eventManager.applicationPlaneEventSource,
+        ],
+      },
+    });
+
+    new LogGroup(this, 'EventBusWatcherLogGroup', {
+      logGroupName: `/aws/events/EventBusWatcher-${this.node.addr}`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      retention: RetentionDays.ONE_WEEK,
+    });
+
+    this.eventBusArn = eventManager.eventBus.eventBusArn;
     this.regApiGatewayUrl = controlPlane.controlPlaneAPIGatewayUrl;
   }
 }
