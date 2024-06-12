@@ -19,4 +19,4 @@ echo "TenantId: $CDK_PARAM_TENANT_ID"
 cd server/
 npm install
 
-npx cdk deploy "$STACK_NAME" --require-approval never
+npx cdk deploy "$STACK_NAME" --exclusively --require-approval never
