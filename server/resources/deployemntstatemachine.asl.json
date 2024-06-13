@@ -5,7 +5,7 @@
       "Type": "Pass",
       "Next": "Iterator",
       "Result": {
-        "total_waves": "2",
+        "total_waves": "1",
         "index": 0,
         "step": 1
       },
