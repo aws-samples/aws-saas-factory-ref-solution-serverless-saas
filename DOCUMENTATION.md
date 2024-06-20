@@ -225,7 +225,7 @@ The tenant CodePipeline handles the deployment of application services (product 
 
 This pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform unit tests, and deploy the services for all your tenants in an automated fashion.
 
-<p align="center"><img src="images/TenantPipeline_v2.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
+<p align="center"><img src="images/TenantPipeline_v3.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 
 Figure 6 provides a clearer picture of the moving parts of the deployment experience. You'll see that we've used CodeCommit to host our code repository. CodeBuild is used to build the CDK Application using the [server-saas-ref-template.ts](server/bin/server-saas-ref-template.ts) file. 
 
