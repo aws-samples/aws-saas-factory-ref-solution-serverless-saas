@@ -1,3 +1,4 @@
+import * as cdk from 'aws-cdk-lib';
 import { Duration, Stack, aws_dynamodb } from 'aws-cdk-lib';
 import * as lambda_python from '@aws-cdk/aws-lambda-python-alpha';
 import { Construct } from 'constructs';
@@ -47,6 +48,7 @@ export class LambdaFunction extends Construct {
         LOG_LEVEL: 'DEBUG',
         [props.tableNameEnvKey]: props.table.tableName,
       },
+      description: `Generated on: ${new Date().toISOString()}`, // https://github.com/aws/aws-cdk/issues/5334#issuecomment-562981777
       /*
       missing the following settings found in tenant-template.yaml
 ------
