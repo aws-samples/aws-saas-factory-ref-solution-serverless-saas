@@ -36,6 +36,9 @@ export CDK_PARAM_DEPROVISIONING_DETAIL_TYPE=$CDK_PARAM_OFFBOARDING_DETAIL_TYPE
 npx cdk bootstrap
 npx cdk deploy --all --require-approval never --concurrency 10 --asset-parallelism true
 
+echo "Installing client applications, please wait...."
+sleep 60
+
 # Deploy client UIs
 export CDK_PARAM_REG_API_GATEWAY_URL=$(aws cloudformation describe-stacks --stack-name ControlPlaneStack --query "Stacks[0].Outputs[?OutputKey=='controlPlaneAPIGatewayUrl'].OutputValue" --output text)
 export CDK_COGNITO_ADMIN_USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name ControlPlaneStack --query "Stacks[0].Outputs[?OutputKey=='ControlPlaneIdpDetails'].OutputValue" | jq -r '.[0]' | jq -r '.idp.userPoolId')
