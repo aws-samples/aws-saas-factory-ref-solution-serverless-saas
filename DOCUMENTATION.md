@@ -227,7 +227,7 @@ This pipeline also takes care of updating the tenant infrastructure using a CI/C
 
 <p align="center"><img src="images/TenantPipeline_v3.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 
-Figure 6 provides a clearer picture of the moving parts of the deployment experience. The CodePipeline process involves acquiring the latest source code from AWS CodeCommit and then invoking an AWS Step Function, which calls an AWS CodeBuild project to build and deploy the CDK application  [server-saas-ref-template.ts](server/bin/serverless-saas-ref-template.ts) for each tenant environment.
+Figure 6 provides a clearer picture of the moving parts of the deployment experience. The CodePipeline process involves acquiring the latest source code from AWS CodeCommit and then invoking an AWS Step Function, which calls an AWS CodeBuild project to build and deploy the CDK stack [tenant-template-stack.ts](server/lib/tenant-template/tenant-template-stack.ts) for each tenant environment.
 
 The TenantStackMapping Table is at the heart of this deploy step. This table is seeded with an entry for pooled stack (Basic, Standard, Premium tier tenants) as part of baseline infrastructure deployment. We then use this pipeline to provision pooled application services during baseline infrastructure creation. The registration process further creates an entry inside this table for any new Platinum tier tenant created. The CodePipeline uses this table to create and update stacks, as needed.
 
