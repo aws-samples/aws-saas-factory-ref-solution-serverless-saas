@@ -14,13 +14,6 @@ export CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME="aws-saas-factory-ref-solution-serv
 export CDK_PARAM_COMMIT_ID="NA"
 export CDK_PARAM_REG_API_GATEWAY_URL="NA"
 export CDK_PARAM_EVENT_BUS_ARN=arn:aws:service:::resource
-export CDK_PARAM_CONTROL_PLANE_SOURCE="NA"
-export CDK_PARAM_ONBOARDING_DETAIL_TYPE="NA"
-export CDK_PARAM_PROVISIONING_DETAIL_TYPE="NA"
-export CDK_PARAM_PROVISIONING_EVENT_SOURCE="NA"
-export CDK_PARAM_APPLICATION_NAME_PLANE_SOURCE="NA"
-export CDK_PARAM_OFFBOARDING_DETAIL_TYPE="NA"
-export CDK_PARAM_DEPROVISIONING_DETAIL_TYPE="NA"
 export CDK_COGNITO_ADMIN_USER_POOL_ID="NA"
 export CDK_COGNITO_ADMIN_CLIENT_ID="NA"
 export REGION="NA"
@@ -44,7 +37,7 @@ while true; do
     tenant_stacks=$(echo "$response" | jq -r '.StackSummaries[].StackName | select(. | test("^serverless-saas-ref-arch-tenant-template-*"))')
     for i in $tenant_stacks; do
         export CDK_PARAM_TENANT_ID=$(echo "$i" | cut -d '-' -f7-)
-        npx cdk destroy "$i" --force
+        npx -y cdk destroy "$i" --force
     done
 
     next_token=$(echo "$response" | jq '.NextToken')
@@ -55,7 +48,7 @@ while true; do
     fi
 done
 
-npx cdk destroy --all --force
+npx -y cdk destroy --all --force
 
 if aws codecommit get-repository --repository-name $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME; then
   DELETE_REPO=$(aws codecommit delete-repository --repository-name $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME)
@@ -66,10 +59,10 @@ echo "$(date) cleaning up user pools..."
 next_token=""
 while true; do
     if [[ "${next_token}" == "" ]]; then
-        response=$( aws cognito-idp list-user-pools --max-results 1)
+        response=$( aws cognito-idp list-user-pools --max-results 10)
     else
         # using next-token instead of starting-token. See: https://github.com/aws/aws-cli/issues/7661
-        response=$( aws cognito-idp list-user-pools --max-results 1 --next-token "$next_token")
+        response=$( aws cognito-idp list-user-pools --max-results 10 --next-token "$next_token")
     fi
 
     pool_ids=$(echo "$response" | jq -r '.UserPools[] | select(.Name | test("^SaaSControlPlaneUserPool$")) |.Id')
@@ -95,4 +88,4 @@ while true; do
 done
 
 cd ../client/client-template
-npx cdk destroy --all --force
+npx -y cdk destroy --all --force
