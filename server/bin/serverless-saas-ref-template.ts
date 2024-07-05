@@ -22,12 +22,6 @@ const pooledId = 'pooled';
 const systemAdminEmail = process.env.CDK_PARAM_SYSTEM_ADMIN_EMAIL;
 const tenantId = process.env.CDK_PARAM_TENANT_ID || pooledId;
 const codeCommitRepositoryName = getEnv('CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME');
-const controlPlaneSource = getEnv('CDK_PARAM_CONTROL_PLANE_SOURCE');
-const onboardingDetailType = getEnv('CDK_PARAM_ONBOARDING_DETAIL_TYPE');
-const offboardingDetailType = getEnv('CDK_PARAM_OFFBOARDING_DETAIL_TYPE');
-const provisioningDetailType = getEnv('CDK_PARAM_PROVISIONING_DETAIL_TYPE');
-const deprovisioningDetailType = getEnv('CDK_PARAM_DEPROVISIONING_DETAIL_TYPE');
-const applicationNamePlaneSource = getEnv('CDK_PARAM_APPLICATION_NAME_PLANE_SOURCE');
 const commitId = getEnv('CDK_PARAM_COMMIT_ID');
 
 if (!process.env.CDK_PARAM_IDP_NAME) {
@@ -45,13 +39,8 @@ const defaultApiKeyPlatinumTierParameter = '88b43c36-802e-11eb-af35-38f9d35b2c15
 const defaultApiKeyPremiumTierParameter = '6db2bdc2-6d96-11eb-a56f-38f9d33cfd0f-test2';
 const defaultApiKeyStandardTierParameter = 'b1c735d8-6d96-11eb-a28b-38f9d33cfd0f-test2';
 const defaultApiKeyBasicTierParameter = 'daae9784-6d96-11eb-a28b-38f9d33cfd0f-test2';
-const defaultIdpName = 'COGNITO';
-const defaultSystemAdminRoleName = 'SystemAdmin';
 
 // optional input parameters
-const idpName = process.env.CDK_PARAM_IDP_NAME || defaultIdpName;
-const systemAdminRoleName =
-  process.env.CDK_PARAM_SYSTEM_ADMIN_ROLE_NAME || defaultSystemAdminRoleName;
 const stageName = process.env.CDK_PARAM_STAGE_NAME || defaultStageName;
 const lambdaReserveConcurrency = Number(
   process.env.CDK_PARAM_LAMBDA_RESERVE_CONCURRENCY || defaultLambdaReserveConcurrency
@@ -91,14 +80,7 @@ const apiKeySSMParameterNames = {
 };
 
 const controlPlaneStack = new ControlPlaneStack(app, 'ControlPlaneStack', {
-  idpName: idpName,
   systemAdminEmail: systemAdminEmail,
-  systemAdminRoleName: systemAdminRoleName,
-  controlPlaneSource: controlPlaneSource,
-  onboardingDetailType: onboardingDetailType,
-  provisioningDetailType: provisioningDetailType,
-  applicationNamePlaneSource: applicationNamePlaneSource,
-  offboardingDetailType: offboardingDetailType,
 });
 
 const bootstrapTemplateStack = new BootstrapTemplateStack(
@@ -112,12 +94,6 @@ const bootstrapTemplateStack = new BootstrapTemplateStack(
     apiKeyStandardTierParameter: apiKeyStandardTierParameter,
     apiKeyBasicTierParameter: apiKeyBasicTierParameter,
     ApiKeySSMParameterNames: apiKeySSMParameterNames,
-    controlPlaneSource: controlPlaneSource,
-    onboardingDetailType: onboardingDetailType,
-    provisioningDetailType: provisioningDetailType,
-    applicationNamePlaneSource: applicationNamePlaneSource,
-    offboardingDetailType: offboardingDetailType,
-    deprovisioningDetailType: deprovisioningDetailType,
   }
 );
 cdk.Aspects.of(bootstrapTemplateStack).add(new DestroyPolicySetter());
