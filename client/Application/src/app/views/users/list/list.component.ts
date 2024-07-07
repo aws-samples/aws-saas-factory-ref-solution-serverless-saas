@@ -25,8 +25,8 @@ export class ListComponent implements OnInit {
   constructor(private userSvc: UsersService) {}
 
   ngOnInit(): void {
-    this.userSvc.fetch().subscribe((response: any) => {
-      this.userData = response.data;
+    this.userSvc.fetch().subscribe((data) => {
+      this.userData = data;
       this.isLoading = false;
     });
   }
