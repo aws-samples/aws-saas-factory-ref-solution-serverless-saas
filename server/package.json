@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@aws-cdk/aws-lambda-python-alpha": "^2.140.0-alpha.0",
-    "@cdklabs/sbt-aws": "^0.3.2",
+    "@cdklabs/sbt-aws": "^0.3.3",
     "aws-cdk-lib": "^2.140.0",
     "constructs": "10.0.5"
   }
