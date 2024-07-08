@@ -1,5 +1,5 @@
 import * as path from 'path';
-import { PythonFunction, PythonLayerVersion } from '@aws-cdk/aws-lambda-python-alpha';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 import { Duration, Aws } from 'aws-cdk-lib';
 import {
   PolicyStatement,
@@ -8,7 +8,7 @@ import {
   ServicePrincipal,
   Effect,
 } from 'aws-cdk-lib/aws-iam';
-import { Runtime, Function, LayerVersion } from 'aws-cdk-lib/aws-lambda';
+import { Runtime, LayerVersion } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 import { RestApi, LambdaIntegration } from 'aws-cdk-lib/aws-apigateway';
 import { Microservice } from './microservice';

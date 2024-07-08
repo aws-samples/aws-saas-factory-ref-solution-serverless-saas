@@ -14,13 +14,6 @@ interface BootstrapTemplateStackProps extends StackProps {
   apiKeyPremiumTierParameter: string;
   apiKeyStandardTierParameter: string;
   apiKeyBasicTierParameter: string;
-
-  controlPlaneSource: string;
-  onboardingDetailType: string;
-  provisioningDetailType: string;
-  applicationNamePlaneSource: string;
-  offboardingDetailType: string;
-  deprovisioningDetailType: string;
   eventBusArn: string;
   systemAdminEmail: string;
 }

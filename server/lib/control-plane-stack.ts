@@ -1,17 +1,10 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { CognitoAuth, ControlPlane, EventManager } from '@cdklabs/sbt-aws';
+import { CognitoAuth, ControlPlane } from '@cdklabs/sbt-aws';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { Rule } from 'aws-cdk-lib/aws-events';
+import { EventBus, Rule } from 'aws-cdk-lib/aws-events';
 
 interface ControlPlaneStackProps extends cdk.StackProps {
-  controlPlaneSource: string;
-  onboardingDetailType: string;
-  provisioningDetailType: string;
-  applicationNamePlaneSource: string;
-  offboardingDetailType: string;
-  idpName: string;
-  systemAdminRoleName: string;
   systemAdminEmail: string;
 }
 
@@ -23,19 +16,27 @@ export class ControlPlaneStack extends cdk.Stack {
     super(scope, id, props);
 
     const cognitoAuth = new CognitoAuth(this, 'CognitoAuth', {
-      systemAdminRoleName: props.systemAdminRoleName,
-      systemAdminEmail: props.systemAdminEmail,
+      setAPIGWScopes: false, // done for testing purposes. Scopes should be used for added security in production!
     });
 
-    const eventManager = new EventManager(this, 'EventManager');
 
     const controlPlane = new ControlPlane(this, 'ControlPlane', {
       auth: cognitoAuth,
-      eventManager: eventManager,
+      systemAdminEmail: props.systemAdminEmail,
+      apiCorsConfig: {
+        allowOrigins: ['https://*'],
+        allowCredentials: true,
+        allowHeaders: ['*'],
+        allowMethods: [cdk.aws_apigatewayv2.CorsHttpMethod.ANY],
+        maxAge: cdk.Duration.seconds(300),
+      },
     });
+
+    const eventBus = EventBus.fromEventBusArn(this, 'eventBus', controlPlane.eventManager.busArn)
+
     // for monitoring purposes
     new Rule(this, 'EventBusWatcherRule', {
-      eventBus: eventManager.eventBus,
+      eventBus: eventBus,
       enabled: true,
       eventPattern: {
         source: [
@@ -51,7 +52,7 @@ export class ControlPlaneStack extends cdk.Stack {
       retention: RetentionDays.ONE_WEEK,
     });
 
-    this.eventBusArn = eventManager.eventBus.eventBusArn;
+    this.eventBusArn = controlPlane.eventManager.busArn;
     this.regApiGatewayUrl = controlPlane.controlPlaneAPIGatewayUrl;
   }
 }
