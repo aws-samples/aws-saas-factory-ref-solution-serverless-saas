@@ -31,8 +31,9 @@ export class ApiGateway extends Construct {
   constructor(scope: Construct, id: string, props: ApiGatewayProps) {
     super(scope, id);
 
+    const srcPath = process.cwd() + '/../src';
     const authorizerFunction = new lambda_python.PythonFunction(this, 'AuthorizerFunction', {
-      entry: path.join(__dirname, './Resources'),
+      entry: srcPath,
       handler: 'lambda_handler',
       index: 'tenant_authorizer.py',
       runtime: lambda.Runtime.PYTHON_3_10,

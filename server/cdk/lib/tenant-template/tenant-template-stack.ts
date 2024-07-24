@@ -36,8 +36,10 @@ export class TenantTemplateStack extends Stack {
       tenantId: props.tenantId,
     });
 
+    const srcPath = process.cwd() + '/../src';
+
     const lambdaServerlessSaaSLayers = new PythonLayerVersion(this, 'LambdaServerlessSaaSLayers', {
-      entry: path.join(__dirname, './layers'),
+      entry: srcPath + '/layers',
       compatibleRuntimes: [Runtime.PYTHON_3_10],
     });
 

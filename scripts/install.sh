@@ -23,21 +23,21 @@ git push cc "$(git branch --show-current)":main -f --no-verify
 export CDK_PARAM_COMMIT_ID=$(git log --format="%H" -n 1)
 
 # Preprovision pooled infrastructure
-cd ../server
-npm install
+cd ../server/cdk
+#npm install
 
-npx -y cdk bootstrap
-npx -y cdk deploy --all --require-approval never --concurrency 10 --asset-parallelism true
+#npx -y cdk bootstrap
+#npx -y cdk deploy --all --require-approval never --concurrency 10 --asset-parallelism true
 
-echo "Installing client applications, please wait...."
-sleep 60
+#echo "Installing client applications, please wait...."
+#sleep 60
 
 # Deploy client UIs
 export CDK_PARAM_REG_API_GATEWAY_URL=$(aws cloudformation describe-stacks --stack-name ControlPlaneStack --query "Stacks[0].Outputs[?OutputKey=='controlPlaneAPIEndpoint'].OutputValue" --output text)
 export CDK_COGNITO_ADMIN_USER_POOL_ID=$(aws cloudformation describe-stacks --stack-name ControlPlaneStack --query "Stacks[0].Outputs[?contains(OutputKey,'ControlPlaneIdpUserPoolId')].OutputValue" --output text)
 export CDK_COGNITO_ADMIN_CLIENT_ID=$(aws cloudformation describe-stacks --stack-name ControlPlaneStack --query "Stacks[0].Outputs[?contains(OutputKey,'ControlPlaneIdpClientId')].OutputValue" --output text)
 
-cd ../client/client-template
+cd ../../client/client-template
 npm install
 npx -y cdk deploy --require-approval never
 

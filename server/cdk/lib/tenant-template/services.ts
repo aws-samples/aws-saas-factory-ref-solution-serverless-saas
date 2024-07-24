@@ -34,6 +34,8 @@ export class Services extends Construct {
     const productMicroserviceResource = props.restApi.root.addResource('products');
     const orderMicroserviceResource = props.restApi.root.addResource('orders');
 
+    const srcPath = process.cwd() + '/../src';
+
     this.productMicroservice = new Microservice(this, 'ProductMicroservice', {
       lambdaReserveConcurrency: props.lambdaReserveConcurrency,
       index: 'product_service.py',
@@ -48,7 +50,7 @@ export class Services extends Construct {
       lambdaCanaryDeploymentPreference: props.lambdaCanaryDeploymentPreference,
       isPooledDeploy: props.isPooledDeploy,
       lambdaServerlessSaaSLayers: props.lambdaServerlessSaaSLayers,
-      entry: path.join(__dirname, './ProductService'),
+      entry: srcPath + '/ProductService',
       sortKey: 'productId',
       apiGatewayResource: productMicroserviceResource,
       tableNameEnvKey: 'PRODUCT_TABLE_NAME',
@@ -69,7 +71,7 @@ export class Services extends Construct {
       lambdaCanaryDeploymentPreference: props.lambdaCanaryDeploymentPreference,
       isPooledDeploy: props.isPooledDeploy,
       lambdaServerlessSaaSLayers: props.lambdaServerlessSaaSLayers,
-      entry: path.join(__dirname, './OrderService'),
+      entry: srcPath +'/OrderService',
       sortKey: 'orderId',
       apiGatewayResource: orderMicroserviceResource,
       tableNameEnvKey: 'ORDER_TABLE_NAME',
@@ -116,7 +118,7 @@ export class Services extends Construct {
 
     const users = props.restApi.root.addResource('users');
     const userManagementServices = new PythonFunction(this, 'AppPlaneUserManagementServices', {
-      entry: path.join(__dirname, './UserManagementService'),
+      entry: srcPath +  '/UserManagementService',
       runtime: Runtime.PYTHON_3_10,
       index: 'user_management.py',
       handler: 'lambda_handler',

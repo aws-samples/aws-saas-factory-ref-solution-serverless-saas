@@ -16,7 +16,7 @@ echo "Update stack: $STACK_NAME"
 export CDK_PARAM_TENANT_ID=$TENANT_ID
 echo "TenantId: $CDK_PARAM_TENANT_ID"
 
-cd server/
+cd server/cdk
 npm install
 
 npx cdk deploy "$STACK_NAME" --exclusively --require-approval never

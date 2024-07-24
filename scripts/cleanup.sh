@@ -6,7 +6,7 @@ for i in $(aws s3 ls | awk '{print $3}' | grep -E "^serverlesssaaspipeline-artif
     aws s3 rm --recursive "s3://${i}"
 done
 
-cd ../server
+cd ../server/cdk
 npm install
 
 export CDK_PARAM_SYSTEM_ADMIN_EMAIL="NA"
@@ -87,5 +87,5 @@ while true; do
     fi
 done
 
-cd ../client/client-template
+cd ../../client/client-template
 npx -y cdk destroy --all --force

@@ -46,11 +46,11 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
         `arn:aws:logs:${this.region}:${this.account}`,
       ]
     })
-
+    const srcPath = process.cwd() + '/../src';
     const lambdaFunctionPrep = new lambda.Function(this, "prep-deploy", {
       handler: "lambda-prepare-deploy.lambda_handler",
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: new lambda.AssetCode(`./resources`),
+      code: new lambda.AssetCode(srcPath),
       memorySize: 512,
       timeout: cdk.Duration.seconds(10),
       environment: {
@@ -178,7 +178,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     const lambdaFunctionIterator = new lambda.Function(this, "WaveIterator", {
       handler: "iterator.lambda_handler",
       runtime: lambda.Runtime.PYTHON_3_9,
-      code: lambda.Code.fromAsset("resources", {exclude: ['*.json']}),
+      code: lambda.Code.fromAsset(srcPath, {exclude: ['*.json']}),
       memorySize: 512,
       timeout: cdk.Duration.seconds(10),
     });
@@ -254,7 +254,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       },
     });
 
-    const file = fs.readFileSync("./resources/deployemntstatemachine.asl.json");
+    const file = fs.readFileSync(srcPath + "/deployemntstatemachine.asl.json");
 
     new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
       roleArn: stepfunctionDeploymentRole.roleArn,
