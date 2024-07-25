@@ -16,7 +16,7 @@ shopt -s nocasematch
 # Clone the serverless reference solution repository
 export CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME="aws-saas-factory-ref-solution-serverless-saas"
 git clone codecommit://$CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME
-cd $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME/server
+cd $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME/server/cdk
 npm install
 
 export CDK_PARAM_COMMIT_ID=$(git log --format="%H" -n 1)
