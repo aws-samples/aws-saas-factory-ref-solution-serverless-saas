@@ -5,11 +5,11 @@ import { EventBus } from "aws-cdk-lib/aws-events";
 import { TenantApiKey } from './tenant-api-key';
 import { Table, AttributeType } from 'aws-cdk-lib/aws-dynamodb';
 import { PolicyDocument } from 'aws-cdk-lib/aws-iam';
-import { CoreApplicationPlane, DetailType, EventManager } from '@cdklabs/sbt-aws';
+import { BashJobRunner, BashJobRunnerProps, CoreApplicationPlane, DetailType, EventManager } from '@cdklabs/sbt-aws';
 import * as fs from 'fs';
 
 interface BootstrapTemplateStackProps extends StackProps {
-  ApiKeySSMParameterNames: ApiKeySSMParameterNames;
+  apiKeySSMParameterNames: ApiKeySSMParameterNames;
   apiKeyPlatinumTierParameter: string;
   apiKeyPremiumTierParameter: string;
   apiKeyStandardTierParameter: string;
@@ -35,8 +35,10 @@ export class BootstrapTemplateStack extends Stack {
       partitionKey: {name: 'tenantId', type: AttributeType.STRING},
     });
 
-    const provisioningJobRunnerProps = {
-      name: 'provisioning',
+
+    // Todo: reduce permission scope
+    const provisioningJobRunnerProps: BashJobRunnerProps = {
+      eventManager: eventManager,
       permissions: PolicyDocument.fromJson(
         JSON.parse(`
 {
@@ -73,8 +75,8 @@ export class BootstrapTemplateStack extends Stack {
       incomingEvent: DetailType.ONBOARDING_REQUEST,
     };
 
-    const deprovisioningJobRunnerProps = {
-      name: 'deprovisioning',
+    const deprovisioningJobRunnerProps: BashJobRunnerProps = {
+      eventManager: eventManager,
       permissions: PolicyDocument.fromJson(
         JSON.parse(`
 {
@@ -105,33 +107,44 @@ export class BootstrapTemplateStack extends Stack {
       },
     };
 
+    const provisioningJobRunner: BashJobRunner = new BashJobRunner(
+      this,
+      'provisioningJobRunner',
+      provisioningJobRunnerProps
+    );
+    const deprovisioningJobRunner: BashJobRunner = new BashJobRunner(
+      this,
+      'deprovisioningJobRunner',
+      deprovisioningJobRunnerProps
+    );
+
     new CoreApplicationPlane(this, 'CoreApplicationPlane', {
       eventManager: eventManager,
-      jobRunnerPropsList: [provisioningJobRunnerProps, deprovisioningJobRunnerProps],
+      jobRunnersList: [provisioningJobRunner, deprovisioningJobRunner],
     });
 
     new TenantApiKey(this, 'BasicTierApiKey', {
       apiKeyValue: props.apiKeyBasicTierParameter,
-      ssmParameterApiKeyIdName: props.ApiKeySSMParameterNames.basic.keyId,
-      ssmParameterApiValueName: props.ApiKeySSMParameterNames.basic.value,
+      ssmParameterApiKeyIdName: props.apiKeySSMParameterNames.basic.keyId,
+      ssmParameterApiValueName: props.apiKeySSMParameterNames.basic.value,
     });
 
     new TenantApiKey(this, 'StandardTierApiKey', {
       apiKeyValue: props.apiKeyStandardTierParameter,
-      ssmParameterApiKeyIdName: props.ApiKeySSMParameterNames.standard.keyId,
-      ssmParameterApiValueName: props.ApiKeySSMParameterNames.standard.value,
+      ssmParameterApiKeyIdName: props.apiKeySSMParameterNames.standard.keyId,
+      ssmParameterApiValueName: props.apiKeySSMParameterNames.standard.value,
     });
 
     new TenantApiKey(this, 'PremiumTierApiKey', {
       apiKeyValue: props.apiKeyPremiumTierParameter,
-      ssmParameterApiKeyIdName: props.ApiKeySSMParameterNames.premium.keyId,
-      ssmParameterApiValueName: props.ApiKeySSMParameterNames.premium.value,
+      ssmParameterApiKeyIdName: props.apiKeySSMParameterNames.premium.keyId,
+      ssmParameterApiValueName: props.apiKeySSMParameterNames.premium.value,
     });
 
     new TenantApiKey(this, 'PlatinumTierApiKey', {
       apiKeyValue: props.apiKeyPlatinumTierParameter,
-      ssmParameterApiKeyIdName: props.ApiKeySSMParameterNames.platinum.keyId,
-      ssmParameterApiValueName: props.ApiKeySSMParameterNames.platinum.value,
+      ssmParameterApiKeyIdName: props.apiKeySSMParameterNames.platinum.keyId,
+      ssmParameterApiValueName: props.apiKeySSMParameterNames.platinum.value,
     });
   }
 }

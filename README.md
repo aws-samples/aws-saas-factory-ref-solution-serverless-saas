@@ -1,10 +1,14 @@
-# aws-saas-factory-ref-solution-serverless-saas
+# Serverless SaaS - Reference Solution
 
-This serverless saas reference solution is built using SaaS Builder Toolkit(SBT) control plane and core application plane components.
+This serverless saas reference solution is built using [SaaS Builder Toolkit (SBT)](https://github.com/awslabs/sbt-aws) control plane and core application plane components.
+
+We have also created a workshop that you can use as a reference to understand this reference solution in a step-by-step fashion. Workshop is available [here](https://github.com/aws-samples/aws-serverless-saas-workshop).
+
+**[Feedback & Feature request](https://www.pulse.aws/survey/EHE3TICQ)** | **[Documentation](DOCUMENTATION.md)**
 
 ## Pre-requisites
 
-- This reference architecture uses Python. Make sure you have Python 3.8 or above installed.
+- This reference architecture uses Python. Make sure you have Python 3.9 or above installed.
 - Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed.
 - Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed. Not having the release version of CDK can cause deployment issues.
 - Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.

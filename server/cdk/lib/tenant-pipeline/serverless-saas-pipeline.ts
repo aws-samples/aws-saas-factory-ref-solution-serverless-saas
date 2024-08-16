@@ -254,7 +254,8 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       },
     });
 
-    const file = fs.readFileSync(srcPath + "/deployemntstatemachine.asl.json");
+    const filePath = require('path').join(__dirname, 'deployemntstatemachine.asl.json')
+    const file = fs.readFileSync(filePath);
 
     new stepfunctions.CfnStateMachine(this, 'DeploymentCfnStateMachine', {
       roleArn: stepfunctionDeploymentRole.roleArn,

@@ -93,7 +93,7 @@ const bootstrapTemplateStack = new BootstrapTemplateStack(
     apiKeyPremiumTierParameter: apiKeyPremiumTierParameter,
     apiKeyStandardTierParameter: apiKeyStandardTierParameter,
     apiKeyBasicTierParameter: apiKeyBasicTierParameter,
-    ApiKeySSMParameterNames: apiKeySSMParameterNames,
+    apiKeySSMParameterNames: apiKeySSMParameterNames,
   }
 );
 cdk.Aspects.of(bootstrapTemplateStack).add(new DestroyPolicySetter());
