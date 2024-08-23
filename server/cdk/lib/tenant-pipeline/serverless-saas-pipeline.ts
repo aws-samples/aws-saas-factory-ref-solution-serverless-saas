@@ -34,17 +34,13 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
 
     // Lambda functions.
     const lambdaPolicy = new iam.PolicyStatement({
+
       actions: [
         "s3:*Object",
-        "logs:CreateLogGroup",
-        "logs:PutLogEvents",
-        "logs:CreateLogStream",
-        "logs:DescribeLogStreams"
       ],
       resources: [
         `${artifactsBucket.bucketArn}/*`,
-        `arn:aws:logs:${this.region}:${this.account}`,
-      ]
+      ],
     })
     const srcPath = process.cwd() + '/../src';
     const lambdaFunctionPrep = new lambda.Function(this, "prep-deploy", {
@@ -58,7 +54,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
         TENANT_MAPPING_TABLE: props.tenantMappingTable.tableName
       },
       initialPolicy: [lambdaPolicy],
-    })
+    });
 
     lambdaFunctionPrep.addToRolePolicy(
       new iam.PolicyStatement({
@@ -93,6 +89,9 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
         ]
       })
     );
+
+    lambdaFunctionPrep.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchLambdaInsightsExecutionRolePolicy"));
+    lambdaFunctionPrep.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"));
 
     // CodeCommit repository.
     const repository = codecommit.Repository.fromRepositoryName(this, 'AppRepository', props.codeCommitRepositoryName);
