@@ -1,0 +1,266 @@
+{
+  "StartAt": "Assign total waves",
+  "States": {
+    "Assign total waves": {
+      "Type": "Pass",
+      "Next": "Iterator",
+      "Result": {
+        "total_waves": "1",
+        "index": 0,
+        "step": 1
+      },
+      "ResultPath": "$.iterator"
+    },
+    "Iterator": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": "${ITERATOR_LAMBDA_ARN}:$LATEST"
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException",
+            "Lambda.TooManyRequestsException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Map State"
+    },
+    "Map State": {
+      "Type": "Map",
+      "Iterator": {
+        "StartAt": "Instance in current wave?",
+        "States": {
+          "Instance in current wave?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Variable": "$.stack.waveNumber",
+                "NumericEqualsPath": "$.current_wave_number",
+                "Next": "TenantStackExists?"
+              }
+            ],
+            "Default": "Skip Deployment"
+          },
+          "TenantStackExists?": {
+            "Type": "Task",
+            "Next": "Can we update Stack?",
+            "Parameters": {
+              "StackName.$": "$.stack.stackName"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudformation:describeStacks",
+            "Catch": [
+              {
+                "ErrorEquals": [
+                  "States.TaskFailed"
+                ],
+                "Next": "DeployTenantCDK",
+                "ResultPath": "$.TaskResult"
+              }
+            ],
+            "ResultPath": "$.TaskResult"
+          },
+          "Can we update Stack?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Or": [
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "CREATE_COMPLETE"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "ROLLBACK_COMPLETE"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_COMPLETE"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_ROLLBACK_COMPLETE"
+                  }
+                ],
+                "Next": "DeployTenantCDK"
+              }
+            ],
+            "Default": "Skip Deployment"
+          },
+          "DeployTenantCDK": {
+            "Type": "Task",
+            "Next": "Wait 60 Seconds",
+            "Resource": "arn:aws:states:::codebuild:startBuild",
+            "Parameters": {
+              "ProjectName": "${CODE_BUILD_PROJECT_NAME}",
+              "EnvironmentVariablesOverride": [
+                {
+                  "Name": "STACK_NAME",
+                  "Value.$": "$.stack.stackName"
+                },
+                {
+                  "Name": "TENANT_ID",
+                  "Value.$": "$.stack.tenantId"
+                },
+                {
+                  "Name": "CODE_COMMIT_ID",
+                  "Value.$": "$.stack.commitId"
+                }
+              ]
+            },
+            "ResultPath": null
+          },
+          "Skip Deployment": {
+            "Type": "Pass",
+            "End": true
+          },
+          "Wait 60 Seconds": {
+            "Type": "Wait",
+            "Next": "Get Deployment Status",
+            "Seconds": 60
+          },
+          "Get Deployment Status": {
+            "Type": "Task",
+            "Next": "Deployment Complete?",
+            "Parameters": {
+              "StackName.$": "$.stack.stackName"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:cloudformation:describeStacks",
+            "ResultPath": "$.TaskResult"
+          },
+          "Deployment Complete?": {
+            "Type": "Choice",
+            "Choices": [
+              {
+                "Or": [
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_COMPLETE"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "CREATE_COMPLETE"
+                  }
+                ],
+                "Next": "Update TenantStack with Latest commitid"
+              },
+              {
+                "Or": [
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_IN_PROGRESS"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_ROLLBACK_IN_PROGRESS"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "CREATE_IN_PROGRESS"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "ROLLBACK_IN_PROGRESS"
+                  },
+                  {
+                    "Variable": "$.TaskResult.Stacks[0].StackStatus",
+                    "StringEquals": "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS"
+                  }
+                ],
+                "Next": "Wait 60 Seconds"
+              }
+            ],
+            "Default": "Deployment Failed"
+          },
+          "Update TenantStack with Latest commitid": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::dynamodb:updateItem",
+            "Parameters": {
+              "TableName": "${TENANT_MAPPING_TABLE}",
+              "Key": {
+                "tenantId": {
+                  "S.$": "$.stack.tenantId"
+                }
+              },
+              "UpdateExpression": "set codeCommitId=:codeCommitId",
+              "ExpressionAttributeValues": {
+                ":codeCommitId": {
+                  "S.$": "$.stack.commitId"
+                }
+              }
+            },
+            "Next": "Deployment Succeeded"
+          },
+          "Deployment Succeeded": {
+            "Comment": "Placeholder for a state which handles the success.",
+            "Type": "Pass",
+            "End": true
+          },
+          "Deployment Failed": {
+            "Type": "Fail",
+            "Error": "Instance deployment failed"
+          }
+        }
+      },
+      "ItemsPath": "$.stacks",
+      "ResultPath": null,
+      "ItemSelector": {
+        "stack.$": "$$.Map.Item.Value",
+        "current_wave_number.$": "$.iterator.index"
+      },
+      "Next": "All Waves Deployed?"
+    },
+    "All Waves Deployed?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.iterator.continue",
+          "BooleanEquals": true,
+          "Next": "Wait for next wave approval"
+        }
+      ],
+      "Default": "Deployment Complete"
+    },
+    "Wait for next wave approval": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::sqs:sendMessage.waitForTaskToken",
+      "Parameters": {
+        "QueueUrl": "${APPROVAL_QUEUE_URL}",
+        "MessageBody": {
+          "MessageTitle": "Waiting for next deployment to be approved",
+          "CurrentDeploymentWave.$": "$.iterator.index",
+          "TaskToken.$": "$$.Task.Token"
+        }
+      },
+      "Next": "Deployment Approved?",
+      "ResultPath": "$.TaskResult"
+    },
+    "Deployment Approved?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.TaskResult.approval_status",
+          "StringEquals": "Approved",
+          "Next": "Iterator"
+        }
+      ],
+      "Default": "Deployment Complete"
+    },
+    "Deployment Complete": {
+      "Type": "Pass",
+      "End": true
+    }
+  }
+}

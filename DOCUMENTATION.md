@@ -73,7 +73,7 @@ This could mean that microservices for Basic, Standard, and Premium tier tenants
 
 For this solution, we've implemented the tiering pattern described above. As new tenants are onboarded, they will be placed in a pool or a silo based on their tier. Basic, Standard, and Premium tiers tenants will go into pool, which means they will share the infrastructure related to product and order services. Platinum tenants will go into a silo where each tenant will have dedicated deployments of the product and order service. It's worth noting at this point, that although pooled tenants share common set of resources, they still will be logically isolated using the tenant isolation mechanisms (described in later sections).
 
-The sections below provide a more detailed view of the inner working of this reference SaaS solution. We’ve broken this down in two parts, baseline infrastructure and tenant-level infrastructure. For each of these areas, we will examine the underlying AWS resources and strategies that are used to deploy this multi-tenant serverless solution. This sample solution uses [AWS SAM](https://aws.amazon.com/serverless/sam/) to provision all its AWS resources.
+The sections below provide a more detailed view of the inner working of this reference SaaS solution. We’ve broken this down in two parts, baseline infrastructure and tenant-level infrastructure. For each of these areas, we will examine the underlying AWS resources and strategies that are used to deploy this multi-tenant serverless solution. This sample solution uses [AWS Cloud Development Kit (CDK)](https://aws.amazon.com/cdk/) to provision all its AWS resources.
 
 # Baseline Infrastructure Provisioning
 
@@ -225,11 +225,9 @@ The tenant CodePipeline handles the deployment of application services (product 
 
 This pipeline also takes care of updating the tenant infrastructure using a CI/CD based approach. When you publish/merge your code to the main branch, the below pipeline will trigger automatically, build the source, perform unit tests, and deploy the services for all your tenants in an automated fashion.
 
-<p align="center"><img src="images/TenantPipeline_v2.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
+<p align="center"><img src="images/TenantPipeline_v3.png" alt="Tenant Pipeline"/>Figure 6: Tenant Pipeline</p>
 
-Figure 6 provides a clearer picture of the moving parts of the deployment experience. You'll see that we've used CodeCommit to host our code repository. CodeBuild is used to build the SAM Application using the [tenant-buildspec.yml](server/tenant-buildspec.yml) file. The first two steps of the CodePipeline process are focused on acquiring the latest source and building it.
-
-Once the build completes, an AWS Step Function will deploy the latest build across all tenant environments.
+Figure 6 provides a clearer picture of the moving parts of the deployment experience. The CodePipeline process involves acquiring the latest source code from AWS CodeCommit and then invoking an AWS Step Function, which calls an AWS CodeBuild project to build and deploy the CDK stack [tenant-template-stack.ts](server/lib/tenant-template/tenant-template-stack.ts) for each tenant environment.
 
 The TenantStackMapping Table is at the heart of this deploy step. This table is seeded with an entry for pooled stack (Basic, Standard, Premium tier tenants) as part of baseline infrastructure deployment. We then use this pipeline to provision pooled application services during baseline infrastructure creation. The registration process further creates an entry inside this table for any new Platinum tier tenant created. The CodePipeline uses this table to create and update stacks, as needed.
 
