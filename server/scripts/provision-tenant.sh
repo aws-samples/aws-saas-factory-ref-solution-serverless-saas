@@ -8,18 +8,26 @@ sudo yum install -y python3-pip
 sudo yum install -y npm
 sudo npm install -g aws-cdk
 sudo python3 -m pip install --upgrade setuptools
-sudo python3 -m pip install git-remote-codecommit
 
 # Enable nocasematch option
 shopt -s nocasematch
 
-# Clone the serverless reference solution repository
-export CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME="aws-saas-factory-ref-solution-serverless-saas"
-git clone codecommit://$CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME
-cd $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME/server/cdk
-npm install
+export REGION=$(aws configure get region)
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
 
-export CDK_PARAM_COMMIT_ID=$(git log --format="%H" -n 1)
+# Download serverless reference solution from S3 bucket.
+export CDK_PARAM_S3_BUCKET_NAME="serverless-saas-${ACCOUNT_ID}-${REGION}"
+export CDK_SOURCE_NAME="source.zip"
+
+VERSIONS=$(aws s3api list-object-versions --bucket "$CDK_PARAM_S3_BUCKET_NAME" --prefix "$CDK_SOURCE_NAME" --query 'Versions[?IsLatest==`true`].{VersionId:VersionId}' --output text 2>&1)
+CDK_PARAM_COMMIT_ID=$(echo "$VERSIONS" | awk 'NR==1{print $1}')
+echo "CDK_PARAM_COMMIT_ID: ${CDK_PARAM_COMMIT_ID}"
+
+aws s3api get-object --bucket "$CDK_PARAM_S3_BUCKET_NAME" --key "$CDK_SOURCE_NAME" --version-id "$CDK_PARAM_COMMIT_ID" "$CDK_SOURCE_NAME" 2>&1
+unzip $CDK_SOURCE_NAME
+
+cd ./server/cdk
+npm install
 
 # Parse tenant details from the input message from step function
 export CDK_PARAM_TENANT_ID=$tenantId

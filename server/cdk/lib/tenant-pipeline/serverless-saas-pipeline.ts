@@ -5,7 +5,6 @@ import { Construct } from 'constructs';
 import * as cdk from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as s3 from 'aws-cdk-lib/aws-s3';
-import * as codecommit from 'aws-cdk-lib/aws-codecommit';
 import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
 import * as codepipeline_actions from 'aws-cdk-lib/aws-codepipeline-actions';
 import * as codebuild from 'aws-cdk-lib/aws-codebuild';
@@ -18,7 +17,8 @@ import * as sqs from 'aws-cdk-lib/aws-sqs';
 
 export interface ServerlessSaaSPipelineInterface extends cdk.StackProps {
   tenantMappingTable: Table;
-  codeCommitRepositoryName: string;
+  s3SourceBucket: string;
+  sourceZip: string;
 }
 
 export class ServerlessSaaSPipeline extends cdk.Stack {
@@ -93,13 +93,13 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     lambdaFunctionPrep.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("CloudWatchLambdaInsightsExecutionRolePolicy"));
     lambdaFunctionPrep.role?.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"));
 
-    // CodeCommit repository.
-    const repository = codecommit.Repository.fromRepositoryName(this, 'AppRepository', props.codeCommitRepositoryName);
+    const sourceCodeBucket = s3.Bucket.fromBucketName(this, 'S3SourceBucket', props.s3SourceBucket);
 
     // Define the CodeBuild project.
     const codeBuildProject = new codebuild.Project(this, 'CdkCodeBuildProject', {
-      source: codebuild.Source.codeCommit({
-        repository: repository,
+      source: codebuild.Source.s3({
+        bucket: sourceCodeBucket,
+        path: props.sourceZip
       }),
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_5_0,
@@ -144,12 +144,13 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
     pipeline.addStage({
       stageName: 'Source',
       actions: [
-        new codepipeline_actions.CodeCommitSourceAction({
-          actionName: 'CodeCommit_Source',
-          repository: repository,
-          branch: 'main',
+        new codepipeline_actions.S3SourceAction({
+          actionName: 'S3_Source',
+          bucket: sourceCodeBucket,
+          bucketKey: props.sourceZip,
           output: sourceOutput,
           variablesNamespace: 'SourceVariables',
+          trigger: codepipeline_actions.S3Trigger.POLL
         }),
       ],
     });
