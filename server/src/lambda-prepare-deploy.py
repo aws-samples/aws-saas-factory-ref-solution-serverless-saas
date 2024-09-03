@@ -96,7 +96,7 @@ def get_user_params(job_data):
     if 's3_source_version_id' not in decoded_parameters:
         # Validate that the s3 source version ID is provided, otherwise fail the job
         # with a helpful message.
-        raise Exception('Your UserParameters JSON must include the template file name')
+        raise Exception('Your UserParameters JSON must include the s3 source version ID')
 
     return decoded_parameters
 
