@@ -167,8 +167,7 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
           outputs: [deployOutput],
           userParameters: {
             'artifact': 'Artifact_Build_Build-Serverless-SaaS',
-            'template_file': 'packaged.yaml',
-            'commit_id': '#{SourceVariables.CommitId}'
+            's3_source_version_id': '#{SourceVariables.VersionId}'
           }
         })
       ],
