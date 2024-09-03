@@ -196,15 +196,18 @@ export class ServerlessSaaSPipeline extends cdk.Stack {
       statements: [
         new iam.PolicyStatement({
           actions: [
-            "s3:ListBucket"
+            "s3:ListBucket",
+            "s3:GetObjectVersion"
           ],
           resources: [
             artifactsBucket.bucketArn,
+            sourceCodeBucket.bucketArn,
           ]
         }),
         new iam.PolicyStatement({
           resources: [
             `${artifactsBucket.bucketArn}/*`,
+            `${sourceCodeBucket.bucketArn}/*`,
           ],
           actions: [
             "s3:*Object"

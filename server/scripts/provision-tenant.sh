@@ -12,11 +12,15 @@ sudo python3 -m pip install --upgrade setuptools
 # Enable nocasematch option
 shopt -s nocasematch
 
-export REGION=$(aws configure get region)
+export REGION=$AWS_REGION
+echo "REGION: ${REGION}"
+
 export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+echo "ACCOUNT_ID: ${ACCOUNT_ID}"
 
 # Download serverless reference solution from S3 bucket.
 export CDK_PARAM_S3_BUCKET_NAME="serverless-saas-${ACCOUNT_ID}-${REGION}"
+echo "CDK_PARAM_S3_BUCKET_NAME: ${CDK_PARAM_S3_BUCKET_NAME}"
 export CDK_SOURCE_NAME="source.zip"
 
 VERSIONS=$(aws s3api list-object-versions --bucket "$CDK_PARAM_S3_BUCKET_NAME" --prefix "$CDK_SOURCE_NAME" --query 'Versions[?IsLatest==`true`].{VersionId:VersionId}' --output text 2>&1)
@@ -26,7 +30,7 @@ echo "CDK_PARAM_COMMIT_ID: ${CDK_PARAM_COMMIT_ID}"
 aws s3api get-object --bucket "$CDK_PARAM_S3_BUCKET_NAME" --key "$CDK_SOURCE_NAME" --version-id "$CDK_PARAM_COMMIT_ID" "$CDK_SOURCE_NAME" 2>&1
 unzip $CDK_SOURCE_NAME
 
-cd ./server/cdk
+cd cdk
 npm install
 
 # Parse tenant details from the input message from step function
