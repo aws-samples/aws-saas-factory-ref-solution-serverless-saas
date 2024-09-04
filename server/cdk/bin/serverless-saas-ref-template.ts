@@ -17,11 +17,13 @@ if (!process.env.CDK_PARAM_SYSTEM_ADMIN_EMAIL) {
 if (!process.env.CDK_PARAM_TENANT_ID) {
   console.log('Tenant ID is empty, a default tenant id "pooled" will be assigned');
 }
+
 const pooledId = 'pooled';
 
 const systemAdminEmail = process.env.CDK_PARAM_SYSTEM_ADMIN_EMAIL;
 const tenantId = process.env.CDK_PARAM_TENANT_ID || pooledId;
-const codeCommitRepositoryName = getEnv('CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME');
+const s3SourceBucket = getEnv('CDK_PARAM_S3_BUCKET_NAME');
+const sourceZip = getEnv('CDK_SOURCE_NAME');
 const commitId = getEnv('CDK_PARAM_COMMIT_ID');
 
 if (!process.env.CDK_PARAM_IDP_NAME) {
@@ -120,6 +122,7 @@ cdk.Aspects.of(tenantTemplateStack).add(new DestroyPolicySetter());
 
 const serverlessSaaSPipeline = new ServerlessSaaSPipeline(app, 'ServerlessSaaSPipeline', {
   tenantMappingTable: bootstrapTemplateStack.tenantMappingTable,
-  codeCommitRepositoryName: codeCommitRepositoryName,
+  s3SourceBucket: s3SourceBucket,
+  sourceZip: sourceZip
 });
 cdk.Aspects.of(serverlessSaaSPipeline).add(new DestroyPolicySetter());

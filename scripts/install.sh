@@ -8,22 +8,52 @@ if [[ -z "$CDK_PARAM_SYSTEM_ADMIN_EMAIL" ]]; then
 fi
 
 export REGION=$(aws configure get region)
-export CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME="aws-saas-factory-ref-solution-serverless-saas"
-if ! aws codecommit get-repository --repository-name $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME; then
-  CREATE_REPO=$(aws codecommit create-repository --repository-name $CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME --repository-description "Serverless saas reference architecture repository")
-  echo "$CREATE_REPO"
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+# Create S3 code source Bucket.
+export CDK_PARAM_S3_BUCKET_NAME="serverless-saas-${ACCOUNT_ID}-${REGION}"
+echo "CDK_PARAM_S3_BUCKET_NAME: ${CDK_PARAM_S3_BUCKET_NAME}"
+export CDK_SOURCE_NAME="source.zip"
+
+if aws s3api head-bucket --bucket $CDK_PARAM_S3_BUCKET_NAME 2>/dev/null; then
+    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME already exists."
+else
+    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME does not exist. Creating a new bucket in $REGION region"
+
+    if [ "$REGION" == "us-east-1" ]; then
+      aws s3api create-bucket --bucket $CDK_PARAM_S3_BUCKET_NAME
+    else
+      aws s3api create-bucket \
+        --bucket $CDK_PARAM_S3_BUCKET_NAME \
+        --region "$REGION" \
+        --create-bucket-configuration LocationConstraint="$REGION"
+    fi
+
+    aws s3api put-bucket-versioning \
+        --bucket $CDK_PARAM_S3_BUCKET_NAME \
+        --versioning-configuration Status=Enabled
+
+    aws s3api put-public-access-block \
+        --bucket $CDK_PARAM_S3_BUCKET_NAME \
+        --public-access-block-configuration \
+        BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true
+
+    if [ $? -eq 0 ]; then
+        echo "Bucket $CDK_PARAM_S3_BUCKET_NAME created with versioning enabled."
+    else
+        echo "Error creating bucket $CDK_PARAM_S3_BUCKET_NAME with versioning enabled."
+        exit 1
+    fi
 fi
 
-REPO_URL="codecommit::${REGION}://$CDK_PARAM_CODE_COMMIT_REPOSITORY_NAME"
-if ! git remote add cc "$REPO_URL"; then
-  echo "Setting url to remote cc"
-  git remote set-url cc "$REPO_URL"
-fi
-git push cc "$(git branch --show-current)":main -f --no-verify
-export CDK_PARAM_COMMIT_ID=$(git log --format="%H" -n 1)
+cd ../server
+zip -r ${CDK_SOURCE_NAME} . -x ".git/*" -x "**/node_modules/*" -x "**/cdk.out/*"
+export CDK_PARAM_COMMIT_ID=$(aws s3api put-object --bucket "${CDK_PARAM_S3_BUCKET_NAME}" --key "source.zip" --body "./source.zip"  --output text)
+rm ${CDK_SOURCE_NAME}
+echo "Source code uploaded to S3."
 
 # Preprovision pooled infrastructure
-cd ../server/cdk
+cd cdk
 npm install
 
 npx -y cdk bootstrap

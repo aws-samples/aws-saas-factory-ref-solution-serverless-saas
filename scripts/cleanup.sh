@@ -1,7 +1,14 @@
 #!/bin/bash -e
 
+export REGION=$(aws configure get region)
+export ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+
+export CDK_PARAM_S3_BUCKET_NAME="serverless-saas-${ACCOUNT_ID}-${REGION}"
+echo "CDK_PARAM_S3_BUCKET_NAME: ${CDK_PARAM_S3_BUCKET_NAME}"
+export CDK_SOURCE_NAME="source.zip"
+
 echo "$(date) emptying out buckets..."
-for i in $(aws s3 ls | awk '{print $3}' | grep -E "^serverlesssaaspipeline-artifactsbucket-*|^controlplanestack-staticsitedistrostaticsitedistr-*|^serverless-saas-ref-arch-serverlesssaasrefarchten-*"); do
+for i in $(aws s3 ls | awk '{print $3}' | grep -E "^${CDK_PARAM_S3_BUCKET_NAME}|^serverlesssaaspipeline-artifactsbucket-*|^controlplanestack-staticsitedistrostaticsitedistr-*|^serverless-saas-ref-arch-serverlesssaasrefarchten-*"); do
     echo "$(date) emptying out s3 bucket with name s3://${i}..."
     aws s3 rm --recursive "s3://${i}"
 done
