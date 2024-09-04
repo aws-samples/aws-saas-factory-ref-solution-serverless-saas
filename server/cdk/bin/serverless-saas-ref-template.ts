@@ -18,9 +18,6 @@ if (!process.env.CDK_PARAM_TENANT_ID) {
   console.log('Tenant ID is empty, a default tenant id "pooled" will be assigned');
 }
 
-if (!process.env.CDK_PARAM_COMMIT_ID) {
-  console.log('CDK_PARAM_COMMIT_ID ID is empty.');
-}
 const pooledId = 'pooled';
 
 const systemAdminEmail = process.env.CDK_PARAM_SYSTEM_ADMIN_EMAIL;
