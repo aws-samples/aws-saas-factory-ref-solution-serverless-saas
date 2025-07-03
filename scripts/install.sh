@@ -15,10 +15,10 @@ export CDK_PARAM_S3_BUCKET_NAME="serverless-saas-${ACCOUNT_ID}-${REGION}"
 echo "CDK_PARAM_S3_BUCKET_NAME: ${CDK_PARAM_S3_BUCKET_NAME}"
 export CDK_SOURCE_NAME="source.zip"
 
-if aws s3api head-bucket --bucket $CDK_PARAM_S3_BUCKET_NAME 2>/dev/null; then
-    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME already exists."
+if aws s3api head-bucket --bucket $CDK_PARAM_S3_BUCKET_NAME --expected-bucket-owner ${ACCOUNT_ID} 2>/dev/null; then
+    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME already exists and owned by this account."
 else
-    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME does not exist. Creating a new bucket in $REGION region"
+    echo "Bucket $CDK_PARAM_S3_BUCKET_NAME does not exist or is not owned by this account. Creating a new bucket in $REGION region"
 
     if [ "$REGION" == "us-east-1" ]; then
       aws s3api create-bucket --bucket $CDK_PARAM_S3_BUCKET_NAME
