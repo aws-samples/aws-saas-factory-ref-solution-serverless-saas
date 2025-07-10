@@ -11,8 +11,8 @@ We have also created a workshop that you can use as a reference to understand th
 - This reference architecture uses Python. Make sure you have Python 3.9 or above installed.
 - Make sure you have [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) installed.
 - Make sure you have the latest version of [AWS CDK CLI](https://docs.aws.amazon.com/cdk/latest/guide/cli.html) installed. Not having the release version of CDK can cause deployment issues.
-- Make sure you have the latest version of [git-remote-codecommit](https://docs.aws.amazon.com/codecommit/latest/userguide/setting-up-git-remote-codecommit.html) installed.
 - Make sure that you have Node 18 or above.
+- Make sure that you have docker cli installed and docker daemon running.
 
 ## Deploying
 
@@ -25,7 +25,7 @@ cd scripts
 
 This script will deploy the following:
 
-- Creates a codecommit repo in your AWS account and pushes this reference solutions code to the repo
+- Creates a Amazon S3 bucket in your AWS account and pushes this reference solutions code to the bucket
 - Clones SaaS Builder Toolkit(SBT) control plane repo and installs control plane which has all shared services and control plane UI.
 - Deploys cdk stack `serverless-saas-ref-arch-bootstrap-stack` which provisions
   - SaaS Builder Toolkit(SBT) core application plane component which provides infrastructure to provision/de-provision a tenant
