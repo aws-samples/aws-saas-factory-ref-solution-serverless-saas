@@ -1,4 +1,8 @@
 #!/bin/bash -x
+
+#Installing NVM
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | sudo -u ec2-user bash
+
 . /home/ec2-user/.nvm/nvm.sh
 
 #Install python3.8
@@ -9,7 +13,7 @@ sudo alternatives --install /usr/bin/python3 python3 /usr/bin/python3.8 1
 sudo alternatives --set python3 /usr/bin/python3.8
 
 # Uninstall aws cli v1 and Install aws cli version-2.3.0
-sudo pip2 uninstall awscli -y
+sudo pip uninstall awscli -y
 
 echo "Installing aws cli version-2.3.0"
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.3.0.zip" -o "awscliv2.zip"
