@@ -33,6 +33,24 @@ This script will deploy the following:
 - Deploys pooled tenant cdk stack `serverless-saas-ref-arch-tenant-template-pooled`, which deploys cognito userpool and multi-tenant order & product services.
 - Deploys cdk stack `ServerlessSaaSPipeline` which provisions Tenant Pipeline.This pipeline uses CodePipeline and is responsible for auto updating the stack for all the tenants in an automated fashion.
 
+## Running the tests
+
+The Python unit tests cover the tenant isolation and authorization rules, and run
+entirely locally against an in-memory Cognito, so no AWS account is needed:
+
+```bash
+pip install -r server/tests/requirements-test.txt
+python -m pytest server/tests
+```
+
+The CDK assertions run with Jest:
+
+```bash
+cd server/cdk
+npm install
+npm test
+```
+
 ## Steps to Clean-up
 
 Run below script to clean up

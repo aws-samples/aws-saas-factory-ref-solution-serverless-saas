@@ -21,7 +21,11 @@ def get_product(event, context):
     logger.log_with_tenant_context(event, params)
     key = params['id']
     logger.log_with_tenant_context(event, key)
-    product = product_service_dal.get_product(event, key)
+    try:
+        product = product_service_dal.get_product(event, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
 
     logger.log_with_tenant_context(event, "Request completed to get a product")
     metrics_manager.record_metric(event, "SingleProductRequested", "Count", 1)
@@ -48,7 +52,12 @@ def update_product(event, context):
     payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d), parse_float=Decimal)
     params = event['pathParameters']
     key = params['id']
-    product = product_service_dal.update_product(event, payload, key)
+    try:
+        product = product_service_dal.update_product(event, payload, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
+
     logger.log_with_tenant_context(event, "Request completed to update a product") 
     metrics_manager.record_metric(event, "ProductUpdated", "Count", 1)   
     return utils.generate_response(product)
@@ -61,7 +70,12 @@ def delete_product(event, context):
     logger.log_with_tenant_context(event, "Request received to delete a product")
     params = event['pathParameters']
     key = params['id']
-    response = product_service_dal.delete_product(event, key)
+    try:
+        response = product_service_dal.delete_product(event, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
+
     logger.log_with_tenant_context(event, "Request completed to delete a product")
     metrics_manager.record_metric(event, "ProductDeleted", "Count", 1)
     return utils.create_success_response("Successfully deleted the product")

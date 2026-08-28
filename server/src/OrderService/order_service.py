@@ -20,7 +20,11 @@ def get_order(event, context):
     params = event['pathParameters']
     key = params['id']
     logger.log_with_tenant_context(event, params)
-    order = order_service_dal.get_order(event, key)
+    try:
+        order = order_service_dal.get_order(event, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
 
     logger.log_with_tenant_context(event, "Request completed to get a order")
     metrics_manager.record_metric(event, "SingleOrderRequested", "Count", 1)
@@ -47,7 +51,12 @@ def update_order(event, context):
     payload = json.loads(event['body'], object_hook=lambda d: SimpleNamespace(**d), parse_float=Decimal)
     params = event['pathParameters']
     key = params['id']
-    order = order_service_dal.update_order(event, payload, key)
+    try:
+        order = order_service_dal.update_order(event, payload, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
+
     logger.log_with_tenant_context(event, "Request completed to update a order") 
     metrics_manager.record_metric(event, "OrderUpdated", "Count", 1)   
     return utils.generate_response(order)
@@ -60,7 +69,12 @@ def delete_order(event, context):
     logger.log_with_tenant_context(event, "Request received to delete a order")
     params = event['pathParameters']
     key = params['id']
-    response = order_service_dal.delete_order(event, key)
+    try:
+        response = order_service_dal.delete_order(event, key)
+    except PermissionError as e:
+        logger.error(e)
+        return utils.create_forbidden_response()
+
     logger.log_with_tenant_context(event, "Request completed to delete a order")
     metrics_manager.record_metric(event, "OrderDeleted", "Count", 1)
     return utils.create_success_response("Successfully deleted the order")

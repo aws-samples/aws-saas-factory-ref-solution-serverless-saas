@@ -89,8 +89,16 @@ def lambda_handler(event, context):
     #   Another option is to generate the STS token inside the lambda function itself, as mentioned in this blog post: https://aws.amazon.com/blogs/apn/isolating-saas-tenants-with-dynamically-generated-iam-policies/
     #   Finally, you can also consider creating one Authorizer per microservice in cases where you want the IAM policy specific to that service
 
-    iam_policy = auth_manager.getPolicyForUser(
-        user_role, utils.Service_Identifier.BUSINESS_SERVICES.value, tenant_id, region, aws_account_id)
+    #   The vended credential is the tenant isolation boundary, so a token whose
+    #   role has no tenant scoped policy is denied here rather than allowed
+    #   through with a broader credential.
+    try:
+        iam_policy = auth_manager.getPolicyForUser(
+            user_role, utils.Service_Identifier.BUSINESS_SERVICES.value, tenant_id, region, aws_account_id)
+    except PermissionError as e:
+        logger.error(e)
+        raise Exception('Unauthorized')
+
     logger.info(iam_policy)
 
     role_arn = authorizer_access_role

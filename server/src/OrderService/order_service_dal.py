@@ -26,9 +26,12 @@ suffix_end = 10
 def get_order(event, key):
     table = __get_dynamodb_table(event, dynamodb)
 
+    shardId = key.split(":")[0]
+    orderId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        orderId = key.split(":")[1] 
         logger.log_with_tenant_context(event, shardId)
         logger.log_with_tenant_context(event, orderId)
         response = table.get_item(Key={'shardId': shardId, 'orderId': orderId})
@@ -44,9 +47,12 @@ def get_order(event, key):
 def delete_order(event, key):
     table = __get_dynamodb_table(event, dynamodb)
     
+    shardId = key.split(":")[0]
+    orderId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        orderId = key.split(":")[1] 
         response = table.delete_item(Key={'shardId':shardId, 'orderId': orderId})
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
@@ -81,9 +87,12 @@ def create_order(event, payload):
 def update_order(event, payload, key):
     table = __get_dynamodb_table(event, dynamodb)
     
+    shardId = key.split(":")[0]
+    orderId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        orderId = key.split(":")[1] 
         logger.log_with_tenant_context(event, shardId)
         logger.log_with_tenant_context(event, orderId)
         order = Order(shardId, orderId,payload.orderName, payload.orderProducts)

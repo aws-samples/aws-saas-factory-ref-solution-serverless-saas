@@ -17,6 +17,7 @@ This section details the architecture of this SaaS Solution. Refer [README.md](R
   * [Shared Services](#shared-services-1)
     + [Tenant Registration](#tenant-registration)
     + [User Management](#user-management)
+      - [Roles and who may manage users](#roles-and-who-may-manage-users)
     + [Tenant Management](#tenant-management)
     + [Tenant Provisioning](#tenant-provisioning)
   * [Pooled Application Services](#pooled-application-services)
@@ -149,6 +150,45 @@ The Tenant Registration service allows new tenants to register themselves and on
 
 This shared Service is used to manage users. It allows to add, update, disable and get user. It also allows to get all users, disable all users, and enable all users by tenant. The users, in this scenario, will be stored in Amazon Cognito.
 
+#### Roles and who may manage users
+
+There are four roles in this solution, and they belong to two different planes:
+
+| Role | Plane | Where the user lives |
+| --- | --- | --- |
+| `SystemAdmin` | Control plane (SaaS provider) | The control plane user pool, created by the control plane stack |
+| `CustomerSupport` | Control plane (SaaS provider) | Defined in `auth_manager.py` for provider side code to build on; this solution does not provision any such user |
+| `TenantAdmin` | Application plane (tenant) | The tenant user pool, created for each tenant at onboarding |
+| `TenantUser` | Application plane (tenant) | The tenant user pool, created by a `TenantAdmin` |
+
+A tenant's user pool only ever contains `TenantAdmin` and `TenantUser`. The two
+provider roles authenticate against a separate control plane user pool, so they
+cannot present a token to the tenant API at all.
+
+The User Management service enforces the following, using the role the Lambda
+authorizer asserts from the caller's validated JWT rather than anything in the
+request body:
+
+* Only a `TenantAdmin` may create, update, enable, disable or delete users, and
+  only within their own tenant.
+* A `TenantUser` may read the tenant's users but may not change any user,
+  including their own account.
+* No caller, **including a `TenantAdmin`**, may assign a role other than
+  `TenantAdmin` or `TenantUser`. A tenant can therefore never mint a provider
+  role for itself.
+
+`PUT /users/{username}` is an administrative operation, not a self-service
+profile endpoint: it writes the user's role as well as their email. If you want
+to offer self-service profile editing, add a separate endpoint with an explicit
+list of the fields a user may change about themselves, and keep `userRole`,
+`tenantId` and `tenantTier` out of that list.
+
+Relatedly, the tenant user pool's app client deliberately allows the signed-in
+user to write only their own `email`. Any attribute in an app client's write
+attributes can be changed by the user directly through Cognito's
+`UpdateUserAttributes` API, without passing through this API at all, so no
+attribute that feeds an authorization decision may appear there.
+
 ### Tenant Management
 
 The Tenant Management service centralizes all of the configuration and operations that can be performed on a tenant. This includes get, create, update, activate, and disable tenant functionality. Tenant details are stored inside an Amazon DynamoDB table.
@@ -259,7 +299,9 @@ The Lambda authorizer further carries out a series of steps to validate and auth
 
 The first action is to validate whether the JWT is valid or not. This is achieved by validating the JWT against the user pool. Once validated, the authorizer then extracts the UserRole and TenantId from the validated Custom Claims.
 
-This authorizer further allows specific API Gateway methods/routes based upon the user’s role. As an example, only system admin can make a request to get all of the system’s tenants.
+The policy the authorizer returns to API Gateway allows all methods, as the roles are not fine-grained enough to select routes usefully. Role based authorization is instead applied inside each microservice, using the `userRole` value the authorizer places in the request context. The User Management service is the example to follow: it reads that trusted value and refuses the request if the caller's role does not permit the operation. The rule of thumb is that API Gateway decides whether you may call the API at all, while the microservice decides whether you may perform the action.
+
+The role also bounds which isolation policy the authorizer is willing to produce at all. If a token carries a role that this tenant template does not recognize, the authorizer denies the request rather than falling back to a broader credential.
 
 The authorizer is also used to acquire API keys (that connect to usage plans). This is achieved by setting [API key source](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-api-key-source.html) of our APIs as AUTHORIZER. This means that the authorizer is responsible for associating the API key with each incoming request.
 
@@ -269,7 +311,7 @@ The basic approach here is to examine your tenant context and generate the tenan
 
 As shown in Step 5, Lambda authorizer will now authorize the user and apply the Usage plan based up the API key returned by the authorizer. The authorizer also provides the short-lived credentials to the downstream Lambda function as part of the Lambda context. As shown in Step 6, Lambda uses this to enforce tenant level isolation.
 
-To add efficiency to this process, the Lambda Authorizer caches the credentials for a configurable duration (60 seconds in our case), based upon the JWT token. So, the above steps are only executed once per minute, per JWT token (or per user in other words). The number of seconds is configurable and can be customized according to your needs.
+To add efficiency to this process, the Lambda Authorizer caches the credentials for a configurable duration (30 seconds in our case, set as `resultsCacheTtl` in `server/cdk/lib/tenant-template/api-gateway.ts`), based upon the JWT token. So, the above steps are only executed once per cache window, per JWT token (or per user in other words). The number of seconds is configurable and can be customized according to your needs.
 
 ## Generating tenant isolation policies
 
@@ -310,13 +352,30 @@ Once the credentials are passed to a function of your microservice, you can then
 
 <p align="center"><img src="images/TenantIsolation.png" alt="Tenant isolation"/>Figure 8: Tenant isolation</p>
 
-For pooled tenants, the lambda function uses the secret and access key provided by the Lambda Authorizer. As mentioned above, these credentials are scoped to access data for the current tenant only.
+For pooled tenants, the lambda function uses the secret and access key provided by the Lambda Authorizer. As mentioned above, these credentials are scoped to access data for the current tenant only. Every role the authorizer will issue a credential for gets such a scope; there is no role that receives an unconditioned grant across tenants.
+
+Two things are worth understanding if you build on this model:
+
+* The credential is one layer, not the whole boundary. Because the item id in a
+  request path contains the `{tenantid}-{suffix}` partition key, a caller can ask
+  for any partition they like. The order and product services therefore also
+  check the requested partition against the tenant id the authorizer asserted,
+  instead of relying on IAM alone to reject it. Deriving the tenant from the
+  caller's context and validating anything tenant-scoped that arrives in a
+  request is the pattern to carry into your own services.
+* The `dynamodb:LeadingKeys` condition uses `StringLike` with a `{tenantid}-*`
+  pattern, which is a plain string prefix test. If one tenant's id is a prefix of
+  another's, for example `acme` and `acme-corp`, the pattern `acme-*` also
+  matches `acme-corp`'s partitions. Validate tenant ids for uniqueness and format
+  during onboarding so no tenant id can be a prefix of another.
 
 The strategy for silo tenants differs a bit, since we are provisioning siloed tables for each tenant. There is no need to apply the scoped credentials while accessing the DynamoDB table. Instead, the tenant execution role, applied during provisioning of lambda functions, restricts access to the specific table provisioned for that tenant.
 
 ## Alternate approaches to Tenant Isolation
 
 In our case the primary reason of generating scoped credentials inside Lambda Authorizer is to take advantage of the caching feature that comes with the Lambda Authorizer inside API Gateway. We are caching the authorization based upon the JWT token. Along with limiting the calls to Cognito, this also ensures that our code is not generating scoped credentials for every execution of the APIs, but rather cache it for certain time. The caching time will vary upon your needs from few seconds to few minutes depending upon your workload. The maximum allowed is 3600 seconds or one hour.
+
+One consequence of caching is worth planning for: a role change does not take effect immediately. The user's role is read from their JWT, so lowering a user's role, or disabling them, leaves their existing token usable until the authorizer cache entry expires and the token itself expires. If you need a change to take effect at once, sign the user out globally (`AdminUserGlobalSignOut`) or revoke their refresh token when you change their role or disable their account.
 
 While this approach adds efficiency, it does move the resolution of tenant isolation outside the scope of individual Lambda functions. An alternate approach would be to move this tenant isolation inside each function.
 

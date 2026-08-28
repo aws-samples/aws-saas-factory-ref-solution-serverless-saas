@@ -17,6 +17,11 @@ export class CreateComponent implements OnInit {
   error: boolean = false;
   success: boolean = false;
 
+  // The only two roles that exist within a tenant. The User Management API
+  // enforces this too and will reject any other value; see
+  // isRecognizedTenantRole in server/src/layers/auth_manager.py.
+  userRoles: string[] = ['TenantAdmin', 'TenantUser'];
+
   constructor(
     private fb: FormBuilder,
     private userSvc: UsersService,
@@ -46,7 +51,13 @@ export class CreateComponent implements OnInit {
       },
       (err) => {
         this.error = true;
-        this.openErrorMessageSnackBar('An unexpected error occurred!');
+        // Only a tenant admin may create users, so tell the user that rather
+        // than reporting an authorization decision as an unexpected failure.
+        this.openErrorMessageSnackBar(
+          err?.status === 403
+            ? 'You are not authorized to create users for this tenant.'
+            : 'An unexpected error occurred!'
+        );
       }
     );
   }

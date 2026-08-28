@@ -40,9 +40,22 @@ export class IdentityProvider extends Construct {
       },
     });
 
-    const writeAttributes = new aws_cognito.ClientAttributes()
-      .withStandardAttributes({ email: true })
-      .withCustomAttributes('tenantId', 'userRole', 'apiKey', 'tenantTier');
+    // Only email is writable by the signed-in user themselves.
+    //
+    // Any attribute listed here can be changed by a user with nothing but their
+    // own access token, via Cognito's UpdateUserAttributes API, without going
+    // anywhere near our API Gateway or Lambda functions. tenantId and userRole
+    // are exactly what tenant_authorizer.py reads to decide which tenant's data
+    // the caller may reach, so listing them here would let any tenant user grant
+    // themselves another tenant's identity or a SaaS provider role. tenantTier
+    // selects the API key and usage plan, so a user could otherwise award
+    // themselves a higher throughput tier. They are changed only through the
+    // User Management API, which uses the admin side AdminUpdateUserAttributes
+    // call and enforces role based authorization. apiKey has no legitimate
+    // self-service writer either.
+    const writeAttributes = new aws_cognito.ClientAttributes().withStandardAttributes({
+      email: true,
+    });
 
     this.tenantUserPoolClient = new aws_cognito.UserPoolClient(this, 'tenantUserPoolClient', {
       userPool: this.tenantUserPool,
