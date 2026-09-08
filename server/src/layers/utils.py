@@ -19,8 +19,9 @@ class TenantTier(Enum):
 class StatusCodes(Enum):
     SUCCESS    = 200
     UN_AUTHORIZED  = 401
+    FORBIDDEN = 403
     NOT_FOUND = 404
-    
+
 class Service_Identifier(Enum):
     SHARED_SERVICES     = "SharedServices"
     BUSINESS_SERVICES    = "BusinessServices"
@@ -50,6 +51,43 @@ def create_unauthorized_response():
             "message": "User not authorized to perform this action"
         }),
     }
+
+def create_forbidden_response():
+    return {
+        "statusCode": StatusCodes.FORBIDDEN.value,
+        "headers": {
+            "Access-Control-Allow-Headers" : "Content-Type",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST,GET,PUT"
+        },
+        "body": json.dumps({
+            "message": "User not authorized to perform this action"
+        }),
+    }
+
+def validate_shard_belongs_to_tenant(tenant_id, shard_id):
+    """ Confirms a client supplied partition key belongs to the calling tenant.
+
+    Product and order partition keys are generated as '{tenantId}-{suffix}', so
+    the owning tenant is everything before the final '-'. Callers pass these
+    keys back to us in the request path, which means they can ask for any key
+    they like -- so the key has to be checked against the tenantId the
+    Authorizer asserted, not trusted because it was well formed.
+
+    Note the split on the LAST '-' rather than a prefix comparison. A tenant
+    named 'acme' must not reach tenant 'acme-corp's partition 'acme-corp-3',
+    which both shard_id.startswith('acme-') and the IAM dynamodb:LeadingKeys
+    condition 'acme-*' would wrongly allow.
+
+    Args:
+        tenant_id (string): tenantId from the Authorizer context
+        shard_id (string): partition key taken from the request
+
+    Raises:
+        PermissionError: if the partition key belongs to another tenant
+    """
+    if (shard_id.rsplit('-', 1)[0] != tenant_id):
+        raise PermissionError("Unauthorized: Access denied")
 
 def create_notfound_response(message):
     return {

@@ -1,13 +1,39 @@
 import boto3
+import auth_manager
 import cognito.user_management_util as user_management_util
 from abstract_classes.idp_user_management_abstract_class import IdpUserManagementAbstractClass
 
 
 client = boto3.client('cognito-idp')
 
+
+def _authorize_user_management(user_details):
+    """ Second, independent check that the caller may administer users.
+
+    The REST handler in user_management.py checks this too. This class repeats
+    the check because this is where the privileged Cognito admin calls are made,
+    so it must not depend on a caller having already been vetted. It reads the
+    same auth_manager predicates as the handler, so the rule itself is still
+    defined in exactly one place.
+
+    event['actorRole'] is read with .get() so a caller that arrives without a
+    trusted role is denied rather than raising KeyError.
+    """
+    if (not auth_manager.isAuthorizedToManageUsers(user_details.get('actorRole'))):
+        raise PermissionError("Unauthorized: Access denied")
+
+
+def _authorize_role_assignment(user_details):
+    """ Second, independent check on the role about to be written to Cognito. """
+    if (not auth_manager.isRecognizedTenantRole(user_details.get('userRole'))):
+        raise PermissionError("Unauthorized: Access denied")
+
+
 class CognitoUserManagementService(IdpUserManagementAbstractClass):
     def create_user(self, event):
         user_details = event
+        _authorize_user_management(user_details)
+        _authorize_role_assignment(user_details)
         user_pool_id = user_details['idpDetails']['details']['userPoolId']
         user_group_name = user_details['tenantId']
 
@@ -76,6 +102,8 @@ class CognitoUserManagementService(IdpUserManagementAbstractClass):
 
     def update_user(self, event):
         user_details = event
+        _authorize_user_management(user_details)
+        _authorize_role_assignment(user_details)
         user_pool_id = user_details['idpDetails']['details']['userPoolId']
         user_name = user_details['userName']
         user_group_name = user_details['tenantId']
@@ -104,6 +132,7 @@ class CognitoUserManagementService(IdpUserManagementAbstractClass):
     
     def disable_user(self, event):
         user_details = event
+        _authorize_user_management(user_details)
         user_pool_id = user_details['idpDetails']['details']['userPoolId']
         user_name = user_details['userName']
         user_group_name = user_details['tenantId']
@@ -120,6 +149,7 @@ class CognitoUserManagementService(IdpUserManagementAbstractClass):
         
     def enable_user(self, event):
         user_details = event
+        _authorize_user_management(user_details)
         user_pool_id = user_details['idpDetails']['details']['userPoolId']
         user_name = user_details['userName']
         user_group_name = user_details['tenantId']
@@ -137,6 +167,7 @@ class CognitoUserManagementService(IdpUserManagementAbstractClass):
 
     def delete_user(self, event):
         user_details = event
+        _authorize_user_management(user_details)
         user_pool_id = user_details['idpDetails']['details']['userPoolId']
         user_name = user_details['userName']
         user_group_name = user_details['tenantId']

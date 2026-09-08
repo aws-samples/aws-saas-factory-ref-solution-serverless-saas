@@ -34,16 +34,16 @@
             </mat-form-field>
             <br />
 
+            <!--
+              A tenant can only ever hold these two roles, and the User
+              Management API rejects anything else, so offer exactly the roles
+              the server accepts rather than free text.
+            -->
             <mat-form-field appearance="outline">
               <mat-label>User Role</mat-label>
-              <input
-                matInput
-                id="userrole"
-                name="userrole"
-                formControlName="userRole"
-                placeholder="User Role"
-                required
-              />
+              <mat-select id="userrole" name="userrole" formControlName="userRole" required>
+                <mat-option *ngFor="let role of userRoles" [value]="role">{{ role }}</mat-option>
+              </mat-select>
               <mat-icon matSuffix>vpn_key</mat-icon>
             </mat-form-field>
             <br />

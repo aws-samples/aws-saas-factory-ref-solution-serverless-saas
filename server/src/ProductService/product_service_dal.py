@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError
 import uuid
 import json
 import logger
+import utils
 import random
 import threading
 
@@ -26,9 +27,12 @@ suffix_end = 10
 def get_product(event, key):
     table = __get_dynamodb_table(event, dynamodb)
     
+    shardId = key.split(":")[0]
+    productId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        productId = key.split(":")[1] 
         logger.log_with_tenant_context(event, shardId)
         logger.log_with_tenant_context(event, productId)
         response = table.get_item(Key={'shardId': shardId, 'productId': productId})
@@ -44,9 +48,12 @@ def get_product(event, key):
 def delete_product(event, key):
     table = __get_dynamodb_table(event, dynamodb)
     
+    shardId = key.split(":")[0]
+    productId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        productId = key.split(":")[1] 
         response = table.delete_item(Key={'shardId':shardId, 'productId': productId})
     except ClientError as e:
         logger.error(e.response['Error']['Message'])
@@ -88,9 +95,12 @@ def create_product(event, payload):
 def update_product(event, payload, key):
     table = __get_dynamodb_table(event, dynamodb)
     
+    shardId = key.split(":")[0]
+    productId = key.split(":")[1]
+    utils.validate_shard_belongs_to_tenant(
+        event['requestContext']['authorizer']['tenantId'], shardId)
+
     try:
-        shardId = key.split(":")[0]
-        productId = key.split(":")[1] 
         logger.log_with_tenant_context(event, shardId)
         logger.log_with_tenant_context(event, productId)
 

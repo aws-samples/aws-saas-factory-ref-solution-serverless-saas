@@ -1,0 +1,17 @@
+# Dependencies for the Python unit tests in this directory.
+#
+# These live outside server/src on purpose. Everything under server/src is
+# bundled into the deployed Lambda packages, so test only packages must never be
+# added to a service's own requirements.txt.
+#
+# Run from the repository root with:
+#   pip install -r server/tests/requirements-test.txt
+#   python -m pytest server/tests
+
+# The same runtime dependencies the Lambda layer provides, so the modules under
+# test import exactly as they do when deployed.
+-r ../src/layers/requirements.txt
+
+pytest==8.*
+boto3
+moto[cognitoidp,dynamodb]==5.*
